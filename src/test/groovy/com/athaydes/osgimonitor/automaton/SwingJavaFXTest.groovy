@@ -1,13 +1,21 @@
 package com.athaydes.osgimonitor.automaton
 
+import com.athaydes.automaton.FXAutomaton
 import com.athaydes.automaton.SwingAutomaton
 import com.athaydes.automaton.SwingUtil
 import groovy.swing.SwingBuilder
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
+import javafx.event.ActionEvent
+import javafx.event.EventHandler
+import javafx.geometry.Pos
 import javafx.scene.Group
 import javafx.scene.Scene
+import javafx.scene.control.ColorPicker
+import javafx.scene.control.Label
+import javafx.scene.control.TextField
 import javafx.scene.effect.Reflection
+import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.paint.CycleMethod
 import javafx.scene.paint.LinearGradient
@@ -37,7 +45,7 @@ class SwingJavaFXTest {
 		def blockUntilReady = new ArrayBlockingQueue( 1 )
 		new SwingBuilder().edt {
 			jfxPanel = new JFXPanel()
-			jFrame = frame( title: 'Frame', size: [ 600, 500 ], show: false,
+			jFrame = frame( title: 'Swing Frame', size: [ 600, 500 ], show: false,
 					defaultCloseOperation: DISPOSE_ON_CLOSE ) {
 				menuBar() {
 					menu( name: 'menu-button', text: "File", mnemonic: 'F' ) {
@@ -60,7 +68,7 @@ class SwingJavaFXTest {
 			}
 			jFrame.visible = true
 			Platform.runLater {
-				jfxPanel.scene = createScene()
+				jfxPanel.scene = new JavaFxSampleScene()
 				blockUntilReady << true
 			}
 		}
@@ -70,25 +78,17 @@ class SwingJavaFXTest {
 
 	@Test
 	void "Automaton should be able to test applications using both Swing and JavaFX"( ) {
+		def fx = jfxPanel.scene.&lookup
 		use( SwingStringSelector ) {
 			SwingStringSelector.jFrame = jFrame
 			SwingAutomaton.user.clickOn( 'text-area' )
-					.type( 'Hello, I am the Swing Automaton!' )
+					.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
+
+			FXAutomaton.user.clickOn( fx( '#left-color-picker' ) )
+					.pause( 2000 ).moveBy( 60, 40 ).click()
 		}
 
 		sleep 4000
-	}
-
-	private static Scene createScene( ) {
-		println "Creating Scene"
-		def root = new Group()
-		def scene = new Scene( root, Color.BLACK )
-		Text text = new Text( x: 40, y: 100, font: new Font( 'Arial', 35 ),
-				text: 'This is JavaFX', fill: new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
-				new Stop( 0, Color.CYAN ), new Stop( 1, Color.DODGERBLUE )
-		), effect: new Reflection() )
-		root.children << text
-		scene
 	}
 
 	@Category( SwingAutomaton )
@@ -103,6 +103,38 @@ class SwingJavaFXTest {
 
 	static main( String[] args ) {
 		new SwingJavaFXTest().setup()
+	}
+
+}
+
+class JavaFxSampleScene extends Scene {
+
+	Text fxText
+	ColorPicker leftPicker
+	ColorPicker rightPicker
+
+	JavaFxSampleScene( ) {
+		super( new Group(), Color.BLACK )
+		println "Creating Scene"
+		leftPicker = new ColorPicker( value: Color.CYAN, id: 'left-color-picker' )
+		rightPicker = new ColorPicker( value: Color.DODGERBLUE, id: 'right-color-picker' )
+		[ leftPicker, rightPicker ].each { it.onAction = colorPickerHandler() }
+		def pickers = new HBox( spacing: 10, minHeight: 70, alignment: Pos.CENTER )
+		def pickerLabel = new Label( text: 'Text Colors:', textFill: Color.WHITE )
+		pickers.children << pickerLabel << leftPicker << rightPicker
+		fxText = new Text( x: 40, y: 100, font: new Font( 'Arial', 35 ),
+				text: 'This is JavaFX', fill: javaFxCoolTextFill(), effect: new Reflection() )
+		def inputText = new TextField( translateX: 75, translateY: 170 )
+		root.children << pickers << fxText << inputText
+	}
+
+	private EventHandler<ActionEvent> colorPickerHandler( ) {
+		[ handle: { fxText.fill = javaFxCoolTextFill() } ] as EventHandler<ActionEvent>
+	}
+
+	private LinearGradient javaFxCoolTextFill( ) {
+		new LinearGradient( 0, 0, 1, 0, true, CycleMethod.NO_CYCLE,
+				new Stop( 0, leftPicker.value ), new Stop( 1, rightPicker.value ) )
 	}
 
 }
