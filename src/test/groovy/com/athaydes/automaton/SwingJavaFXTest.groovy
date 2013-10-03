@@ -48,17 +48,16 @@ class SwingJavaFXTest {
 
 	@Test
 	void "Automaton should be able to test applications using both Swing and JavaFX"( ) {
-		def fx = jfxPanel.scene.&lookup
-		use( Swinger ) {
-			Swinger.jFrame = jFrame
-			SwingAutomaton.user.clickOn( 'text-area' )
-					.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
+		Swinger.userWith( jFrame ).clickOn( 'text-area' )
+				.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
 
-			FXAutomaton.user.clickOn( fx( '#left-color-picker' ) )
-					.pause( 2000 ).moveBy( 60, 40 ).click()
-		}
+		FXer.userWith( jfxPanel.scene.root )
+				.clickOn( '#left-color-picker' )
+				.pause( 2000 ).moveBy( 60, 40 ).click()
+				.pause( 2000 ).clickOn( '#fx-input' )
+				.type( 'Running in Groovy!' )
+				.pause( 2000 )
 
-		sleep 2000
 	}
 
 	void createAndRunSwingApp( ArrayBlockingQueue blockUntilReady ) {
@@ -116,7 +115,7 @@ class JavaFxSampleScene extends Scene {
 		pickers.children << pickerLabel << leftPicker << rightPicker
 		fxText = new Text( x: 40, y: 100, font: new Font( 'Arial', 35 ),
 				text: 'This is JavaFX', fill: javaFxCoolTextFill(), effect: new Reflection() )
-		def inputText = new TextField( translateX: 75, translateY: 170 )
+		def inputText = new TextField( id: 'fx-input', translateX: 75, translateY: 170 )
 		( root as Group ).children << pickers << fxText << inputText
 	}
 

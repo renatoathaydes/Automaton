@@ -89,20 +89,24 @@ class FXApp extends Application {
 
 }
 
-class FXer extends FXAutomaton {
+class FXer extends Automaton<FXer> {
 
 	Node node
+	FXAutomaton delegate = FXAutomaton.user
 
 	static FXer userWith( Node node ) {
 		new FXer( node: node )
 	}
 
 	FXer clickOn( String selector ) {
-		clickOn( node.lookup( selector ) ) as FXer
+		delegate.clickOn( node.lookup( selector ) )
+		this
 	}
 
 	FXer moveTo( String selector ) {
-		moveTo( node.lookup( selector ) ) as FXer
+		delegate.moveTo( node.lookup( selector ) )
+		this
 	}
+
 
 }

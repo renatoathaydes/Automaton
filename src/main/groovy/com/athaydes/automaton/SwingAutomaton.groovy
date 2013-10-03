@@ -42,7 +42,7 @@ class Swinger extends SwingAutomaton {
 
 	Container container
 
-	static userWith( Container container ) {
+	static Swinger userWith( Container container ) {
 		new Swinger( container: container )
 	}
 
