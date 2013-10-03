@@ -1,8 +1,5 @@
-package com.athaydes.osgimonitor.automaton
+package com.athaydes.automaton
 
-import com.athaydes.automaton.FXAutomaton
-import com.athaydes.automaton.SwingAutomaton
-import com.athaydes.automaton.SwingUtil
 import groovy.swing.SwingBuilder
 import javafx.application.Platform
 import javafx.embed.swing.JFXPanel
@@ -26,6 +23,7 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.swing.*
+import java.awt.Dimension
 import java.util.concurrent.ArrayBlockingQueue
 
 import static java.util.concurrent.TimeUnit.SECONDS
@@ -43,9 +41,15 @@ class SwingJavaFXTest {
 	@Before
 	void setup( ) {
 		def blockUntilReady = new ArrayBlockingQueue( 1 )
+		createAndRunSwingApp( blockUntilReady )
+		assert blockUntilReady.poll( 5, SECONDS )
+		println "Gui ready!"
+	}
+
+	static void createAndRunSwingApp( blockUntilReady ) {
 		new SwingBuilder().edt {
 			jfxPanel = new JFXPanel()
-			jFrame = frame( title: 'Swing Frame', size: [ 600, 500 ], show: false,
+			jFrame = frame( title: 'Swing Frame', size: [ 600, 500 ] as Dimension, show: false,
 					defaultCloseOperation: DISPOSE_ON_CLOSE ) {
 				menuBar() {
 					menu( name: 'menu-button', text: "File", mnemonic: 'F' ) {
@@ -53,7 +57,7 @@ class SwingJavaFXTest {
 					}
 				}
 				splitPane( name: 'pane1' ) {
-					scrollPane( name: 'pane1-1', constraints: "left", minimumSize: [ 250, -1 ] ) {
+					scrollPane( name: 'pane1-1', constraints: "left", minimumSize: [ 250, -1 ] as Dimension ) {
 						tree( name: 'mboxTree', rootVisible: false )
 					}
 					splitPane( name: 'pane1-2', orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 180 ) {
@@ -72,8 +76,6 @@ class SwingJavaFXTest {
 				blockUntilReady << true
 			}
 		}
-		assert blockUntilReady.poll( 5, SECONDS )
-		println "Gui ready!"
 	}
 
 	@Test
@@ -125,7 +127,7 @@ class JavaFxSampleScene extends Scene {
 		fxText = new Text( x: 40, y: 100, font: new Font( 'Arial', 35 ),
 				text: 'This is JavaFX', fill: javaFxCoolTextFill(), effect: new Reflection() )
 		def inputText = new TextField( translateX: 75, translateY: 170 )
-		root.children << pickers << fxText << inputText
+		(root as Group).children << pickers << fxText << inputText
 	}
 
 	private EventHandler<ActionEvent> colorPickerHandler( ) {

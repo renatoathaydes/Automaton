@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.automaton
+package com.athaydes.automaton
 
 import com.athaydes.automaton.FXApp
 import com.athaydes.automaton.FXAutomaton

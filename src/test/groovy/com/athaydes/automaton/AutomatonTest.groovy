@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.automaton
+package com.athaydes.automaton
 
 import com.athaydes.automaton.Automaton
 import com.athaydes.automaton.SwingAutomaton
@@ -75,7 +75,7 @@ class AutomatonTest {
 	}
 
 	static long defaultFrom( long slow, long medium, long fast, long veryFast ) {
-		switch ( DEFAULT ) {
+		switch ( com.athaydes.automaton.Automaton.DEFAULT ) {
 			case SLOW: return slow
 			case MEDIUM: return medium
 			case FAST: return fast

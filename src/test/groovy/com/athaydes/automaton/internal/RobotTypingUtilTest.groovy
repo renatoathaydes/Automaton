@@ -1,4 +1,4 @@
-package com.athaydes.osgimonitor.internal
+package com.athaydes.automaton.internal
 
 import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
