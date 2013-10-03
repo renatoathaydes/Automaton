@@ -1,7 +1,5 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.FXApp
-import com.athaydes.automaton.FXAutomaton
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
@@ -23,6 +21,7 @@ import java.util.concurrent.TimeUnit
  * User: Renato
  */
 class FXAutomatonTest {
+	//TODO add tests for FXer
 
 	@BeforeClass
 	static void setup( ) {

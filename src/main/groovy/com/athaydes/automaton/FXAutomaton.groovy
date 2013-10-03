@@ -24,7 +24,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		instance
 	}
 
-	private FXAutomaton( ) {}
+	protected FXAutomaton( ) {}
 
 	FXAutomaton clickOn( Node node ) {
 		if ( !node ) return this
@@ -60,7 +60,7 @@ class FXApp extends Application {
 	static Stage initialize( ) {
 		if ( !stage ) {
 			println 'Initializing FXApp'
-			Thread.start { Application.launch FXApp }
+			Thread.start { launch FXApp }
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			stageFuture = null
 		}
@@ -86,4 +86,23 @@ class FXApp extends Application {
 		primaryStage.toFront()
 		stageFuture.add primaryStage
 	}
+
+}
+
+class FXer extends FXAutomaton {
+
+	Node node
+
+	static FXer userWith( Node node ) {
+		new FXer( node: node )
+	}
+
+	FXer clickOn( String selector ) {
+		clickOn( node.lookup( selector ) ) as FXer
+	}
+
+	FXer moveTo( String selector ) {
+		moveTo( node.lookup( selector ) ) as FXer
+	}
+
 }
