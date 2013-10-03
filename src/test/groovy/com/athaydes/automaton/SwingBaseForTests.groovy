@@ -1,6 +1,5 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -17,7 +16,7 @@ import static com.athaydes.automaton.SwingUtil.lookup
  *
  * User: Renato
  */
-class SwingAutomatonTest {
+abstract class SwingBaseForTests {
 
 	JFrame jFrame
 
@@ -26,8 +25,7 @@ class SwingAutomatonTest {
 		jFrame?.dispose()
 	}
 
-	@Test
-	void testMoveTo( ) {
+	void testMoveTo( Closure doMove, Closure doMethodChaining ) {
 		JButton btn
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
@@ -37,7 +35,8 @@ class SwingAutomatonTest {
 
 		sleep 500
 		assert btn != null
-		SwingAutomaton.user.moveTo( btn )
+		assert jFrame != null
+		doMove()
 		def mouseLocation = MouseInfo.pointerInfo.location
 		def btnLocation = btn.locationOnScreen
 
@@ -50,14 +49,12 @@ class SwingAutomatonTest {
 
 		assertMouseOnComponent()
 
-		// test method chaining
-		SwingAutomaton.user.moveTo( jFrame ).moveTo( 500, 500 ).moveTo( btn )
+		doMethodChaining()
 
 		assertMouseOnComponent()
 	}
 
-	@Test
-	void testClickOn( ) {
+	void testClickOn( Closure doClick ) {
 		BlockingDeque future = new LinkedBlockingDeque( 1 )
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
@@ -72,13 +69,57 @@ class SwingAutomatonTest {
 
 		sleep 500
 
-		// this tests function and method chaining
-		SwingAutomaton.user.clickOn( lookup( 'menu-button', jFrame ) ).pause( 250 )
-				.clickOn( lookup( 'item-exit', jFrame ) )
+		doClick()
 
 		// wait up to 1 sec for the button to be clicked
 		assert future.poll( 1, TimeUnit.SECONDS )
 
+	}
+
+}
+
+class SwingAutomatonTest extends SwingBaseForTests {
+
+	@Test
+	void testMoveTo( ) {
+		testMoveTo(
+				{ SwingAutomaton.user.moveTo( lookup( 'the-button', jFrame ) ) },
+				{
+					SwingAutomaton.user.moveTo( jFrame ).moveTo( 500, 500 )
+							.moveTo( lookup( 'the-button', jFrame ) )
+				} )
+	}
+
+	@Test
+	void testClickOn( ) {
+		testClickOn {
+			// this tests function and method chaining
+			SwingAutomaton.user.clickOn( lookup( 'menu-button', jFrame ) ).pause( 250 )
+					.clickOn( lookup( 'item-exit', jFrame ) )
+		}
+	}
+
+}
+
+class SwingerTest extends SwingBaseForTests {
+
+	@Test
+	void testMoveTo( ) {
+		testMoveTo(
+				{ Swinger.userWith( jFrame ).moveTo( 'the-button' ) },
+				{
+					Swinger.userWith( jFrame ).moveTo( 500, 500 )
+							.moveTo( 'the-button' )
+				} )
+	}
+
+	@Test
+	void testClickOn( ) {
+		testClickOn {
+			// this tests function and method chaining
+			Swinger.userWith( jFrame ).clickOn( 'menu-button' ).pause( 250 )
+					.clickOn( 'item-exit' )
+		}
 	}
 
 }

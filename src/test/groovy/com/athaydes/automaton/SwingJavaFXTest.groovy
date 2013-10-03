@@ -23,7 +23,7 @@ import org.junit.Before
 import org.junit.Test
 
 import javax.swing.*
-import java.awt.Dimension
+import java.awt.*
 import java.util.concurrent.ArrayBlockingQueue
 
 import static java.util.concurrent.TimeUnit.SECONDS
@@ -46,7 +46,22 @@ class SwingJavaFXTest {
 		println "Gui ready!"
 	}
 
-	static void createAndRunSwingApp( blockUntilReady ) {
+	@Test
+	void "Automaton should be able to test applications using both Swing and JavaFX"( ) {
+		def fx = jfxPanel.scene.&lookup
+		use( Swinger ) {
+			Swinger.jFrame = jFrame
+			SwingAutomaton.user.clickOn( 'text-area' )
+					.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
+
+			FXAutomaton.user.clickOn( fx( '#left-color-picker' ) )
+					.pause( 2000 ).moveBy( 60, 40 ).click()
+		}
+
+		sleep 2000
+	}
+
+	void createAndRunSwingApp( ArrayBlockingQueue blockUntilReady ) {
 		new SwingBuilder().edt {
 			jfxPanel = new JFXPanel()
 			jFrame = frame( title: 'Swing Frame', size: [ 600, 500 ] as Dimension, show: false,
@@ -78,31 +93,6 @@ class SwingJavaFXTest {
 		}
 	}
 
-	@Test
-	void "Automaton should be able to test applications using both Swing and JavaFX"( ) {
-		def fx = jfxPanel.scene.&lookup
-		use( SwingStringSelector ) {
-			SwingStringSelector.jFrame = jFrame
-			SwingAutomaton.user.clickOn( 'text-area' )
-					.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
-
-			FXAutomaton.user.clickOn( fx( '#left-color-picker' ) )
-					.pause( 2000 ).moveBy( 60, 40 ).click()
-		}
-
-		sleep 4000
-	}
-
-	@Category( SwingAutomaton )
-	class SwingStringSelector {
-		static JFrame jFrame
-
-		SwingAutomaton clickOn( String name ) {
-			this.clickOn SwingUtil.lookup( name, jFrame )
-			this
-		}
-	}
-
 	static main( String[] args ) {
 		new SwingJavaFXTest().setup()
 	}
@@ -127,7 +117,7 @@ class JavaFxSampleScene extends Scene {
 		fxText = new Text( x: 40, y: 100, font: new Font( 'Arial', 35 ),
 				text: 'This is JavaFX', fill: javaFxCoolTextFill(), effect: new Reflection() )
 		def inputText = new TextField( translateX: 75, translateY: 170 )
-		(root as Group).children << pickers << fxText << inputText
+		( root as Group ).children << pickers << fxText << inputText
 	}
 
 	private EventHandler<ActionEvent> colorPickerHandler( ) {

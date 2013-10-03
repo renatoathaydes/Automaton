@@ -15,7 +15,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		instance
 	}
 
-	private SwingAutomaton( ) {}
+	protected SwingAutomaton( ) {}
 
 	SwingAutomaton clickOn( Component component ) {
 		if ( !component ) return this
@@ -37,3 +37,23 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	}
 
 }
+
+class Swinger extends SwingAutomaton {
+
+	Container container
+
+	static userWith( Container container ) {
+		new Swinger( container: container )
+	}
+
+	Swinger clickOn( String selector ) {
+		clickOn( SwingUtil.lookup( selector, container ) ) as Swinger
+	}
+
+	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
+		def component = SwingUtil.lookup( selector, container )
+		moveTo( component, speed ) as Swinger
+	}
+
+}
+

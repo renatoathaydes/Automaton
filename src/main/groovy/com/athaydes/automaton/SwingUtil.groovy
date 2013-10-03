@@ -15,9 +15,8 @@ class SwingUtil {
 	 * @return component if found, null otherwise
 	 */
 	static Component lookup( String name, Container root ) {
-		Component res
-		navigateBreadthFirst( root ) { if ( it.name == name ) res = it }
-		println "Found component $res"
+		Component res = null
+		navigateBreadthFirst( root ) { if ( it?.name == name ) res = it }
 		return res
 	}
 
@@ -38,7 +37,7 @@ class SwingUtil {
 	}
 
 	private static subItemsOf( component ) {
-		component.components.toList() +
+		( component?.components?.toList() ?: [ ] ) +
 				callMethodIfExists( component, 'getContentPane' ) +
 				callMethodIfExists( component, 'getMenuComponents' ).toList()
 	}
@@ -55,7 +54,7 @@ class SwingUtil {
 	 * @return value returned by the method call, or the empty list if the method does not exist
 	 */
 	static callMethodIfExists( object, String methodName, Object... args ) {
-		if ( object.metaClass.respondsTo( object, methodName ) )
+		if ( object?.metaClass?.respondsTo( object, methodName ) )
 			object."$methodName"( * args )
 		else [ ]
 	}
