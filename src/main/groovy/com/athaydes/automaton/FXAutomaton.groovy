@@ -26,10 +26,10 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 
 	protected FXAutomaton( ) {}
 
-	FXAutomaton clickOn( Node node ) {
+	FXAutomaton clickOn( Node node, Speed speed = DEFAULT ) {
 		if ( !node ) return this
 		def center = centerOf node
-		moveTo( center.x as int, center.y as int ).click()
+		moveTo( center.x as int, center.y as int, speed ).click()
 	}
 
 	FXAutomaton moveTo( Node node, Speed speed = DEFAULT ) {
@@ -38,7 +38,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		move( currPos, target, speed )
 	}
 
-	static Point centerOf( Node node ) {
+	Point centerOf( Node node ) {
 		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
 		def scenePos = new Point( node.scene.x.intValue(), node.scene.y.intValue() )
 		def boundsInScene = node.localToScene node.boundsInLocal
@@ -64,6 +64,8 @@ class FXApp extends Application {
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			stageFuture = null
 		}
+        Platform.runLater{ stage.show() }
+        sleep 500 // FIXME block until stage is shown
 		stage
 	}
 
@@ -92,21 +94,35 @@ class FXApp extends Application {
 class FXer extends Automaton<FXer> {
 
 	Node node
-	FXAutomaton delegate = FXAutomaton.user
+	def delegate = FXAutomaton.user
 
 	static FXer userWith( Node node ) {
 		new FXer( node: node )
 	}
 
-	FXer clickOn( String selector ) {
-		delegate.clickOn( node.lookup( selector ) )
+    FXer clickOn( Node node, Speed speed = DEFAULT ) {
+        delegate.clickOn( node, speed )
+        this
+    }
+
+	FXer clickOn( String selector, Speed speed = DEFAULT ) {
+		delegate.clickOn( node.lookup( selector ), speed )
 		this
 	}
 
-	FXer moveTo( String selector ) {
-		delegate.moveTo( node.lookup( selector ) )
+    FXer moveTo( Node node, Speed speed = DEFAULT ) {
+        delegate.moveTo( node, speed )
+        this
+    }
+
+	FXer moveTo( String selector, Speed speed = DEFAULT ) {
+		delegate.moveTo( node.lookup( selector ), speed )
 		this
 	}
+
+    Point centerOf( Node node ) {
+        delegate.centerOf( node )
+    }
 
 
 }

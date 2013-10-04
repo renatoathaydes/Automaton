@@ -55,7 +55,7 @@ class SwingJavaFXTest {
 				.clickOn( '#left-color-picker' )
 				.pause( 2000 ).moveBy( 60, 40 ).click()
 				.pause( 2000 ).clickOn( '#fx-input' )
-				.type( 'Running in Groovy!' )
+				.type( 'Running in Groovy!' ).moveBy( 100, 0 )
 				.pause( 2000 )
 
 	}

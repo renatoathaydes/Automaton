@@ -38,21 +38,24 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 }
 
-class Swinger extends SwingAutomaton {
+class Swinger extends Automaton<Swinger> {
 
 	Container container
+    def delegate = SwingAutomaton.user
 
 	static Swinger userWith( Container container ) {
 		new Swinger( container: container )
 	}
 
 	Swinger clickOn( String selector ) {
-		clickOn( SwingUtil.lookup( selector, container ) ) as Swinger
+		delegate.clickOn( SwingUtil.lookup( selector, container ) )
+        this
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
 		def component = SwingUtil.lookup( selector, container )
-		moveTo( component, speed ) as Swinger
+		delegate.moveTo( component, speed )
+        this
 	}
 
 }

@@ -9,6 +9,7 @@ import javafx.scene.control.TextArea
 import javafx.scene.layout.HBox
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import javafx.stage.Stage
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
@@ -20,12 +21,13 @@ import java.util.concurrent.TimeUnit
  *
  * User: Renato
  */
-class FXAutomatonTest {
-	//TODO add tests for FXer
+class FXBaseForTests {
+
+    static Stage stage
 
 	@BeforeClass
 	static void setup( ) {
-		FXApp.initialize()
+		stage = FXApp.initialize()
 	}
 
 	@AfterClass
@@ -33,8 +35,7 @@ class FXAutomatonTest {
 		FXApp.close()
 	}
 
-	@Test
-	void testMoveTo( ) {
+	void testMoveTo( Closure getDriver ) {
 		def future = new LinkedBlockingDeque( 1 )
 
 		def rect = new Rectangle( fill: Color.BLACK, width: 10, height: 10 )
@@ -51,22 +52,21 @@ class FXAutomatonTest {
 		assert future.poll( 4, TimeUnit.SECONDS )
 		sleep 250
 
-		FXAutomaton.user.moveTo rect
+		getDriver().moveTo rect
 
 		assert rect.fill == Color.BLUE
 
-		FXAutomaton.user.moveBy 0, rect.height as int
+        getDriver().moveBy 0, rect.height as int
 		assert rect.fill == Color.YELLOW
 
-		FXAutomaton.user.moveBy 0, -rect.height as int
+        getDriver().moveBy 0, -rect.height as int
 		assert rect.fill == Color.BLUE
 
-		FXAutomaton.user.moveBy rect.width as int, 0
+        getDriver().moveBy rect.width as int, 0
 		assert rect.fill == Color.YELLOW
 	}
 
-	@Test
-	void testCenterOf( ) {
+	void testCenterOf( Closure getDriver ) {
 		def future = new LinkedBlockingDeque( 1 )
 
 		def rect = new Rectangle( fill: Color.RED, width: 20, height: 20 )
@@ -83,23 +83,22 @@ class FXAutomatonTest {
 		assert future.poll( 4, TimeUnit.SECONDS )
 		sleep 250
 
-		def center = FXAutomaton.centerOf rect
+		def center = getDriver().centerOf rect
 
-		FXAutomaton.user.moveTo center.x as int, center.y as int
+        getDriver().moveTo center.x as int, center.y as int
 		assert rect.fill == Color.BLUE
 
-		FXAutomaton.user.moveBy 0, rect.height as int
+        getDriver().moveBy 0, rect.height as int
 		assert rect.fill == Color.YELLOW
 
-		FXAutomaton.user.moveBy 0, -rect.height as int
+        getDriver().moveBy 0, -rect.height as int
 		assert rect.fill == Color.BLUE
 
-		FXAutomaton.user.moveBy rect.width as int, 0
+        getDriver().moveBy rect.width as int, 0
 		assert rect.fill == Color.YELLOW
 	}
 
-	@Test
-	void testClickOn( ) {
+	void testClickOn( Closure getDriver ) {
 		def future = new LinkedBlockingDeque( 1 )
 		def buttonToClick = new Button( text: 'Click Me', prefWidth: 50, prefHeight: 50 )
 		buttonToClick.onAction = [ handle: { future << it } ] as EventHandler
@@ -114,14 +113,13 @@ class FXAutomatonTest {
 		assert future.poll( 4, TimeUnit.SECONDS )
 		sleep 250
 
-		FXAutomaton.user.pause( 250 ).clickOn( buttonToClick ).pause 250
+        getDriver().pause( 250 ).clickOn( buttonToClick ).pause 250
 
 		assert future.size() == 1
 		assert future.poll() instanceof ActionEvent
 	}
 
-	@Test
-	void testType( ) {
+	void testType( Closure getDriver ) {
 		def future = new LinkedBlockingDeque( 1 )
 		def textArea = new TextArea()
 
@@ -135,9 +133,57 @@ class FXAutomatonTest {
 		assert future.poll( 4, TimeUnit.SECONDS )
 		sleep 250
 
-		FXAutomaton.user.clickOn( textArea ).type( 'I can type here' ).pause( 100 )
+        getDriver().clickOn( textArea ).type( 'I can type here' ).pause( 100 )
 
 		assert textArea.text == 'I can type here'
 	}
+
+}
+
+class FXAutomatonTest extends FXBaseForTests {
+
+    @Test
+    void testMoveTo() {
+        testMoveTo { FXAutomaton.user }
+    }
+
+    @Test
+    void testCenterOf() {
+        testCenterOf { FXAutomaton.user }
+    }
+
+    @Test
+    void testClickOn() {
+        testClickOn { FXAutomaton.user }
+    }
+
+    @Test
+    void testType() {
+        testType { FXAutomaton.user }
+    }
+
+}
+
+class FXerTest extends FXBaseForTests {
+
+    @Test
+    void testMoveTo() {
+        testMoveTo { FXer.userWith( FXApp.scene.root ) }
+    }
+
+    @Test
+    void testCenterOf() {
+        testCenterOf { FXer.userWith( FXApp.scene.root ) }
+    }
+
+    @Test
+    void testClickOn() {
+        testClickOn { FXer.userWith( FXApp.scene.root ) }
+    }
+
+    @Test
+    void testType() {
+        testType { FXer.userWith( FXApp.scene.root ) }
+    }
 
 }
