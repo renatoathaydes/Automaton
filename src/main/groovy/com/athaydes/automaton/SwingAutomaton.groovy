@@ -17,10 +17,10 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 	protected SwingAutomaton( ) {}
 
-	SwingAutomaton clickOn( Component component ) {
+	SwingAutomaton clickOn( Component component, Speed speed = DEFAULT ) {
 		if ( !component ) return this
 		def center = centerOf component
-		moveTo( center.x as int, center.y as int ).click()
+		moveTo( center.x as int, center.y as int, speed ).click()
 	}
 
 	SwingAutomaton moveTo( Component component, Speed speed = DEFAULT ) {
@@ -41,21 +41,21 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 class Swinger extends Automaton<Swinger> {
 
 	Container container
-    def delegate = SwingAutomaton.user
+	def delegate = SwingAutomaton.user
 
 	static Swinger userWith( Container container ) {
 		new Swinger( container: container )
 	}
 
-	Swinger clickOn( String selector ) {
-		delegate.clickOn( SwingUtil.lookup( selector, container ) )
-        this
+	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
+		delegate.clickOn( SwingUtil.lookup( selector, container ), speed )
+		this
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
 		def component = SwingUtil.lookup( selector, container )
 		delegate.moveTo( component, speed )
-        this
+		this
 	}
 
 }
