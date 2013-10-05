@@ -162,3 +162,34 @@ To lookup a Swing Component by name, just use the name (eg. looking up `somethin
 is exactly `something`).
 
 
+## Other useful things
+
+#### Testing pure JavaFX Apps
+
+If all you want is to test a pure JavaFX Application, you may want to check out [TestFX](https://github.com/SmartBear/TestFX).
+The driver looks basically the same as the *FXer*, but it has more capabilities and other features such as very useful
+Hamcrest matchers for powerful assertions. In fact, both *TestFX* and *Automaton* were born out of the same SmartBear
+team which develops [LoadUI](http://loadui.org), which is a powerful API load testing tool written on JavaFX.
+
+
+#### Avoid timing issues in GUI testing
+
+Timing issues are a big problem with any GUI testing.
+*Automaton* is concerned with making it easy to drive applications, but you will find that your code may end up having
+lots of `pause(250)` calls to allow for small delays in the GUI response to commands.
+
+A very good way to make tests more robust is to use the [tempus-fugit](http://tempusfugitlibrary.org/) library which
+provides excellent concurrent, asynchronous and waiting mechanisms that will help you bring determinism back into your
+GUI testing!
+
+I found the `waitOrTimeout` function particularly useful! You can write awesome code like this one (in Groovy):
+
+```groovy
+fxer.clickOn( "#open-panel" )
+waitOrTimeout( [ isSatisfied: { root.lookup("#new-panel") != null } ],
+                  timeout( seconds( 5 ) ) )
+fxer.clickOn( "#new-panel" ).type( "Automaton and tempus-fugit are awesome" )
+```
+
+Check it out and you won't regret!
+
