@@ -190,7 +190,7 @@ class FXAutomatonTest extends SimpleFxDriverTest {
 
 class FXerTest extends FxDriverWithSelectorsTest {
 
-	{ withDriver = { FXer.userWith( FXApp.scene.root ) } }
+	{ withDriver = { FXer.getUserWith( FXApp.scene.root ) } }
 }
 
 class SwingerFXerFXTest extends FxDriverWithSelectorsTest {

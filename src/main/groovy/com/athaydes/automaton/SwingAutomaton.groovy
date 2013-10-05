@@ -40,15 +40,15 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 
-	Container container
+	Component component
 	def delegate = SwingAutomaton.user
 
-	static Swinger userWith( Container container ) {
-		new Swinger( container: container )
+	static Swinger getUserWith( Component component ) {
+		new Swinger( component: component )
 	}
 
 	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.clickOn( SwingUtil.lookup( selector, container ), speed )
+		delegate.clickOn( SwingUtil.lookup( selector, component ), speed )
 		this
 	}
 
@@ -58,7 +58,7 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
-		def component = SwingUtil.lookup( selector, container )
+		def component = SwingUtil.lookup( selector, component )
 		delegate.moveTo( component, speed )
 		this
 	}

@@ -119,6 +119,6 @@ class SwingAutomatonTest extends SimpleSwingDriverTest {
 
 class SwingerTest extends SwingDriverWithSelectorsTest {
 
-	{ withDriver = { Swinger.userWith( jFrame ) } }
+	{ withDriver = { Swinger.getUserWith( jFrame ) } }
 
 }

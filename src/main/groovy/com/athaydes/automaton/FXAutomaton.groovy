@@ -107,7 +107,7 @@ class FXer extends Automaton<FXer> {
 	Node node
 	def delegate = FXAutomaton.user
 
-	static FXer userWith( Node node ) {
+	static FXer getUserWith( Node node ) {
 		new FXer( node: node )
 	}
 

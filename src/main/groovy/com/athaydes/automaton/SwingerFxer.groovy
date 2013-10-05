@@ -20,8 +20,8 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 	}
 
 	protected SwingerFxer( Container container, Node node ) {
-		swinger = Swinger.userWith( container )
-		fxer = FXer.userWith( node )
+		swinger = Swinger.getUserWith( container )
+		fxer = FXer.getUserWith( node )
 	}
 
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {

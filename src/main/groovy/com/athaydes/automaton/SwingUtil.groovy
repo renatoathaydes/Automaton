@@ -14,7 +14,7 @@ class SwingUtil {
 	 * @param root to be looked into
 	 * @return component if found, null otherwise
 	 */
-	static Component lookup( String name, Container root ) {
+	static Component lookup( String name, Component root ) {
 		Component res = null
 		navigateBreadthFirst( root ) { if ( it?.name == name ) res = it }
 		return res
@@ -26,7 +26,7 @@ class SwingUtil {
 	 * @param root of tree to be navigated
 	 * @param action to be called on each visited Component. Return true to stop navigating.
 	 */
-	static boolean navigateBreadthFirst( Container root, Closure<Component> action ) {
+	static boolean navigateBreadthFirst( Component root, Closure<Component> action ) {
 		def nextLevel = [ root ]
 		while ( nextLevel ) {
 			if ( visit( nextLevel, action ) ) return true
