@@ -52,8 +52,18 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
+	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
+		delegate.clickOn( component, speed )
+		this
+	}
+
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
 		def component = SwingUtil.lookup( selector, container )
+		delegate.moveTo( component, speed )
+		this
+	}
+
+	Swinger moveTo( Component component, Speed speed = DEFAULT ) {
 		delegate.moveTo( component, speed )
 		this
 	}

@@ -1,7 +1,5 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.Automaton
-import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -12,7 +10,6 @@ import java.awt.event.MouseEvent
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
-import static com.athaydes.automaton.Automaton.getDEFAULT
 import static com.athaydes.automaton.Speed.*
 import static java.awt.event.KeyEvent.*
 import static org.junit.Assert.assertEquals
@@ -75,7 +72,7 @@ class AutomatonTest {
 	}
 
 	static long defaultFrom( long slow, long medium, long fast, long veryFast ) {
-		switch ( com.athaydes.automaton.Automaton.DEFAULT ) {
+		switch ( Automaton.DEFAULT ) {
 			case SLOW: return slow
 			case MEDIUM: return medium
 			case FAST: return fast
