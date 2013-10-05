@@ -104,8 +104,8 @@ FXAutomaton.getUser().clickOn( root.lookup( "#button-id" ) )
 
 ```java
 Node root = app.getScene().getRoot();
-FXAutomaton.getUser().clickOn( root.lookup( "#button-id" ) )
-           .moveTo( root.lookup( ".css-class-selector" ) ).rightClick();
+FXer.getUserWith( root ).clickOn( "#button-id" )
+    .moveTo( ".css-class-selector" ).rightClick();
 ```
 
 Notice that the same warning about restricting your search space given in the Swing section is also valid in JavaFX.
@@ -148,4 +148,17 @@ assertEquals( "0x999999ff", swingJavaFx.getTextLeftColor().toString() );
 
 The above is a copy of part of the SwingJavaFXSampleAppTestInJava class in this project.
 Just type `t` in the GibHub main page and search for this class for the complete code.
+
+Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.
+String selectors work like this:
+
+* if the selector starts with a `.` or `#`, the lookup is made in the JavaFX app.
+* in all other cases, the lookup is made in the Swing part of the app.
+
+Pretty simple!
+
+If you want to lookup a JavaFX Node, you'll use a css selector (starting with `.` = by css class, `#` by ID).
+To lookup a Swing Component by name, just use the name (eg. looking up `something` will return any Component whose name
+is exactly `something`).
+
 
