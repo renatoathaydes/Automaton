@@ -60,13 +60,11 @@ class FXApp extends Application {
 	static Scene getScene( ) { initialize().scene }
 
 	synchronized static Stage initialize( ) {
-		log.debug "Stage: ${stage}"
 		if ( !stage ) {
 			log.debug 'Initializing FXApp'
 			Thread.start { launch FXApp }
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			assert stage
-			log.debug "Got the stage, ready to start"
 			stageFuture = null
 		}
 		doInFXThreadBlocking { ensureShowing( stage ) }
@@ -75,16 +73,8 @@ class FXApp extends Application {
 	}
 
 	private static void ensureShowing( Stage stage ) {
-		log.debug "Trying to ensureShowing"
 		stage.show()
 		stage.toFront()
-	}
-
-	static void close( ) {
-		log.debug "FXAutomaton: Stopping FxApp"
-		if ( stage )
-			doInFXThreadBlocking { stage.hide() }
-		stageFuture?.clear()
 	}
 
 	static doInFXThreadBlocking( Closure toRun ) {
