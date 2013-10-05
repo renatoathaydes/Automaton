@@ -186,7 +186,7 @@ I found the `waitOrTimeout` function particularly useful! You can write awesome 
 
 ```groovy
 fxer.clickOn( "#open-panel" )
-waitOrTimeout( [ isSatisfied: { root.lookup("#new-panel") != null } ],
+waitOrTimeout( [ isSatisfied: { root.lookup("#new-panel") != null } ] as Condition,
                   timeout( seconds( 5 ) ) )
 fxer.clickOn( "#new-panel" ).type( "Automaton and tempus-fugit are awesome" )
 ```
