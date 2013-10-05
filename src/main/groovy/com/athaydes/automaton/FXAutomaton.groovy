@@ -1,5 +1,6 @@
 package com.athaydes.automaton
 
+import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Node
@@ -50,6 +51,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 
 }
 
+@Slf4j
 class FXApp extends Application {
 
 	private static Stage stage
@@ -57,22 +59,42 @@ class FXApp extends Application {
 
 	static Scene getScene( ) { initialize().scene }
 
-	static Stage initialize( ) {
+	synchronized static Stage initialize( ) {
+		log.debug "Stage: ${stage}"
 		if ( !stage ) {
-			println 'Initializing FXApp'
+			log.debug 'Initializing FXApp'
 			Thread.start { launch FXApp }
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
+			assert stage
+			log.debug "Got the stage, ready to start"
 			stageFuture = null
 		}
-        Platform.runLater{ stage.show() }
-        sleep 500 // FIXME block until stage is shown
+		doInFXThreadBlocking { ensureShowing( stage ) }
+		log.debug "Stage now showing!"
 		stage
 	}
 
+	private static void ensureShowing( Stage stage ) {
+		log.debug "Trying to ensureShowing"
+		stage.show()
+		stage.toFront()
+	}
+
 	static void close( ) {
-		println "FXAutomaton: Stopping FxApp"
-		if ( stage ) Platform.runLater { stage.hide() }
+		log.debug "FXAutomaton: Stopping FxApp"
+		if ( stage )
+			doInFXThreadBlocking { stage.hide() }
 		stageFuture?.clear()
+	}
+
+	static doInFXThreadBlocking( Closure toRun ) {
+		if ( Platform.isFxApplicationThread() )
+			toRun()
+		else {
+			def blockUntilDone = new ArrayBlockingQueue( 1 )
+			Platform.runLater { toRun(); blockUntilDone << true }
+			assert blockUntilDone.poll( 5, TimeUnit.SECONDS )
+		}
 	}
 
 	static void startApp( Application app ) {
@@ -82,10 +104,9 @@ class FXApp extends Application {
 
 	@Override
 	void start( Stage primaryStage ) throws Exception {
-		primaryStage.scene = new Scene( new VBox() )
+		primaryStage.scene = new Scene( new VBox(), 600, 500 )
 		primaryStage.title = 'FXAutomaton Stage'
-		primaryStage.show()
-		primaryStage.toFront()
+		ensureShowing( primaryStage )
 		stageFuture.add primaryStage
 	}
 
@@ -100,29 +121,29 @@ class FXer extends Automaton<FXer> {
 		new FXer( node: node )
 	}
 
-    FXer clickOn( Node node, Speed speed = DEFAULT ) {
-        delegate.clickOn( node, speed )
-        this
-    }
+	FXer clickOn( Node node, Speed speed = DEFAULT ) {
+		delegate.clickOn( node, speed )
+		this
+	}
 
 	FXer clickOn( String selector, Speed speed = DEFAULT ) {
 		delegate.clickOn( node.lookup( selector ), speed )
 		this
 	}
 
-    FXer moveTo( Node node, Speed speed = DEFAULT ) {
-        delegate.moveTo( node, speed )
-        this
-    }
+	FXer moveTo( Node node, Speed speed = DEFAULT ) {
+		delegate.moveTo( node, speed )
+		this
+	}
 
 	FXer moveTo( String selector, Speed speed = DEFAULT ) {
 		delegate.moveTo( node.lookup( selector ), speed )
 		this
 	}
 
-    Point centerOf( Node node ) {
-        delegate.centerOf( node )
-    }
+	Point centerOf( Node node ) {
+		delegate.centerOf( node )
+	}
 
 
 }

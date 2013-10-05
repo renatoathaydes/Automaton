@@ -93,7 +93,6 @@ class Automaton<T extends Automaton> {
 
 	T type( String text, Speed speed = DEFAULT ) {
 		text.each { c ->
-			println "Typing '$c'"
 			def rc = robotCode( c )
 			typeCode rc.shift, rc.code, speed
 		}
