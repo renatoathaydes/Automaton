@@ -1,5 +1,6 @@
 package com.athaydes.automaton
 
+import com.athaydes.internal.Config
 import com.athaydes.internal.Mouse
 
 import java.awt.*
@@ -14,7 +15,7 @@ import static com.athaydes.internal.RobotTypingUtil.robotCode
 class Automaton<T extends Automaton> {
 
 	protected final robot = new Robot()
-	static final DEFAULT = Speed.FAST
+	static DEFAULT = Config.instance.speed
 	private static Automaton instance
 
 	static synchronized T getUser( ) {
