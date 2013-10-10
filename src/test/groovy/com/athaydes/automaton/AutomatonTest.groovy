@@ -29,6 +29,8 @@ class AutomatonTest {
 
 	@Test
 	void testMoveTo( ) {
+		beforeTimeRelyingTest()
+
 		Automaton.user.moveTo 0, 0, VERY_FAST
 		assert MouseInfo.pointerInfo.location == new Point( 0, 0 )
 
@@ -82,6 +84,8 @@ class AutomatonTest {
 
 	@Test
 	void testMoveBy( ) {
+		beforeTimeRelyingTest()
+
 		Automaton.user.moveTo 50, 50, VERY_FAST
 
 		def veryFastDelta = runWithTimer {
@@ -125,6 +129,8 @@ class AutomatonTest {
 
 	@Test
 	void testDragBy( ) {
+		beforeTimeRelyingTest()
+
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 30 ] as Dimension, show: true )
 		}
@@ -169,7 +175,7 @@ class AutomatonTest {
 		}
 		assertDraggedBy 50, 50
 
-		def tolerance = 25 // ms
+		def tolerance = 50 // ms
 		def expectedDelta = defaultFrom slowDelta, mediumDelta, fastDelta, veryFastDelta
 		assertEquals defaultDelta, expectedDelta, tolerance
 
@@ -233,6 +239,7 @@ class AutomatonTest {
 
 	@Test
 	void testPause( ) {
+		beforeTimeRelyingTest()
 		def user = Automaton.user
 		def t = runWithTimer {
 			assert user == user.pause( 100 )
@@ -283,6 +290,11 @@ class AutomatonTest {
 		def startT = System.currentTimeMillis()
 		action.run()
 		System.currentTimeMillis() - startT
+	}
+
+	private void beforeTimeRelyingTest( ) {
+		// let's try to avoid GC during the tests
+		System.gc()
 	}
 
 }
