@@ -1,5 +1,6 @@
 package com.athaydes.automaton
 
+import com.google.code.tempusfugit.temporal.Condition
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -7,10 +8,14 @@ import org.junit.Test
 import javax.swing.*
 import java.awt.*
 import java.awt.event.MouseEvent
+import java.util.concurrent.Callable
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.automaton.Speed.*
+import static com.google.code.tempusfugit.temporal.Duration.seconds
+import static com.google.code.tempusfugit.temporal.Timeout.timeout
+import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 import static java.awt.event.KeyEvent.*
 import static org.junit.Assert.assertEquals
 
@@ -134,7 +139,7 @@ class AutomatonTest {
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 30 ] as Dimension, show: true )
 		}
-		sleep 500
+		waitForJFrameToShowUp()
 		def initialLocation = jFrame.locationOnScreen
 		SwingAutomaton.user.moveTo( jFrame )
 
@@ -196,7 +201,7 @@ class AutomatonTest {
 			}
 		}
 
-		sleep 500
+		waitForJFrameToShowUp()
 		assert btn != null
 		SwingAutomaton.user.moveTo( btn ).click()
 
@@ -222,7 +227,7 @@ class AutomatonTest {
 			}
 		}
 
-		sleep 500
+		waitForJFrameToShowUp()
 		assert jta != null
 		SwingAutomaton.user.moveTo( jta ).rightClick()
 
@@ -256,7 +261,7 @@ class AutomatonTest {
 			}
 		}
 
-		sleep 500
+		waitForJFrameToShowUp()
 		assert jta != null
 		assert jta.text == ''
 
@@ -278,7 +283,7 @@ class AutomatonTest {
 			}
 		}
 
-		sleep 500
+		waitForJFrameToShowUp()
 		assert jta != null
 		assert jta.text == ''
 
@@ -295,6 +300,16 @@ class AutomatonTest {
 	private void beforeTimeRelyingTest( ) {
 		// let's try to avoid GC during the tests
 		System.gc()
+	}
+
+	private void waitForJFrameToShowUp( ) {
+		waitOrTimeout condition { jFrame?.visible }, timeout( seconds( 5 ) )
+	}
+
+	static Condition condition( Callable<Boolean> cond ) {
+		new Condition() {
+			boolean isSatisfied( ) { cond() }
+		}
 	}
 
 }
