@@ -14,24 +14,29 @@ import static com.athaydes.automaton.Speed.FAST
 class Config {
 
 	def resourceLoader = new RealResourceLoader()
-	def props = new Properties();
+	final props = new Properties();
+
+	static final DEFAULT_SPEED = FAST
 
 	Speed getSpeed( ) {
-		def defaultSpeed = FAST
-		def configFile = resourceLoader.configFile
 		def customSpeed = null
-		if ( configFile?.exists() ) {
-			customSpeed = loadSpeedFrom configFile
+		try {
+			def configFile = resourceLoader.configFile
+			if ( configFile?.exists() ) {
+				customSpeed = loadSpeedFrom configFile
+			}
+		} catch ( e ) {
+			log.warn "Unable to read Automaton config file", e
 		}
-		customSpeed ?: defaultSpeed
+		customSpeed ?: DEFAULT_SPEED
 	}
 
 	private Speed loadSpeedFrom( File configFile ) {
-		props.load( configFile.newInputStream() )
 		String configSpeed = null
 		try {
+			props.load( configFile.newInputStream() )
 			configSpeed = props.getProperty( 'automaton.speed' ).toUpperCase()
-			println "Config speed: $configSpeed"
+			log.info "Config speed loaded from ${configFile.absolutePath}: $configSpeed"
 			return configSpeed ? configSpeed as Speed : null
 		} catch ( e ) {
 			e.printStackTrace()
