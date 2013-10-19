@@ -127,7 +127,7 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	@Test
 	void testDragFromTo_Components( ) {
 		testDragFromTo( { Component c1, Component c2 ->
-			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).to( c2 )
+			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).onto( c2 )
 		} )
 	}
 
@@ -135,7 +135,7 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	void testDragFromTo_FromComponentToPosition( ) {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
-			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).to( c2p.x, c2p.y )
+			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).onto( c2p.x, c2p.y )
 		} )
 	}
 
@@ -159,7 +159,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	@Test
 	void testDragFromTo_Names( ) {
 		testDragFromTo( { Component c1, Component c2 ->
-			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).to( 'e2' )
+			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).onto( 'e2' )
 		} )
 	}
 
@@ -167,7 +167,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testDragFromTo_FromNameToPosition( ) {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
-			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).to( c2p.x, c2p.y )
+			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).onto( c2p.x, c2p.y )
 		} )
 	}
 

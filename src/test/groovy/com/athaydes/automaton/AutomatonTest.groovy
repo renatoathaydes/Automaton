@@ -202,7 +202,7 @@ class AutomatonTest implements HasSwingCode {
 		def fromY = initialLocation.y + 20
 
 		Automaton.user.dragFrom( fromX, fromY )
-				.to( fromX + deltaX, fromY + deltaY )
+				.onto( fromX + deltaX, fromY + deltaY )
 
 		assert initialLocation.x + deltaX == jFrame.locationOnScreen.x
 		assert initialLocation.y + deltaY == jFrame.locationOnScreen.y
@@ -232,6 +232,29 @@ class AutomatonTest implements HasSwingCode {
 		Automaton.user.click().click().click()
 		3.times { assert future.poll( 3, TimeUnit.SECONDS ) }
 
+	}
+
+	@Test
+	void testDoubleClick( ) {
+		def future = new LinkedBlockingDeque<Integer>( 2 )
+		JButton btn
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				btn = button( text: 'Click Me', name: 'the-button',
+						mouseClicked: { MouseEvent e -> future.add e } )
+			}
+		}
+
+		waitForJFrameToShowUp()
+		assert btn != null
+		SwingAutomaton.user.moveTo( btn ).doubleClick()
+
+		// wait up to 3 secs for the button to be clicked
+		2.times {
+			def event = future.poll( 3, TimeUnit.SECONDS )
+			assert event != null
+			assert event.button == MouseEvent.BUTTON1
+		}
 	}
 
 	@Test

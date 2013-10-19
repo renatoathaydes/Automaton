@@ -29,9 +29,9 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		move( currPos, target, speed )
 	}
 
-	SwingDragTo<SwingAutomaton> drag( Component component ) {
+	SwingDragOn<SwingAutomaton> drag( Component component ) {
 		def center = centerOf( component )
-		new SwingDragTo( this, center.x, center.y )
+		new SwingDragOn( this, center.x, center.y )
 	}
 
 	static Point centerOf( Component component ) {
@@ -73,40 +73,40 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
-	SwingerDragTo drag( Component component ) {
+	SwingerDragOn drag( Component component ) {
 		def center = SwingAutomaton.centerOf( component )
-		new SwingerDragTo( this, center.x, center.y )
+		new SwingerDragOn( this, center.x, center.y )
 	}
 
-	SwingerDragTo drag( String selector ) {
+	SwingerDragOn drag( String selector ) {
 		def component = SwingUtil.lookup( selector, component )
 		drag( component )
 	}
 
 }
 
-class SwingDragTo<T extends Automaton<? extends Automaton>> extends DragTo<T> {
+class SwingDragOn<T extends Automaton<? extends Automaton>> extends DragOn<T> {
 
-	protected SwingDragTo( T automaton, fromX, fromY ) {
+	protected SwingDragOn( T automaton, fromX, fromY ) {
 		super( automaton, fromX, fromY )
 	}
 
-	T to( Component component, Speed speed = Automaton.DEFAULT ) {
+	T onto( Component component, Speed speed = Automaton.DEFAULT ) {
 		def center = SwingAutomaton.centerOf( component )
-		to( center.x, center.y, speed )
+		onto( center.x, center.y, speed )
 	}
 
 }
 
-class SwingerDragTo extends SwingDragTo<Swinger> {
+class SwingerDragOn extends SwingDragOn<Swinger> {
 
-	protected SwingerDragTo( Swinger swinger, fromX, fromY ) {
+	protected SwingerDragOn( Swinger swinger, fromX, fromY ) {
 		super( swinger, fromX, fromY )
 	}
 
-	Swinger to( String selector, Speed speed = Automaton.DEFAULT ) {
+	Swinger onto( String selector, Speed speed = Automaton.DEFAULT ) {
 		def component = SwingUtil.lookup( selector, automaton.component )
-		to( component, speed )
+		onto( component, speed )
 	}
 }
 

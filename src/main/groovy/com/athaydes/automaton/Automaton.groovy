@@ -59,8 +59,8 @@ class Automaton<T extends Automaton> {
 		this as T
 	}
 
-	DragTo<T> dragFrom( Number x, Number y ) {
-		new DragTo( this, x, y )
+	DragOn<T> dragFrom( Number x, Number y ) {
+		new DragOn( this, x, y )
 	}
 
 	T click( ) {
@@ -73,6 +73,10 @@ class Automaton<T extends Automaton> {
 		robot.mousePress Mouse.RIGHT
 		robot.mouseRelease Mouse.RIGHT
 		this as T
+	}
+
+	T doubleClick() {
+		click().click()
 	}
 
 	T pause( long millis ) {
@@ -118,17 +122,17 @@ class Automaton<T extends Automaton> {
 
 }
 
-class DragTo<T extends Automaton> {
+class DragOn<T extends Automaton> {
 	final fromX
 	final fromY
 	final T automaton
-	protected DragTo( T automaton, fromX, fromY ) {
+	protected DragOn( T automaton, fromX, fromY ) {
 		this.automaton = automaton
 		this.fromX = fromX
 		this.fromY = fromY
 	}
 
-	T to( Number x, Number y, Speed speed = Automaton.DEFAULT ) {
+	T onto( Number x, Number y, Speed speed = Automaton.DEFAULT ) {
 		automaton.moveTo( fromX as int, fromY as int, speed )
 		automaton.dragBy( x - fromX as int, y - fromY as int, speed )
 	}
