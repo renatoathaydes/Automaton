@@ -16,7 +16,7 @@ class ConfigTest {
 
 	@Test
 	void "Provides default SPEED if no config file exists"( ) {
-		assert !config.resourceLoader.configFile?.exists()
+		config.resourceLoader = [ getConfigFile: { new File( 'DOES_NOT_EXIST' ) } ] as RealResourceLoader
 		assert config.speed == Config.DEFAULT_SPEED
 	}
 
