@@ -2,6 +2,7 @@ package com.athaydes.automaton
 
 import com.athaydes.internal.Config
 import com.athaydes.internal.Mouse
+import groovy.transform.Immutable
 
 import java.awt.*
 import java.awt.event.KeyEvent
@@ -25,15 +26,16 @@ class Automaton<T extends Automaton> {
 
 	protected Automaton( ) {}
 
-	T moveTo( int x, int y, Speed speed = DEFAULT ) {
+	T moveTo( Number x, Number y, Speed speed = DEFAULT ) {
 		def currPos = MouseInfo.pointerInfo.location
-		def target = new Point( x, y )
+		def target = new Point( x.intValue(), y.intValue() )
 		move( currPos, target, speed )
 	}
 
-	T moveBy( int x, int y, Speed speed = DEFAULT ) {
+	T moveBy( Number x, Number y, Speed speed = DEFAULT ) {
 		def currPos = MouseInfo.pointerInfo.location
-		def target = new Point( currPos.x + x as int, currPos.y + y as int )
+		def target = new Point( ( currPos.x + x ).intValue(),
+				( currPos.y + y ).intValue() )
 		move( currPos, target, speed )
 	}
 
@@ -51,11 +53,15 @@ class Automaton<T extends Automaton> {
 		curr + ( comp > 0 ? -1 : comp == 0 ? 0 : 1 ) as int
 	}
 
-	T dragBy( int x, int y, Speed speed = DEFAULT ) {
+	T dragBy( Number x, Number y, Speed speed = DEFAULT ) {
 		robot.mousePress Mouse.LEFT
 		moveBy x, y, speed
 		robot.mouseRelease Mouse.LEFT
 		this as T
+	}
+
+	DragTo dragFrom( Number x, Number y ) {
+		new DragTo( x, y )
 	}
 
 	T click( ) {
@@ -108,6 +114,21 @@ class Automaton<T extends Automaton> {
 			robot.keyRelease code
 		} finally {
 			if ( shift ) robot.keyRelease KeyEvent.VK_SHIFT
+		}
+	}
+
+	class DragTo {
+		final Number fromX
+		final Number fromY
+
+		private DragTo( Number fromX, Number fromY ) {
+			this.fromX = fromX
+			this.fromY = fromY
+		}
+
+		T to( Number x, Number y, Speed speed = DEFAULT ) {
+			moveTo( fromX, fromY, speed )
+			dragBy( x - fromX, y - fromY, speed )
 		}
 	}
 

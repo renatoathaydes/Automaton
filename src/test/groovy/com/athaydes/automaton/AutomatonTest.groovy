@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
-import com.google.code.tempusfugit.temporal.Condition
+import com.athaydes.automaton.mixins.SwingTestHelper
+import com.athaydes.automaton.mixins.TimeAware
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -8,14 +9,10 @@ import org.junit.Test
 import javax.swing.*
 import java.awt.*
 import java.awt.event.MouseEvent
-import java.util.concurrent.Callable
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.automaton.Speed.*
-import static com.google.code.tempusfugit.temporal.Duration.seconds
-import static com.google.code.tempusfugit.temporal.Timeout.timeout
-import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 import static java.awt.event.KeyEvent.*
 import static org.junit.Assert.assertEquals
 
@@ -23,7 +20,8 @@ import static org.junit.Assert.assertEquals
  *
  * User: Renato
  */
-class AutomatonTest {
+@Mixin( [ SwingTestHelper, TimeAware ] )
+class AutomatonTest implements HasSwingCode {
 
 	JFrame jFrame
 
@@ -191,6 +189,26 @@ class AutomatonTest {
 	}
 
 	@Test
+	void testDragFromTo( ) {
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
+					size: [ 300, 30 ] as Dimension, show: true )
+		}
+		waitForJFrameToShowUp()
+		def initialLocation = jFrame.locationOnScreen
+		def deltaX = 50
+		def deltaY = 30
+		def fromX = initialLocation.x + 150
+		def fromY = initialLocation.y + 20
+
+		Automaton.user.dragFrom( fromX, fromY )
+				.to( fromX + deltaX, fromY + deltaY )
+
+		assert initialLocation.x + deltaX == jFrame.locationOnScreen.x
+		assert initialLocation.y + deltaY == jFrame.locationOnScreen.y
+	}
+
+	@Test
 	void testClick( ) {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JButton btn
@@ -291,25 +309,6 @@ class AutomatonTest {
 		assert jta.text == 'aA'
 	}
 
-	static long runWithTimer( Runnable action ) {
-		def startT = System.currentTimeMillis()
-		action.run()
-		System.currentTimeMillis() - startT
-	}
-
-	private void beforeTimeRelyingTest( ) {
-		// let's try to avoid GC during the tests
-		System.gc()
-	}
-
-	private void waitForJFrameToShowUp( ) {
-		waitOrTimeout condition { jFrame?.visible }, timeout( seconds( 5 ) )
-	}
-
-	static Condition condition( Callable<Boolean> cond ) {
-		new Condition() {
-			boolean isSatisfied( ) { cond() }
-		}
-	}
-
+	@Override
+	JFrame getJFrame( ) { jFrame }
 }
