@@ -29,6 +29,11 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		move( currPos, target, speed )
 	}
 
+	SwingDragTo<SwingAutomaton> drag( Component component ) {
+		def center = centerOf( component )
+		new SwingDragTo( this, center.x, center.y )
+	}
+
 	static Point centerOf( Component component ) {
 		def center = component.locationOnScreen
 		center.x += component.width / 2
@@ -40,8 +45,8 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 
-	Component component
-	def delegate = SwingAutomaton.user
+	protected Component component
+	private delegate = SwingAutomaton.user
 
 	static Swinger getUserWith( Component component ) {
 		new Swinger( component: component )
@@ -68,5 +73,40 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
+	SwingerDragTo drag( Component component ) {
+		def center = SwingAutomaton.centerOf( component )
+		new SwingerDragTo( this, center.x, center.y )
+	}
+
+	SwingerDragTo drag( String selector ) {
+		def component = SwingUtil.lookup( selector, component )
+		drag( component )
+	}
+
+}
+
+class SwingDragTo<T extends Automaton<? extends Automaton>> extends DragTo<T> {
+
+	protected SwingDragTo( T automaton, fromX, fromY ) {
+		super( automaton, fromX, fromY )
+	}
+
+	T to( Component component, Speed speed = Automaton.DEFAULT ) {
+		def center = SwingAutomaton.centerOf( component )
+		to( center.x, center.y, speed )
+	}
+
+}
+
+class SwingerDragTo extends SwingDragTo<Swinger> {
+
+	protected SwingerDragTo( Swinger swinger, fromX, fromY ) {
+		super( swinger, fromX, fromY )
+	}
+
+	Swinger to( String selector, Speed speed = Automaton.DEFAULT ) {
+		def component = SwingUtil.lookup( selector, automaton.component )
+		to( component, speed )
+	}
 }
 

@@ -1,5 +1,7 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.mixins.SwingTestHelper
+import com.athaydes.automaton.mixins.TimeAware
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -9,11 +11,16 @@ import java.awt.*
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 
+import static com.google.code.tempusfugit.temporal.Duration.seconds
+import static com.google.code.tempusfugit.temporal.Timeout.timeout
+import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
+
 /**
  *
  * User: Renato
  */
-abstract class SwingBaseForTests {
+@Mixin( [ SwingTestHelper, TimeAware ] )
+abstract class SwingBaseForTests implements HasSwingCode {
 
 	JFrame jFrame
 
@@ -24,15 +31,13 @@ abstract class SwingBaseForTests {
 
 	void testMoveTo( Closure doMove ) {
 		JButton btn = null
-		def blockUntilReady = new ArrayBlockingQueue( 1 )
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button' )
 			}
-			blockUntilReady << true
 		}
 
-		assert blockUntilReady.poll( 5, TimeUnit.SECONDS )
+		waitForJFrameToShowUp()
 
 		doMove btn
 
@@ -47,7 +52,6 @@ abstract class SwingBaseForTests {
 	}
 
 	void testClickOn( Closure doClick ) {
-		def blockUntilReady = new ArrayBlockingQueue( 1 )
 		def buttonClickedFuture = new ArrayBlockingQueue( 1 )
 		JMenu mainMenu = null
 		JMenuItem itemExit = null
@@ -61,10 +65,9 @@ abstract class SwingBaseForTests {
 					}
 				}
 			}
-			blockUntilReady << true
 		}
 
-		assert blockUntilReady.poll( 5, TimeUnit.SECONDS )
+		waitForJFrameToShowUp()
 
 		doClick( mainMenu, itemExit )
 
@@ -72,6 +75,35 @@ abstract class SwingBaseForTests {
 		assert buttonClickedFuture.poll( 2, TimeUnit.SECONDS )
 
 	}
+
+	void testDragFromTo( Closure doDragFromTo ) {
+		def e1 = null
+		def e2 = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
+					size: [ 190, 200 ] as Dimension, show: true ) {
+				panel( layout: null ) {
+					e1 = editorPane( location: [ 20, 50 ] as Point,
+							size: [ 50, 20 ] as Dimension,
+							name: 'e1', text: 'abcdefghijklmnopqrstuvxzwy',
+							editable: false, dragEnabled: true )
+					e2 = editorPane( location: [ 100, 50 ] as Point,
+							size: [ 50, 20 ] as Dimension,
+							name: 'e2',
+							editable: true, dragEnabled: true )
+				}
+			}
+		}
+
+		waitForJFrameToShowUp()
+
+		doDragFromTo( e1, e2 )
+
+		waitOrTimeout condition { e1.text == e2.text }, timeout( seconds( 2 ) )
+	}
+
+	@Override
+	JFrame getJFrame( ) { jFrame }
 
 }
 
@@ -92,6 +124,21 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 		}
 	}
 
+	@Test
+	void testDragFromTo_Components( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).to( c2 )
+		} )
+	}
+
+	@Test
+	void testDragFromTo_FromComponentToPosition( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			def c2p = SwingAutomaton.centerOf( c2 )
+			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).to( c2p.x, c2p.y )
+		} )
+	}
+
 }
 
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
@@ -107,6 +154,21 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 			withDriver().clickOn( 'menu-button' )
 					.pause( 250 ).clickOn( 'item-exit' )
 		}
+	}
+
+	@Test
+	void testDragFromTo_Names( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).to( 'e2' )
+		} )
+	}
+
+	@Test
+	void testDragFromTo_FromNameToPosition( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			def c2p = SwingAutomaton.centerOf( c2 )
+			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).to( c2p.x, c2p.y )
+		} )
 	}
 
 }

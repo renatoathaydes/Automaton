@@ -2,7 +2,6 @@ package com.athaydes.automaton
 
 import com.athaydes.internal.Config
 import com.athaydes.internal.Mouse
-import groovy.transform.Immutable
 
 import java.awt.*
 import java.awt.event.KeyEvent
@@ -60,8 +59,8 @@ class Automaton<T extends Automaton> {
 		this as T
 	}
 
-	DragTo dragFrom( Number x, Number y ) {
-		new DragTo( x, y )
+	DragTo<T> dragFrom( Number x, Number y ) {
+		new DragTo( this, x, y )
 	}
 
 	T click( ) {
@@ -117,21 +116,22 @@ class Automaton<T extends Automaton> {
 		}
 	}
 
-	class DragTo {
-		final Number fromX
-		final Number fromY
+}
 
-		private DragTo( Number fromX, Number fromY ) {
-			this.fromX = fromX
-			this.fromY = fromY
-		}
-
-		T to( Number x, Number y, Speed speed = DEFAULT ) {
-			moveTo( fromX, fromY, speed )
-			dragBy( x - fromX, y - fromY, speed )
-		}
+class DragTo<T extends Automaton> {
+	final fromX
+	final fromY
+	final T automaton
+	protected DragTo( T automaton, fromX, fromY ) {
+		this.automaton = automaton
+		this.fromX = fromX
+		this.fromY = fromY
 	}
 
+	T to( Number x, Number y, Speed speed = Automaton.DEFAULT ) {
+		automaton.moveTo( fromX as int, fromY as int, speed )
+		automaton.dragBy( x - fromX as int, y - fromY as int, speed )
+	}
 }
 
 enum Speed {
