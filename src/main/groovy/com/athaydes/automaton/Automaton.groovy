@@ -2,9 +2,11 @@ package com.athaydes.automaton
 
 import com.athaydes.internal.Config
 import com.athaydes.internal.Mouse
+import com.athaydes.internal.TimeLimiter
 
 import java.awt.*
 import java.awt.event.KeyEvent
+import java.util.concurrent.TimeUnit
 
 import static com.athaydes.internal.RobotTypingUtil.robotCode
 
@@ -17,6 +19,7 @@ class Automaton<T extends Automaton> {
 	protected final robot = new Robot()
 	static DEFAULT = Config.instance.speed
 	private static Automaton instance
+	private abortAfter = new TimeLimiter().&abortAfter
 
 	static synchronized T getUser( ) {
 		if ( !instance ) instance = new Automaton<Automaton>()
@@ -39,12 +42,14 @@ class Automaton<T extends Automaton> {
 	}
 
 	protected T move( currPos, target, Speed speed ) {
-		while ( currPos.x != target.x || currPos.y != target.y ) {
-			robot.mouseMove delta( currPos.x, target.x ), delta( currPos.y, target.y )
-			robot.delay speed.delay
-			currPos = MouseInfo.pointerInfo.location
-		}
-		this as T
+		abortAfter( {
+			while ( currPos.x != target.x || currPos.y != target.y ) {
+				robot.mouseMove delta( currPos.x, target.x ), delta( currPos.y, target.y )
+				robot.delay speed.delay
+				currPos = MouseInfo.pointerInfo.location
+			}
+			this as T
+		}, 1, TimeUnit.MINUTES )
 	}
 
 	protected static int delta( curr, target ) {
@@ -75,7 +80,7 @@ class Automaton<T extends Automaton> {
 		this as T
 	}
 
-	T doubleClick() {
+	T doubleClick( ) {
 		click().click()
 	}
 
@@ -126,6 +131,7 @@ class DragOn<T extends Automaton> {
 	final fromX
 	final fromY
 	final T automaton
+
 	protected DragOn( T automaton, fromX, fromY ) {
 		this.automaton = automaton
 		this.fromX = fromX
