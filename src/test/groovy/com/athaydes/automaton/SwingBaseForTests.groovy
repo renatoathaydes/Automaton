@@ -8,7 +8,9 @@ import org.junit.Test
 
 import javax.swing.*
 import java.awt.*
+import java.awt.event.MouseEvent
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
 import static com.google.code.tempusfugit.temporal.Duration.seconds
@@ -76,6 +78,27 @@ abstract class SwingBaseForTests implements HasSwingCode {
 
 	}
 
+	void testDoubleClickOn( Closure doDoubleClick ) {
+		def future = new LinkedBlockingDeque<MouseEvent>( 2 )
+		JButton btn
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 50, 100 ] as Dimension, show: true ) {
+				btn = button( text: 'Click Me', name: 'the-button',
+						mouseClicked: { MouseEvent e -> future.add e } )
+			}
+		}
+
+		waitForJFrameToShowUp()
+
+		doDoubleClick( btn )
+
+		// wait up to 2 secs for the button to be clicked
+		2.times{
+			assert future.poll( 2, TimeUnit.SECONDS )
+		}
+
+	}
+
 	void testDragFromTo( Closure doDragFromTo ) {
 		def e1 = null
 		def e2 = null
@@ -125,6 +148,13 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	}
 
 	@Test
+	void testDoubleClickOn_Component( ) {
+		testDoubleClickOn { Component c ->
+			withDriver().doubleClickOn( c )
+		}
+	}
+
+	@Test
 	void testDragFromTo_Components( ) {
 		testDragFromTo( { Component c1, Component c2 ->
 			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).onto( c2 )
@@ -153,6 +183,13 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		testClickOn { Component _1, Component _2 ->
 			withDriver().clickOn( 'menu-button' )
 					.pause( 250 ).clickOn( 'item-exit' )
+		}
+	}
+
+	@Test
+	void testDoubleClickOn_Name( ) {
+		testDoubleClickOn { Component c ->
+			withDriver().doubleClickOn( 'the-button' )
 		}
 	}
 

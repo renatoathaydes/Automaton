@@ -18,9 +18,11 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	protected SwingAutomaton( ) {}
 
 	SwingAutomaton clickOn( Component component, Speed speed = DEFAULT ) {
-		if ( !component ) return this
-		def center = centerOf component
-		moveTo( center.x as int, center.y as int, speed ).click()
+		moveTo( component, speed ).click()
+	}
+
+	SwingAutomaton doubleClickOn( Component component, Speed speed = DEFAULT ) {
+		moveTo( component, speed ).doubleClick()
 	}
 
 	SwingAutomaton moveTo( Component component, Speed speed = DEFAULT ) {
@@ -57,8 +59,18 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
+	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
+		delegate.doubleClickOn( SwingUtil.lookup( selector, component ), speed )
+		this
+	}
+
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
 		delegate.clickOn( component, speed )
+		this
+	}
+
+	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
+		delegate.doubleClickOn( component, speed )
 		this
 	}
 
