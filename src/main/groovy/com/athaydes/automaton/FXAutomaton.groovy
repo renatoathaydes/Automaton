@@ -28,9 +28,11 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	protected FXAutomaton( ) {}
 
 	FXAutomaton clickOn( Node node, Speed speed = DEFAULT ) {
-		if ( !node ) return this
-		def center = centerOf node
-		moveTo( center.x as int, center.y as int, speed ).click()
+		moveTo( node, speed ).click()
+	}
+
+	FXAutomaton doubleClickOn( Node node, Speed speed = DEFAULT ) {
+		moveTo( node, speed ).doubleClick()
 	}
 
 	FXAutomaton moveTo( Node node, Speed speed = DEFAULT ) {
@@ -39,7 +41,12 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		move( currPos, target, speed )
 	}
 
-	Point centerOf( Node node ) {
+	FXDragOn<FXAutomaton> drag( Node node ) {
+		def target = centerOf node
+		new FXDragOn( this, target.x, target.y )
+	}
+
+	static Point centerOf( Node node ) {
 		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
 		def scenePos = new Point( node.scene.x.intValue(), node.scene.y.intValue() )
 		def boundsInScene = node.localToScene node.boundsInLocal
@@ -121,6 +128,14 @@ class FXer extends Automaton<FXer> {
 		this
 	}
 
+	FXer doubleClickOn( Node node, Speed speed = DEFAULT ) {
+		moveTo( node, speed ).doubleClick()
+	}
+
+	FXer doubleClickOn( String selector, Speed speed = DEFAULT ) {
+		moveTo( node.lookup( selector ), speed ).doubleClick()
+	}
+
 	FXer moveTo( Node node, Speed speed = DEFAULT ) {
 		delegate.moveTo( node, speed )
 		this
@@ -131,9 +146,43 @@ class FXer extends Automaton<FXer> {
 		this
 	}
 
+	FXDragOn<FXer> drag( Node node ) {
+		def target = centerOf node
+		new FXerDragOn( this, target.x, target.y )
+	}
+
+	FXDragOn<FXer> drag( String selector ) {
+		def target = centerOf node.lookup( selector )
+		new FXerDragOn( this, target.x, target.y )
+	}
+
 	Point centerOf( Node node ) {
 		delegate.centerOf( node )
 	}
 
+}
 
+class FXDragOn<T extends Automaton<? extends Automaton>> extends DragOn<T> {
+
+	protected FXDragOn( T automaton, fromX, fromY ) {
+		super( automaton, fromX, fromY )
+	}
+
+	T onto( Node node, Speed speed = Automaton.DEFAULT ) {
+		def center = FXAutomaton.centerOf( node )
+		onto( center.x, center.y, speed )
+	}
+
+}
+
+class FXerDragOn extends FXDragOn<FXer> {
+
+	protected FXerDragOn( FXer fxer, fromX, fromY ) {
+		super( fxer, fromX, fromY )
+	}
+
+	FXer onto( String selector, Speed speed = Automaton.DEFAULT ) {
+		def node = automaton.node.lookup( selector )
+		onto( node, speed )
+	}
 }

@@ -80,7 +80,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 
 	void testDoubleClickOn( Closure doDoubleClick ) {
 		def future = new LinkedBlockingDeque<MouseEvent>( 2 )
-		JButton btn
+		JButton btn = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 50, 100 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button',

@@ -37,6 +37,19 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer doubleClickOn( Node node, Speed speed = DEFAULT ) {
+		fxer.doubleClickOn( node, speed )
+		this
+	}
+
+	SwingerFxer doubleClickOn( String selector, Speed speed = DEFAULT ) {
+		if ( isJavaFXSelector( selector ) )
+			fxer.doubleClickOn( selector, speed )
+		else
+			swinger.doubleClickOn( selector, speed )
+		this
+	}
+
 	SwingerFxer moveTo( Node node, Speed speed = DEFAULT ) {
 		fxer.moveTo( node, speed )
 		this
