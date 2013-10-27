@@ -9,16 +9,15 @@ import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
-import javafx.scene.input.DragEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
+import org.junit.AfterClass
 import org.junit.Before
 import org.junit.Test
 
-import java.awt.*
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
@@ -38,6 +37,11 @@ class FXBaseForTests implements HasMixins {
 	void setup( ) {
 		log.debug "Setting up FX Automaton Test"
 		FXApp.initialize()
+	}
+
+	@AfterClass
+	static void cleanup() {
+		Platform.runLater { FXApp.initialize().close() }
 	}
 
 	void testMoveTo( Closure getDriver, Closure optionalDoMoveTo = null ) {
@@ -155,27 +159,18 @@ class FXBaseForTests implements HasMixins {
 
 		def rect = new Rectangle( id: 'rec', fill: Color.BLACK, width: 10, height: 10 )
 
-		Point initialPosition = null
-
-		rect.onDragDetected = { MouseEvent e ->
-			//initialPosition = [ e.sceneX, e.screenY ] as Point
+		rect.onMouseDragged = { MouseEvent e ->
+			rect.relocate( e.sceneX - ( rect.width / 2 ), e.sceneY - ( rect.height / 2 ) )
 			e.consume()
 		} as EventHandler
-
-		//rect.onMouseDragged = { DragEvent e ->
-			//rect.layoutX = 50 + e.sceneX - initialPosition.x
-			//rect.layoutY = 20 + e.sceneY - initialPosition.y
-		//	println "Rect position is now ${rect.layoutBounds}"
-		//	e.consume()
-		//} as EventHandler
 
 		def target = new Rectangle( id: 'rec', fill: Color.RED, width: 10, height: 10 )
 
 		Platform.runLater {
-			def box = new Pane( width: 300, height: 250 )
+			def box = new Pane( width: 200, height: 150 )
 			box.children.addAll rect, target
 			rect.relocate( 50, 20 )
-			target.relocate( 250, 150 )
+			target.relocate( 150, 50 )
 
 			FXApp.scene.root = box
 			blockUntilTestSceneSetup << true
@@ -184,19 +179,16 @@ class FXBaseForTests implements HasMixins {
 		assert blockUntilTestSceneSetup.poll( 4, TimeUnit.SECONDS )
 		sleep 250
 
-		println "STARTING DRAGGING"
 		doDrag( rect, target )
 
-		println "WAITING FOR RESULT"
-		waitOrTimeout condition { rect.x == target.x && rect.y == target.y }, timeout( seconds( 5 ) )
-		println "RESULT IS GOOD!!!!"
-		throw new RuntimeException("FUCK")
-
+		waitOrTimeout condition {
+			rect.localToScene( 0, 0 ) == target.localToScene( 0, 0 )
+		}, timeout( seconds( 2 ) )
 	}
 
 	void testType( Closure getDriver ) {
 		def future = new LinkedBlockingDeque( 1 )
-		def textArea = new TextArea()
+		def textArea = new TextArea( maxWidth: 200, maxHeight: 150 )
 
 		Platform.runLater {
 			def hbox = new HBox( padding: [ 40 ] as Insets )
@@ -231,17 +223,26 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 
 	@Test
 	void testClickOn_Node( ) {
-		testClickOn { Node n -> withDriver().clickOn( n ) }
+		testClickOn { Node n ->
+			def automaton = withDriver()
+			assert automaton == automaton.clickOn( n )
+		}
 	}
 
 	@Test
 	void testDoubleClickOn_Node( ) {
-		testDoubleClickOn { Node n -> withDriver().doubleClickOn( n ) }
+		testDoubleClickOn { Node n ->
+			def automaton = withDriver()
+			assert automaton == automaton.doubleClickOn( n )
+		}
 	}
 
 	@Test
 	void testDrag_Node( ) {
-		testDrag { Node n1, Node target -> withDriver().drag( n1 ).onto( target ) }
+		testDrag { Node n1, Node target ->
+			def automaton = withDriver()
+			assert automaton == automaton.drag( n1 ).onto( target )
+		}
 	}
 
 	@Test

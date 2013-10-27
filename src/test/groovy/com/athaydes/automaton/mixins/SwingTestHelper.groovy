@@ -16,6 +16,8 @@ class SwingTestHelper {
 
 	void waitForJFrameToShowUp( ) {
 		waitOrTimeout( { getJFrame()?.visible } as Condition, timeout( seconds( 5 ) ) )
+		getJFrame().toFront()
+		sleep 1000
 	}
 
 }

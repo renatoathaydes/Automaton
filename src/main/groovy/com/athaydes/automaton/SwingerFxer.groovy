@@ -63,6 +63,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	FXDragOn drag( Node node ) {
+		def target = centerOf node
+		new FXDragOn( this, target.x, target.y )
+	}
+
 	Point centerOf( Node node ) {
 		fxer.centerOf( node )
 	}

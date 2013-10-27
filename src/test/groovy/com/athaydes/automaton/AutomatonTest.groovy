@@ -2,6 +2,9 @@ package com.athaydes.automaton
 
 import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
+import com.google.code.tempusfugit.temporal.Duration
+import com.google.code.tempusfugit.temporal.Timeout
+import com.google.code.tempusfugit.temporal.WaitFor
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -13,6 +16,9 @@ import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.automaton.Speed.*
+import static com.google.code.tempusfugit.temporal.Duration.seconds
+import static com.google.code.tempusfugit.temporal.Timeout.timeout
+import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 import static java.awt.event.KeyEvent.*
 import static org.junit.Assert.assertEquals
 
@@ -34,28 +40,28 @@ class AutomatonTest implements HasSwingCode {
 	void testMoveTo( ) {
 		beforeTimeRelyingTest()
 
-		Automaton.user.moveTo 0, 0, VERY_FAST
-		assert MouseInfo.pointerInfo.location == new Point( 0, 0 )
+		Automaton.user.moveTo 50, 50, VERY_FAST
+		assert MouseInfo.pointerInfo.location == new Point( 50, 50 )
 
 		def veryFastDelta = runWithTimer {
-			Automaton.user.moveTo 50, 100, VERY_FAST
+			Automaton.user.moveTo 100, 150, VERY_FAST
 		}
-		assert MouseInfo.pointerInfo.location == new Point( 50, 100 )
+		assert MouseInfo.pointerInfo.location == new Point( 100, 150 )
 
 		def fastDelta = runWithTimer {
-			Automaton.user.moveTo 0, 0, FAST
+			Automaton.user.moveTo 50, 50, FAST
 		}
-		assert MouseInfo.pointerInfo.location == new Point( 0, 0 )
+		assert MouseInfo.pointerInfo.location == new Point( 50, 50 )
 
 		def mediumDelta = runWithTimer {
-			Automaton.user.moveTo 50, 100, MEDIUM
+			Automaton.user.moveTo 100, 150, MEDIUM
 		}
-		assert MouseInfo.pointerInfo.location == new Point( 50, 100 )
+		assert MouseInfo.pointerInfo.location == new Point( 100, 150 )
 
 		def slowDelta = runWithTimer {
-			Automaton.user.moveTo 0, 0, SLOW
+			Automaton.user.moveTo 50, 50, SLOW
 		}
-		assert MouseInfo.pointerInfo.location == new Point( 0, 0 )
+		assert MouseInfo.pointerInfo.location == new Point( 50, 50 )
 
 		assert slowDelta > mediumDelta
 		assert mediumDelta > fastDelta
@@ -64,15 +70,15 @@ class AutomatonTest implements HasSwingCode {
 		assert veryFastDelta > 50
 
 		def defaultDelta = runWithTimer {
-			Automaton.user.moveTo 50, 100
+			Automaton.user.moveTo 100, 150
 		}
-		def tolerance = 25 // ms
+		def tolerance = 50 // ms
 		def expectedDelta = defaultFrom slowDelta, mediumDelta, fastDelta, veryFastDelta
 		assertEquals defaultDelta, expectedDelta, tolerance
 
 		// test method chaining
-		Automaton.user.moveTo( 0, 0 ).moveTo( 50, 50 ).moveTo( 100, 0 )
-		assert MouseInfo.pointerInfo.location == new Point( 100, 0 )
+		Automaton.user.moveTo( 50, 50 ).moveTo( 100, 100 ).moveTo( 150, 50 )
+		assert MouseInfo.pointerInfo.location == new Point( 150, 50 )
 
 	}
 
@@ -82,6 +88,7 @@ class AutomatonTest implements HasSwingCode {
 			case MEDIUM: return medium
 			case FAST: return fast
 			case VERY_FAST: return veryFast
+			default: throw new RuntimeException( "Unknown speed: ${Automaton.DEFAULT}" )
 		}
 	}
 
@@ -135,16 +142,20 @@ class AutomatonTest implements HasSwingCode {
 		beforeTimeRelyingTest()
 
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 30 ] as Dimension, show: true )
+			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
+					size: [ 300, 20 ] as Dimension, show: true )
 		}
 		waitForJFrameToShowUp()
 		def initialLocation = jFrame.locationOnScreen
 		SwingAutomaton.user.moveTo( jFrame )
 
 		def assertDraggedBy = { x, y ->
-			assert jFrame.locationOnScreen.x == initialLocation.x + x
-			assert jFrame.locationOnScreen.y == initialLocation.y + y
+			waitOrTimeout( condition {
+				jFrame.locationOnScreen.x == initialLocation.x + x &&
+						jFrame.locationOnScreen.y == initialLocation.y + y
+			}, timeout( seconds( 1 ) ) )
 			initialLocation = jFrame.locationOnScreen
+			sleep 500 // to avoid maximizing window in some OS's
 		}
 
 		def veryFastDelta = runWithTimer {
@@ -183,8 +194,8 @@ class AutomatonTest implements HasSwingCode {
 		assertEquals defaultDelta, expectedDelta, tolerance
 
 		// test method chaining
-		Automaton.user.dragBy( -50, 0 ).dragBy( 0, 50 )
-				.dragBy( 50, 0 ).dragBy( 0, -50 )
+		Automaton.user.dragBy( 150, 0 ).dragBy( 0, 150 )
+				.dragBy( -150, 0 ).dragBy( 0, -150 )
 		assertDraggedBy 0, 0
 	}
 
@@ -204,6 +215,7 @@ class AutomatonTest implements HasSwingCode {
 		Automaton.user.dragFrom( fromX, fromY )
 				.onto( fromX + deltaX, fromY + deltaY )
 
+		sleep 250
 		assert initialLocation.x + deltaX == jFrame.locationOnScreen.x
 		assert initialLocation.y + deltaY == jFrame.locationOnScreen.y
 	}
@@ -213,7 +225,7 @@ class AutomatonTest implements HasSwingCode {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JButton btn
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 100, 100 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button',
 						mouseClicked: { MouseEvent e -> future.add e } )
 			}
@@ -236,10 +248,10 @@ class AutomatonTest implements HasSwingCode {
 
 	@Test
 	void testDoubleClick( ) {
-		def future = new LinkedBlockingDeque<Integer>( 2 )
+		def future = new LinkedBlockingDeque( 2 )
 		JButton btn
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 100, 100 ] as Dimension, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button',
 						mouseClicked: { MouseEvent e -> future.add e } )
 			}
