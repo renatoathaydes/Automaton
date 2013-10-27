@@ -9,8 +9,10 @@ to be using Java).
 
 ## Requirements
 
-To use *Automaton*, you need to clone it from Git and build it with Maven (or your compilation tool of choice)
+To use *Automaton*, you need to clone it from Git and build it with [Gradle](http://www.gradle.org) (or your compilation tool of choice)
 in your local machine.
+When you build, make sure to either skip the tests or prepare to leave your machine under Automaton's control for a couple of minutes
+as it runs all the tests (100% test coverage is a goal in this project, so there's a lot of tests).
 
 If I get a request, I can just email you the jar or even try to get it on the Maven Central.
 
