@@ -16,7 +16,7 @@ If I get a request, I can just email you the jar or even try to get it on the Ma
 
 Please let me know if you would have interest! My email is renato@athaydes.com
 
-To see this project dependencies, check the pom.xml file in the root folder.
+To see this project dependencies, check the build.gradle file in the root folder.
 
 ## How to use it
 

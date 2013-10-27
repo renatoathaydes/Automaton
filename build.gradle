@@ -1,0 +1,45 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
+
+defaultTasks 'clean', 'jar', 'test'
+
+group = 'com.athaydes'
+version = "0.1-SNAPSHOT"
+description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
+
+ext.groovyVersion = '2.1.5'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	compile "org.codehaus.groovy:groovy-all:${ext.groovyVersion}"
+	compile "org.slf4j:slf4j-api:1.7.5"
+	runtime "org.slf4j:log4j-over-slf4j:1.7.5"
+	runtime "log4j:log4j:1.2.14"
+	testCompile "junit:junit:4.9"
+	testCompile "com.google.code.tempus-fugit:tempus-fugit:1.1"
+}
+
+compileTestJava.enabled = false
+
+test {
+	forkEvery 1 // JavaFX Stage has to be closed to avoid OS Exception in Linux at end of tests
+	testLogging.showStandardStreams = true
+	beforeTest { descriptor ->
+		logger.lifecycle( "Running test: " + descriptor )
+	}
+}
+
+jar {
+	dependsOn "compileGroovy"
+	manifest {
+		attributes(
+				"Implementation-Title": "Automaton",
+				"Implementation-Version": version )
+	}
+}
