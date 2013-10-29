@@ -35,6 +35,8 @@ test {
 	}
 }
 
+jfxJar.enabled = false
+
 jar {
 	dependsOn "compileGroovy"
 	manifest {
