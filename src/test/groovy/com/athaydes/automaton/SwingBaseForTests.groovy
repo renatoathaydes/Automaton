@@ -93,7 +93,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 		doDoubleClick( btn )
 
 		// wait up to 2 secs for the button to be clicked
-		2.times{
+		2.times {
 			assert future.poll( 2, TimeUnit.SECONDS )
 		}
 
@@ -108,7 +108,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 				panel( layout: null ) {
 					e1 = editorPane( location: [ 20, 50 ] as Point,
 							size: [ 50, 20 ] as Dimension,
-							name: 'e1', text: 'abcdefghijklmnopqrstuvxzwy',
+							name: 'e1', text: 'abcdefg',
 							editable: false, dragEnabled: true )
 					e2 = editorPane( location: [ 100, 50 ] as Point,
 							size: [ 50, 20 ] as Dimension,
@@ -174,8 +174,52 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
+	void shouldUseMapToFindPrefixedNames( ) {
+		def abcdCalls = [ ]
+		def efghCalls = [ ]
+		def driver = withDriver()
+		driver.specialPrefixes = [
+				'abcd:': { argForAbcd, _ -> abcdCalls << argForAbcd },
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+
+		driver.clickOn( 'efgh:4567890123' )
+
+		assert abcdCalls == [ ]
+		assert efghCalls == [ '4567890123' ]
+
+		driver.clickOn( 'abcd:123' )
+
+		assert abcdCalls == [ '123' ]
+		assert efghCalls == [ '4567890123' ]
+	}
+
+	@Test
+	void shouldUseFirstEntryInMapOnUnprefixedNames( ) {
+		def abcdCalls = [ ]
+		def efghCalls = [ ]
+		def driver = withDriver()
+		driver.specialPrefixes = [
+				'abcd:': { argForAbcd, _ -> abcdCalls << argForAbcd },
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+
+		assert 'abcd:' == driver.specialPrefixes.keySet().first()
+
+		driver.clickOn( '123' )
+
+		assert abcdCalls == [ '123' ]
+		assert efghCalls == [ ]
+	}
+
+	@Test
 	void testMoveTo_Name( ) {
 		testMoveTo { Component c -> withDriver().moveTo( 'the-button' ) }
+	}
+
+	@Test
+	void testMoveTo_Text( ) {
+		testMoveTo { Component c -> withDriver().moveTo( 'text:Click Me' ) }
 	}
 
 	@Test
@@ -187,6 +231,14 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
+	void testClickOn_Text( ) {
+		testClickOn { Component _1, Component _2 ->
+			withDriver().clickOn( 'text:File' )
+					.pause( 250 ).clickOn( 'text:Exit' )
+		}
+	}
+
+	@Test
 	void testDoubleClickOn_Name( ) {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'the-button' )
@@ -194,9 +246,23 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
+	void testDoubleClickOn_Text( ) {
+		testDoubleClickOn { Component c ->
+			withDriver().doubleClickOn( 'text:Click Me' )
+		}
+	}
+
+	@Test
 	void testDragFromTo_Names( ) {
 		testDragFromTo( { Component c1, Component c2 ->
-			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).onto( 'e2' )
+			withDriver().doubleClickOn( 'e1' ).drag( 'e1' ).onto( 'e2' )
+		} )
+	}
+
+	@Test
+	void testDragFromTo_Texts( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			withDriver().doubleClickOn( 'text:abcdefg' ).drag( 'text:abcdefg' ).onto( 'e2' )
 		} )
 	}
 
@@ -204,7 +270,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testDragFromTo_FromNameToPosition( ) {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
-			withDriver().clickOn( 'e1' ).clickOn( 'e1' ).drag( 'e1' ).onto( c2p.x, c2p.y )
+			withDriver().doubleClickOn( 'e1' ).drag( 'e1' ).onto( c2p.x, c2p.y )
 		} )
 	}
 

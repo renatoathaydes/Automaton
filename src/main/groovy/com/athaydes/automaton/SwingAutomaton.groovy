@@ -46,24 +46,16 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 }
 
 class Swinger extends Automaton<Swinger> {
-
+	static final Map<String, Closure> DEFAULT_PREFIX_MAP =
+		[ 'name:': SwingUtil.&lookup, 'text:': SwingUtil.&text ].asImmutable()
 	Component component
-	private delegate = SwingAutomaton.user
+	protected delegate = SwingAutomaton.user
+	Map<String, Closure> specialPrefixes
 
 	protected Swinger( ) {}
 
 	static Swinger getUserWith( Component component ) {
-		new Swinger( component: component )
-	}
-
-	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.clickOn( SwingUtil.lookup( selector, component ), speed )
-		this
-	}
-
-	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.doubleClickOn( SwingUtil.lookup( selector, component ), speed )
-		this
+		new Swinger( specialPrefixes: DEFAULT_PREFIX_MAP, component: component )
 	}
 
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
@@ -73,12 +65,6 @@ class Swinger extends Automaton<Swinger> {
 
 	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
 		delegate.doubleClickOn( component, speed )
-		this
-	}
-
-	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
-		def component = SwingUtil.lookup( selector, component )
-		delegate.moveTo( component, speed )
 		this
 	}
 
@@ -92,9 +78,37 @@ class Swinger extends Automaton<Swinger> {
 		new SwingerDragOn( this, center.x, center.y )
 	}
 
+	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
+		selector = ensurePrefixed selector
+		delegate.clickOn( prefixed( selector ), speed )
+		this
+	}
+
+	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
+		selector = ensurePrefixed selector
+		delegate.doubleClickOn( prefixed( selector ), speed )
+		this
+	}
+
+	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
+		selector = ensurePrefixed selector
+		delegate.moveTo( prefixed( selector ), speed )
+		this
+	}
+
 	SwingerDragOn drag( String selector ) {
-		def component = SwingUtil.lookup( selector, component )
-		drag( component )
+		selector = ensurePrefixed selector
+		drag( prefixed( selector ) )
+	}
+
+	protected String ensurePrefixed( String selector ) {
+		def prefixes = specialPrefixes.keySet()
+		selector.size() > 5 && selector[ 0..4 ] in prefixes ?
+			selector : "${prefixes[ 0 ]}${selector}"
+	}
+
+	protected prefixed( String selector ) {
+		specialPrefixes[ selector[ 0..4 ] ]( selector[ 5..-1 ], component )
 	}
 
 	/**
