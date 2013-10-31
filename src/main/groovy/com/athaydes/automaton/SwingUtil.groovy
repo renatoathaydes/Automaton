@@ -1,5 +1,6 @@
 package com.athaydes.automaton
 
+import javax.swing.*
 import java.awt.*
 
 /**
@@ -16,7 +17,32 @@ class SwingUtil {
 	 */
 	static Component lookup( String name, Component root ) {
 		Component res = null
-		navigateBreadthFirst( root ) { if ( it?.name == name ) res = it }
+		navigateBreadthFirst( root ) { it?.name == name ? res = it : false }
+		return res
+	}
+
+	/**
+	 * Finds any [ Component | TreeNode ] with the given text under the given root
+	 * @param textToFind
+	 * @param root
+	 * @return item found or null
+	 */
+	static text( String textToFind, Component root ) {
+		Object res = null
+		navigateBreadthFirst( root ) {
+			switch ( it ) {
+				case JTree:
+					navigateBreadthFirst( it as JTree ) {
+						if ( it as String == textToFind ) res = it
+						res != null
+					}
+					break
+				case Object:
+					if ( callMethodIfExists( it, 'getText' ) == textToFind )
+						res = it
+			}
+			res != null
+		}
 		return res
 	}
 
@@ -25,8 +51,9 @@ class SwingUtil {
 	 * To stop navigating, action may return true
 	 * @param root of tree to be navigated
 	 * @param action to be called on each visited Component. Return true to stop navigating.
+	 * @return true if action returned true for any Component
 	 */
-	static boolean navigateBreadthFirst( Component root, Closure<Component> action ) {
+	static boolean navigateBreadthFirst( Component root, Closure action ) {
 		def nextLevel = [ root ]
 		while ( nextLevel ) {
 			if ( visit( nextLevel, action ) ) return true
@@ -34,6 +61,29 @@ class SwingUtil {
 			nextLevel.each { subItems += subItemsOf( it ) }
 			nextLevel = subItems
 		}
+		return false
+	}
+
+	/**
+	 * Navigates the given tree, calling the given action for each node, including the root.
+	 * To stop navigating, action may return true
+	 * @param tree to be navigated
+	 * @param action to be called on each visited node. Return true to stop navigating.
+	 * @return true if action returned true for any node
+	 */
+	static boolean navigateBreadthFirst( JTree tree, Closure action ) {
+		if ( tree.model ) {
+			def nextLevel = [ tree.model.root ]
+			while ( nextLevel ) {
+				if ( visit( nextLevel, action ) ) return true
+				nextLevel = nextLevel.collect { node ->
+					( 0..<tree.model.getChildCount( node ) ).collect { i ->
+						tree.model.getChild( node, i )
+					}
+				}.flatten()
+			}
+		}
+		return false
 	}
 
 	private static subItemsOf( component ) {
@@ -43,7 +93,8 @@ class SwingUtil {
 	}
 
 	private static visit( nextLevel, action ) {
-		for ( component in nextLevel ) if ( action( component ) ) return true
+		for ( item in nextLevel ) if ( action( item ) ) return true
+		return false
 	}
 
 	/**
