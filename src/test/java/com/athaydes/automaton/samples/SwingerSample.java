@@ -21,11 +21,9 @@ import static org.junit.Assert.assertThat;
  */
 public class SwingerSample {
 
-    static SwingJavaFXSampleAppTest swingJavaFx = new SwingJavaFXSampleAppTest();
-
     @BeforeClass
     public static void startup() {
-        swingJavaFx.setup();
+        new SwingJavaFXSampleAppTest().setup();
     }
 
     @AfterClass
@@ -63,7 +61,8 @@ public class SwingerSample {
 
         swinger.setSpecialPrefixes( createCustomSelectors() );
 
-        swinger.clickOn( "text-area" );
+        // click on the Component with name 'text-area', turning all chars lower-case with the custom selector
+        swinger.clickOn( "cust:Text-AreA" );
 
         // clean the text area
         for ( int i = 0; i < 25; i++ ) {
@@ -80,15 +79,17 @@ public class SwingerSample {
 
     private Map<String, Closure> createCustomSelectors() {
 
-        // we must use a sorted map as the first entry is used if no prefix is given
+        // we must use a sorted map as the first entry in the map is used if no prefix is given
+        // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
         Map<String, Closure> customSelectors = new LinkedHashMap<String, Closure>();
         customSelectors.put( "cust:", new Closure( this ) {
             @Override
             public Object call( Object... args ) {
-                // this custom selector does exactly the same thing as Automaton's default selector
+                // this custom selector does almost exactly the same thing as Automaton's default selector
+                // except that it turns all characters lower-case before looking up by name
                 String selector = ( String ) args[ 0 ];
                 Component component = ( Component ) args[ 1 ];
-                return SwingUtil.lookup( selector, component );
+                return SwingUtil.lookup( selector.toLowerCase(), component );
             }
         } );
 
