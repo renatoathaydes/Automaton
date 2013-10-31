@@ -47,7 +47,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 
-	protected Component component
+	Component component
 	private delegate = SwingAutomaton.user
 
 	static Swinger getUserWith( Component component ) {
@@ -95,6 +95,17 @@ class Swinger extends Automaton<Swinger> {
 		drag( component )
 	}
 
+	/**
+	 * @return Swinger whose root element is the first Window that can be found
+	 * by calling {@code java.awt.Window.getWindows ( )}
+	 */
+	static Swinger forSwingWindow( ) {
+		if ( Window.windows ) {
+			getUserWith( Window.windows[ 0 ] )
+		} else {
+			throw new RuntimeException( 'Impossible to get any Swing window' )
+		}
+	}
 }
 
 class SwingDragOn<T extends Automaton<? extends Automaton>> extends DragOn<T> {
