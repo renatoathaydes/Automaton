@@ -50,6 +50,8 @@ class Swinger extends Automaton<Swinger> {
 	Component component
 	private delegate = SwingAutomaton.user
 
+	protected Swinger( ) {}
+
 	static Swinger getUserWith( Component component ) {
 		new Swinger( component: component )
 	}
