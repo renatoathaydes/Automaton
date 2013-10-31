@@ -13,6 +13,7 @@ import java.awt.event.KeyEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -71,10 +72,10 @@ public class SwingerSample {
 
         swinger.type( "Using a custom selector" );
 
-        // Lookup the TextArea using Automaton's SwingUtil class
-        JTextArea textArea = ( JTextArea ) SwingUtil.lookup( "text-area", swinger.getComponent() );
+        // attempt to locate any Swing Component with the given text
+        Object areaWithTypedText = SwingUtil.text( "Using a custom selector", swinger.getComponent() );
 
-        assertThat( textArea.getText(), is( "Using a custom selector" ) );
+        assertThat( areaWithTypedText, instanceOf( JTextArea.class ) );
     }
 
     private Map<String, Closure> createCustomSelectors() {
