@@ -57,7 +57,11 @@ SwingAutomaton.getUser().clickOn( clickMe )
 ```
 
 The Strings passed to the lookup method ( SwingUtil is a utility class provided by *Automaton* ) are the *name* of
- the Swing components... so in order to be able to select a Swing Component with *Automaton*, its name must be specified.
+the Swing components... so in order to be able to select a Swing Component with this method, its name must be specified.
+
+The next section shows how the `Swinger` allows much more flexible selection of Components by other means, among other
+convenient features for Swing testers.
+
 
 #### The Swinger
 
