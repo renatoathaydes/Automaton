@@ -175,40 +175,40 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
 	void shouldUseMapToFindPrefixedNames( ) {
-		def abcdCalls = [ ]
+		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.specialPrefixes = [
-				'abcd:': { argForAbcd, _ -> abcdCalls << argForAbcd },
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
 				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
 
 		driver.clickOn( 'efgh:4567890123' )
 
-		assert abcdCalls == [ ]
+		assert abcCalls == [ ]
 		assert efghCalls == [ '4567890123' ]
 
-		driver.clickOn( 'abcd:123' )
+		driver.clickOn( 'abc:123' )
 
-		assert abcdCalls == [ '123' ]
+		assert abcCalls == [ '123' ]
 		assert efghCalls == [ '4567890123' ]
 	}
 
 	@Test
 	void shouldUseFirstEntryInMapOnUnprefixedNames( ) {
-		def abcdCalls = [ ]
+		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.specialPrefixes = [
-				'abcd:': { argForAbcd, _ -> abcdCalls << argForAbcd },
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
 				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
 
-		assert 'abcd:' == driver.specialPrefixes.keySet().first()
+		assert 'abc:' == driver.specialPrefixes.keySet().first()
 
 		driver.clickOn( '123' )
 
-		assert abcdCalls == [ '123' ]
+		assert abcCalls == [ '123' ]
 		assert efghCalls == [ ]
 	}
 

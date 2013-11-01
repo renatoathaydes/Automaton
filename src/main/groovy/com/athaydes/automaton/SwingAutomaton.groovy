@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import java.awt.*
+import java.util.List
 
 /**
  *
@@ -79,36 +80,36 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		selector = ensurePrefixed selector
-		delegate.clickOn( prefixed( selector ), speed )
+		def prefix_selector = ensurePrefixed selector
+		delegate.clickOn( findPrefixed( prefix_selector ), speed )
 		this
 	}
 
 	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		selector = ensurePrefixed selector
-		delegate.doubleClickOn( prefixed( selector ), speed )
+		def prefix_selector = ensurePrefixed selector
+		delegate.doubleClickOn( findPrefixed( prefix_selector ), speed )
 		this
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
-		selector = ensurePrefixed selector
-		delegate.moveTo( prefixed( selector ), speed )
+		def prefix_selector = ensurePrefixed selector
+		delegate.moveTo( findPrefixed( prefix_selector ), speed )
 		this
 	}
 
 	SwingerDragOn drag( String selector ) {
-		selector = ensurePrefixed selector
-		drag( prefixed( selector ) )
+		def prefix_selector = ensurePrefixed selector
+		drag( findPrefixed( prefix_selector ) )
 	}
 
-	protected String ensurePrefixed( String selector ) {
+	protected List ensurePrefixed( String selector ) {
 		def prefixes = specialPrefixes.keySet()
-		selector.size() > 5 && selector[ 0..4 ] in prefixes ?
-			selector : "${prefixes[ 0 ]}${selector}"
+		def prefix = prefixes.find { selector.startsWith it }
+		[ prefix ?: prefixes[ 0 ], prefix ? selector - prefix : selector ]
 	}
 
-	protected prefixed( String selector ) {
-		specialPrefixes[ selector[ 0..4 ] ]( selector[ 5..-1 ], component )
+	protected findPrefixed( String prefix, String selector ) {
+		specialPrefixes[ prefix ]( selector, component )
 	}
 
 	/**
