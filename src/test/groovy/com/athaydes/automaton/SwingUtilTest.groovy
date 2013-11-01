@@ -2,9 +2,10 @@ package com.athaydes.automaton
 
 import com.athaydes.automaton.mixins.SwingTestHelper
 import groovy.swing.SwingBuilder
-import org.junit.Test
+import spock.lang.Specification
 
 import javax.swing.*
+import javax.swing.tree.DefaultMutableTreeNode
 import java.awt.*
 
 /**
@@ -12,15 +13,14 @@ import java.awt.*
  * User: Renato
  */
 @Mixin( SwingTestHelper )
-class SwingUtilTest implements HasSwingCode {
+class SwingUtilTest extends Specification implements HasSwingCode {
 
 	JFrame jFrame
 
 	JFrame getJFrame( ) { jFrame }
 
-	@Test
-	void testNavigateBreadthFirstComponentsWholeTree( ) {
-
+	def testNavigateBreadthFirstComponentsWholeTree( ) {
+		given:
 		def empty = { name -> [ getComponents: { [ ] as Component[] }, toString: { name } ] as Container }
 		def c1a = empty 'c1a'
 		def c2_1a = empty 'c2_1a'
@@ -34,34 +34,39 @@ class SwingUtilTest implements HasSwingCode {
 		] as Container
 		def root = [ getComponents: { [ c1, c2 ] as Component[] }, toString: { 'root' } ] as Container
 
+		and:
 		def visited = [ ]
 		def action = { Component c -> visited += c; false }
 
+		when:
 		def res = SwingUtil.navigateBreadthFirst root, action
 
-		assert visited == [ root, c1, c2, c1a, c2_1, c2cp, c2_1a, c2_1b, c2cp1 ]
-		assert !res // action never returned true
+		then:
+		visited == [ root, c1, c2, c1a, c2_1, c2cp, c2_1a, c2_1b, c2cp1 ]
+		!res // action never returned true
 	}
 
-	@Test
-	void testNavigateBreadthFirstComponentsPartialTree( ) {
-
+	def testNavigateBreadthFirstComponentsPartialTree( ) {
+		given:
 		def empty = { name -> [ getComponents: { [ ] as Component[] }, toString: { name } ] as Container }
 		def c1 = empty 'c1'
 		def c2 = empty 'c2'
 		def root = [ getComponents: { [ c1, c2 ] as Component[] }, toString: { 'root' } ] as Container
 
+		and:
 		def visited = [ ]
 		def action = { Component c -> visited += c; c.toString() == 'c1' }
 
+		when:
 		def res = SwingUtil.navigateBreadthFirst root, action
 
-		assert visited == [ root, c1 ]
-		assert res
+		then:
+		visited == [ root, c1 ]
+		res
 	}
 
-	@Test
-	void testNavigateBreadthFirstJTreesWholeTree( ) {
+	def testNavigateBreadthFirstJTreesWholeTree( ) {
+		given:
 		JTree mTree = null
 		new SwingBuilder().edt {
 			frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
@@ -70,21 +75,26 @@ class SwingUtilTest implements HasSwingCode {
 		}
 		sleep 100
 
+		and:
 		def visited = [ ]
+
+		when:
 		def res = SwingUtil.navigateBreadthFirst( mTree ) {
 			visited << it
 			false
 		}
-		assert visited.collect { it as String } == [ mTree.model.root as String,
+
+		then:
+		visited.collect { it as String } == [ mTree.model.root as String,
 				'colors', 'sports', 'food',
 				'blue', 'violet', 'red', 'yellow',
 				'basketball', 'soccer', 'football', 'hockey',
 				'hot dogs', 'pizza', 'ravioli', 'bananas' ]
-		assert !res // action never returned true
+		!res // action never returned true
 	}
 
-	@Test
-	void testNavigateBreadthFirstJTreesPartialTree( ) {
+	def testNavigateBreadthFirstJTreesPartialTree( ) {
+		given:
 		JTree mTree = null
 		new SwingBuilder().edt {
 			frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
@@ -93,24 +103,29 @@ class SwingUtilTest implements HasSwingCode {
 		}
 		sleep 100
 
+		and:
 		def visited = [ ]
+
+		when:
 		def res = SwingUtil.navigateBreadthFirst( mTree ) {
 			visited << it
 			it.toString() == 'blue'
 		}
 
-		assert visited.collect { it as String } == [ mTree.model.root as String,
+		then:
+		visited.collect { it as String } == [ mTree.model.root as String,
 				'colors', 'sports', 'food', 'blue' ]
-		assert res
+		res
 	}
 
-	@Test
-	void testLookup( ) {
+	def testLookup( ) {
+		given:
 		JTree mboxTree = null
 		def pane1 = null, pane1_1 = null, pane1_2 = null,
 		    pane1_2a = null, pane1_2b = null, menuButton = null,
 		    itemExit = null
 
+		and:
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
 				menuBar() {
@@ -133,36 +148,37 @@ class SwingUtilTest implements HasSwingCode {
 
 		sleep 100
 
-		assert menuButton == SwingUtil.lookup( 'menu-button', jFrame )
-		assert itemExit == SwingUtil.lookup( 'item-exit', jFrame )
-		assert mboxTree == SwingUtil.lookup( 'mboxTree', jFrame )
-		assert pane1 == SwingUtil.lookup( 'pane1', jFrame )
-		assert pane1_1 == SwingUtil.lookup( 'pane1-1', pane1 )
-		assert pane1_2 == SwingUtil.lookup( 'pane1-2', pane1 )
-		assert pane1_2a == SwingUtil.lookup( 'pane1-2a', jFrame )
-		assert pane1_2b == SwingUtil.lookup( 'pane1-2b', pane1_2 )
+		expect:
+		menuButton == SwingUtil.lookup( 'menu-button', jFrame )
+		itemExit == SwingUtil.lookup( 'item-exit', jFrame )
+		mboxTree == SwingUtil.lookup( 'mboxTree', jFrame )
+		pane1 == SwingUtil.lookup( 'pane1', jFrame )
+		pane1_1 == SwingUtil.lookup( 'pane1-1', pane1 )
+		pane1_2 == SwingUtil.lookup( 'pane1-2', pane1 )
+		pane1_2a == SwingUtil.lookup( 'pane1-2a', jFrame )
+		pane1_2b == SwingUtil.lookup( 'pane1-2b', pane1_2 )
 	}
 
-	@Test
-	void testCallMethodIfExists( ) {
-		assert 'HI' == SwingUtil.callMethodIfExists( 'hi', 'toUpperCase' )
-		assert [ ] == SwingUtil.callMethodIfExists( 'hi', 'nonExistentMethod' )
-		def list = [ 1 ]
-		assert SwingUtil.callMethodIfExists( list, 'add', 2 ) // returns true
-		assert list == [ 1, 2 ]
-		assert SwingUtil.callMethodIfExists( list, 'addAll', [ 3, 4 ] ) // returns true
-		assert list == [ 1, 2, 3, 4 ]
-		assert null == SwingUtil.callMethodIfExists( list, 'add', 0, 5 ) // returns void / null
-		assert list == [ 5, 1, 2, 3, 4 ]
-		assert [ [ 5, 1 ], [ 3, 4 ] ] == SwingUtil.callMethodIfExists( list, 'collate', 2, 3, false )
-		assert null == SwingUtil.callMethodIfExists( list, 'clear' ) // returns void / null
-		assert list.isEmpty()
+	def testCallMethodIfExists( ) {
+		when:
+		def result = SwingUtil.callMethodIfExists( obj, methodName, args )
+
+		then:
+		result == expected
+
+		where:
+		obj             | methodName          | args            | expected
+		'hi'            | 'toUpperCase'       | [ ] as Object[] | 'HI'
+		'hi'            | 'nonExistentMethod' | [ ] as Object[] | [ ]
+		[ 1 ]           | 'add'               | 2               | true
+		[ 1, 2 ]        | 'addAll'            | [ 3, 4 ]        | true
+		[ 1, 2 ] as Set | 'addAll'            | [ 1, 2 ]        | false
 	}
 
-	@Test
-	void testText( ) {
+	def testText( ) {
+		given:
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				menuBar() {
 					menu( text: "File", mnemonic: 'F' ) {
 						menuItem( text: "Exit", mnemonic: 'X', actionPerformed: { dispose() } )
@@ -183,13 +199,36 @@ class SwingUtilTest implements HasSwingCode {
 			}
 		}
 
-		sleep 100
+		waitForJFrameToShowUp()
 
-		assert SwingUtil.text( 'File', jFrame )
-		assert SwingUtil.text( 'Exit', jFrame )
-		assert SwingUtil.text( 'A tree', jFrame )
-		assert SwingUtil.text( 'Click', jFrame )
-		assert SwingUtil.text( 'colors', jFrame )
+		expect:
+		SwingUtil.text( 'File', jFrame )
+		SwingUtil.text( 'Exit', jFrame )
+		SwingUtil.text( 'A tree', jFrame )
+		SwingUtil.text( 'Click', jFrame )
+		SwingUtil.text( 'colors', jFrame )
+
+		cleanup:
+		jFrame?.dispose()
+	}
+
+	def testFakeComponentForTreeNode( ) {
+		given:
+		def tree = Stub( JTree )
+		def child = Stub( DefaultMutableTreeNode )
+
+		and:
+		child.getPath() >> [ new DefaultMutableTreeNode( 'fake' ) ]
+		tree.getPathBounds( _ ) >> new Rectangle( 5, 6, 7, 8 )
+		tree.getLocationOnScreen() >> new Point( 20, 30 )
+
+		when:
+		Component component = SwingUtil.fakeComponentFor( child, tree )
+
+		then:
+		component.locationOnScreen == new Point( 25, 36 )
+		component.width == 7
+		component.height == 8
 	}
 
 }

@@ -223,6 +223,30 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
+	void testMoveTo_JTreeNode( ) {
+		JTree mTree = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: true ) {
+				splitPane( name: 'pane1' ) {
+					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 150 ) {
+						button( text: 'Click Me', name: 'the-button' )
+						mTree = tree( name: 'mboxTree', rootVisible: false )
+					}
+				}
+			}
+		}
+
+		waitForJFrameToShowUp()
+
+		withDriver().moveTo( 100, 25, Speed.VERY_FAST ).moveTo( 'text:colors' )
+		def currPos = MouseInfo.pointerInfo.location
+		def screenBounds = new Rectangle( 150, 50, 300, 300 )
+
+		assert screenBounds.contains( currPos )
+	}
+
+	@Test
 	void testClickOn_Name( ) {
 		testClickOn { Component _1, Component _2 ->
 			withDriver().clickOn( 'menu-button' )

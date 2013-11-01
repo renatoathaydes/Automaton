@@ -1,6 +1,10 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.geometry.PointOperators
+
 import javax.swing.*
+import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.TreePath
 import java.awt.*
 
 /**
@@ -22,28 +26,47 @@ class SwingUtil {
 	}
 
 	/**
-	 * Finds any [ Component | TreeNode ] with the given text under the given root
+	 * Finds any Component with the given text under the given root.
+	 * It works also for JTrees (the returned Component is a fake with the same location
+	 * as the found TreeNode, if any, so that it can be used with SwingAutomaton methods)
 	 * @param textToFind
 	 * @param root
 	 * @return item found or null
 	 */
-	static text( String textToFind, Component root ) {
-		Object res = null
-		navigateBreadthFirst( root ) {
-			switch ( it ) {
+	static Component text( String textToFind, Component root ) {
+		Component res = null
+		navigateBreadthFirst( root ) { comp ->
+			switch ( comp ) {
 				case JTree:
-					navigateBreadthFirst( it as JTree ) {
-						if ( it as String == textToFind ) res = it
+					navigateBreadthFirst( comp as JTree ) { node ->
+						if ( node as String == textToFind )
+							res = fakeComponentFor( node, comp )
 						res != null
 					}
 					break
-				case Object:
-					if ( callMethodIfExists( it, 'getText' ) == textToFind )
-						res = it
+				case Component:
+					if ( callMethodIfExists( comp, 'getText' ) == textToFind )
+						res = comp as Component
 			}
 			res != null
 		}
 		return res
+	}
+
+	/**
+	 * @param node to be converted into a Component for location purposes
+	 * @return a fake Component for the given node which can be used with any SwingAutomaton
+	 * method (eg. <code>clickOn( fakeComponentFor( treeNode ) )</code> )
+	 */
+	static Component fakeComponentFor( DefaultMutableTreeNode node, JTree tree ) {
+		def path = new TreePath( node.path )
+		Rectangle nodeBounds = tree.getPathBounds( path )
+		def parentAbsLocation = tree.locationOnScreen
+		use( PointOperators ) {
+			[ getLocationOnScreen: nodeBounds.location + parentAbsLocation,
+					getWidth: nodeBounds.width,
+					getHeight: nodeBounds.height ] as Component
+		}
 	}
 
 	/**

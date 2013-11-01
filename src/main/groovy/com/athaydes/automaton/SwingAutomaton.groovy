@@ -109,7 +109,9 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	protected findPrefixed( String prefix, String selector ) {
-		specialPrefixes[ prefix ]( selector, component )
+		def target = specialPrefixes[ prefix ]( selector, component )
+		if ( target ) target else
+			throw new RuntimeException( "Unable to locate prefix=$prefix, selector=$selector" )
 	}
 
 	/**

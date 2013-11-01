@@ -33,7 +33,7 @@ public class SwingerSample {
 
         // notice here we find the Component to click by its text, not by its name
         Swinger.forSwingWindow()
-                .clickOn( "text:File" )
+                .clickOn( "text:File" ).pause( 250 )
                 .clickOn( "text:Exit" );
     }
 
@@ -96,6 +96,15 @@ public class SwingerSample {
         // it is always good to keep Automaton's default selectors active
         customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
         return customSelectors;
+    }
+
+    @Test
+    public void exploringJTreeItems() {
+        Swinger swinger = Swinger.forSwingWindow();
+        swinger.doubleClickOn( "text:colors" ).pause( 250 )
+                .clickOn( "text:blue" )
+                .doubleClickOn( "text:sports" )
+                .doubleClickOn( "text:food" );
     }
 
 }
