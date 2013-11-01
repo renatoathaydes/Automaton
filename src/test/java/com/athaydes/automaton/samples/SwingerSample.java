@@ -2,6 +2,7 @@ package com.athaydes.automaton.samples;
 
 import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.Swinger;
+import com.athaydes.automaton.SwingerSelector;
 import groovy.lang.Closure;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -78,18 +79,16 @@ public class SwingerSample {
         assertThat( areaWithTypedText, instanceOf( JTextArea.class ) );
     }
 
-    private Map<String, Closure> createCustomSelectors() {
+    private Map<String, Closure<Component>> createCustomSelectors() {
 
         // we must use a sorted map as the first entry in the map is used if no prefix is given
         // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
-        Map<String, Closure> customSelectors = new LinkedHashMap<String, Closure>();
-        customSelectors.put( "cust:", new Closure( this ) {
+        Map<String, Closure<Component>> customSelectors = new LinkedHashMap<String, Closure<Component>>();
+        customSelectors.put( "cust:", new SwingerSelector( this ) {
             @Override
-            public Object call( Object... args ) {
+            public Component call( String selector, Component component ) {
                 // this custom selector does almost exactly the same thing as Automaton's default selector
                 // except that it turns all characters lower-case before looking up by name
-                String selector = ( String ) args[ 0 ];
-                Component component = ( Component ) args[ 1 ];
                 return SwingUtil.lookup( selector.toLowerCase(), component );
             }
         } );
