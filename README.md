@@ -40,7 +40,7 @@ All other drivers sub-class the Automaton, so they will all inherit its methods.
 
 Swing applications can be driven by 2 different drivers. Which one to use depends purely on your taste.
 The `SwingAutomaton` can be more efficient if used correctly (because it encourages you to select Components more
-carefully), but the `Swinger` is easier to use.
+carefully), but the `Swinger` is much easier to use.
 
 #### The SwingAutomaton
 
@@ -61,8 +61,8 @@ The Strings passed to the lookup method ( SwingUtil is a utility class provided 
 
 #### The Swinger
 
-For convenience, there is another Swing 'driver', the `Swinger`, which allows you to skip the `SwingUtil.lookup` call
-and select components more easily. The same example above could be written like this:
+The other Swing 'driver', the `Swinger`, allows you to skip the `SwingUtil.lookup` call
+and select components much more easily. It contains a powerful mechanism which allow you to select exactly what you want in a flexible, extensible way. It will be explained in the next sections, but first, let's look at what the example above could look like with the `Swinger`:
 
 ```java
 JFrame frame = app.getjFrame();
@@ -70,6 +70,70 @@ JFrame frame = app.getjFrame();
 Swinger.getUserWith( frame ).clickOn( "button1-name" )
        .moveTo( "draggable1" ).dragBy( 50, 0 );
 ```
+You can even use the Swinger to locate the JFrame for you automatically, so in case your app developers forgot to make it easy for you as a tester to get it, the `Swinger` will save you lots of time!
+
+```java
+Swinger swinger = Swinger.forSwingWindow();
+```
+
+See the `SwingerSample` for more examples:
+
+blob/master/src/test/java/com/athaydes/automaton/samples/SwingerSample.java
+
+#### Swinger Selection Mechanism
+
+So far, we have seen only selection by name, ie. we are only able to select components by their name. This is not ideal because many times, the Component you want to select is exactly the one that the developers forgot to name! Not to mention that you might need to select certain items which do not even have a name, such as a `JTree` node.
+
+The `Swinger` uses a powerful mechanism to allow you to find just about anything you want. This mechanism is easily extensible, which means that if the `Automaton` does not provide what you need, you can write it yourself and use it seamlessly with the rest of the framework.
+
+Let's see how that works.
+
+* Selecting by name
+  * `"name:component-name"` or simply `"component-name"`
+* Selecting by text (works with any Component which has text, and also with `JTree` nodes):
+  * `"text:Component label"`
+* Writing a selector to extend Automaton:
+```java
+Swinger swinger = Swinger.forSwingWindow();
+swinger.setSpecialPrefixes( createCustomSelectors() );
+-----------------------------------------------------------------
+private Map<String, Closure<Component>> createCustomSelectors() {
+
+    // we must use a sorted map as the first entry in the map is used if no prefix is given
+    // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
+    Map<String, Closure<Component>> customSelectors = new LinkedHashMap<String, Closure<Component>>();
+    customSelectors.put( "cust:", new SwingerSelector( this ) {
+        @Override
+        public Component call( String selector, Component component ) {
+            // this custom selector does almost exactly the same thing as Automaton's default selector
+            // except that it turns all characters lower-case before looking up by name
+            return SwingUtil.lookup( selector.toLowerCase(), component );
+        }
+    } );
+
+    // it is always good to keep Automaton's default selectors active
+    customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
+    return customSelectors;
+}
+---------------------------------------------------------------------
+// Now we can use the custom selector as follows
+swinger.clickOn( "cust:Text-AreA" );
+```
+Notice that the first item returned by the Map you use to specify custom selectors is used by default if no prefix is given. This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that! In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
+
+Notice that there is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>>"`, which would then be used like this: `clickOn( "myprefix>>>Something" ) `.
+
+#### SwingUtil
+
+The `SwingUtil` class contains a few helpful methods which you can also use directly to locate components, or inside your custom selectors, as in the example above, which uses `lookup( String name, Component root )` (finds Components by name).
+
+Some other methods:
+
+* `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components and JTree nodes by their text.
+* `navigateBreadthFirst( Component | JTree root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure. To stop navigating, the Closure must return `true`.
+* `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible. Very useful inside the action Closure when navigating through a tree.
+
+#### Making efficient lookups
 
 > Notice that although it is quite convenient to use the JFrame as the "root" component for all searches,
 > it is often better to use the lookup method directly to find the top-level Component you're interested in first,
@@ -195,3 +259,7 @@ fxer.clickOn( "#new-panel" ).type( "Automaton and tempus-fugit are awesome" )
 
 Check it out and you won't regret!
 
+
+
+
+> Written with [StackEdit](https://stackedit.io/).
