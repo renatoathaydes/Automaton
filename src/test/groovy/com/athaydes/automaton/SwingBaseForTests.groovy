@@ -174,45 +174,6 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
-	void shouldUseMapToFindPrefixedNames( ) {
-		def abcCalls = [ ]
-		def efghCalls = [ ]
-		def driver = withDriver()
-		driver.specialPrefixes = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
-		driver.delegate = [ clickOn: { c, Speed _ -> } ]
-
-		driver.clickOn( 'efgh:4567890123' )
-
-		assert abcCalls == [ ]
-		assert efghCalls == [ '4567890123' ]
-
-		driver.clickOn( 'abc:123' )
-
-		assert abcCalls == [ '123' ]
-		assert efghCalls == [ '4567890123' ]
-	}
-
-	@Test
-	void shouldUseFirstEntryInMapOnUnprefixedNames( ) {
-		def abcCalls = [ ]
-		def efghCalls = [ ]
-		def driver = withDriver()
-		driver.specialPrefixes = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
-		driver.delegate = [ clickOn: { c, Speed _ -> } ]
-
-		assert 'abc:' == driver.specialPrefixes.keySet().first()
-
-		driver.clickOn( '123' )
-
-		assert abcCalls == [ '123' ]
-		assert efghCalls == [ ]
-	}
-
-	@Test
 	void testMoveTo_Name( ) {
 		testMoveTo { Component c -> withDriver().moveTo( 'the-button' ) }
 	}
@@ -309,5 +270,50 @@ class SwingAutomatonTest extends SimpleSwingDriverTest {
 class SwingerTest extends SwingDriverWithSelectorsTest {
 
 	{ withDriver = { Swinger.getUserWith( jFrame ) } }
+
+	@Test
+	void shouldUseMapToFindPrefixedNames( ) {
+		def abcCalls = [ ]
+		def efghCalls = [ ]
+		def driver = withDriver()
+		driver.specialPrefixes = [
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+
+		driver.clickOn( 'efgh:4567890123' )
+
+		assert abcCalls == [ ]
+		assert efghCalls == [ '4567890123' ]
+
+		driver.clickOn( 'abc:123' )
+
+		assert abcCalls == [ '123' ]
+		assert efghCalls == [ '4567890123' ]
+	}
+
+	@Test
+	void shouldUseFirstEntryInMapOnUnprefixedNames( ) {
+		def abcCalls = [ ]
+		def efghCalls = [ ]
+		def driver = withDriver()
+		driver.specialPrefixes = [
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+
+		assert 'abc:' == driver.specialPrefixes.keySet().first()
+
+		driver.clickOn( '123' )
+
+		assert abcCalls == [ '123' ]
+		assert efghCalls == [ ]
+	}
+
+}
+
+class SwingerFXer_SwingTest extends SwingDriverWithSelectorsTest {
+
+	{ withDriver = { SwingerFxer.userWith( jFrame, null ) } }
 
 }

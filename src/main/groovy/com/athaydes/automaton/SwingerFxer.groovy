@@ -29,6 +29,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer clickOn( Component component, Speed speed = DEFAULT ) {
+		swinger.clickOn( component, speed )
+		this
+	}
+
 	SwingerFxer clickOn( String selector, Speed speed = DEFAULT ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer.clickOn( selector, speed )
@@ -39,6 +44,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFxer doubleClickOn( Node node, Speed speed = DEFAULT ) {
 		fxer.doubleClickOn( node, speed )
+		this
+	}
+
+	SwingerFxer doubleClickOn( Component component, Speed speed = DEFAULT ) {
+		swinger.doubleClickOn( component, speed )
 		this
 	}
 
@@ -55,6 +65,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer moveTo( Component component, Speed speed = DEFAULT ) {
+		swinger.moveTo( component, speed )
+		this
+	}
+
 	SwingerFxer moveTo( String selector, Speed speed = DEFAULT ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer.moveTo( selector, speed )
@@ -63,18 +78,62 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
-	FXDragOn drag( Node node ) {
+	SwingerFXerDragOn drag( Node node ) {
 		def target = centerOf node
-		new FXDragOn( this, target.x, target.y )
+		new SwingerFXerDragOn( this, target.x, target.y )
+	}
+
+	SwingerFXerDragOn drag( Component component ) {
+		def target = SwingAutomaton.centerOf( component )
+		new SwingerFXerDragOn( this, target.x, target.y )
+	}
+
+	SwingerFXerDragOn drag( String selector ) {
+		if ( isJavaFXSelector( selector ) ) {
+			drag( fxer.node.lookup( selector ) )
+		} else {
+			def prefix_selector = swinger.ensurePrefixed selector
+			drag( swinger.findPrefixed( prefix_selector ) )
+		}
 	}
 
 	Point centerOf( Node node ) {
 		fxer.centerOf( node )
 	}
 
-	private boolean isJavaFXSelector( String selector ) {
+	protected boolean isJavaFXSelector( String selector ) {
 		selector ? selector[ 0 ] in fxSelector1stChars : false
 	}
 
 
 }
+
+class SwingerFXerDragOn extends DragOn<SwingerFxer> {
+
+	protected SwingerFXerDragOn( SwingerFxer automaton, fromX, fromY ) {
+		super( automaton, fromX, fromY )
+	}
+
+	SwingerFxer onto( Node node, Speed speed = Automaton.DEFAULT ) {
+		new FXerDragOn( automaton.fxer, fromX, fromY )
+				.onto( node, speed )
+		automaton
+	}
+
+	SwingerFxer onto( Component component, Speed speed = Automaton.DEFAULT ) {
+		new SwingerDragOn( automaton.swinger, fromX, fromY )
+				.onto( component, speed )
+		automaton
+	}
+
+	SwingerFxer onto( String selector, Speed speed = Automaton.DEFAULT ) {
+		if ( automaton.isJavaFXSelector( selector ) )
+			new FXerDragOn( automaton.fxer, fromX, fromY )
+					.onto( selector, speed )
+		else
+			new SwingerDragOn( automaton.swinger, fromX, fromY )
+					.onto( selector, speed )
+		automaton
+	}
+}
+

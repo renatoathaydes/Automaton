@@ -147,8 +147,8 @@ class SwingerDragOn extends SwingDragOn<Swinger> {
 	}
 
 	Swinger onto( String selector, Speed speed = Automaton.DEFAULT ) {
-		def component = SwingUtil.lookup( selector, automaton.component )
-		onto( component, speed )
+		def prefix_selector = automaton.ensurePrefixed selector
+		onto( automaton.findPrefixed( prefix_selector ), speed )
 	}
 }
 
