@@ -200,20 +200,22 @@ String swingTextAreaText = "Hello, I am Swing...";
 String fxInputText = "Hello, JavaFX...";
 
 SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() )
-           .clickOn( "text-area" )
-           .type( swingTextAreaText ).pause( 1000 )
-           .clickOn( "#left-color-picker" )
-           .pause( 1000 ).moveBy( 60, 40 ).click()
-           .pause( 1000 ).clickOn( "#fx-input" )
-           .type( fxInputText ).moveBy( 100, 0 )
-           .pause( 500 );
+    .doubleClickOn( "text:colors" )
+    .clickOn( "text-area" )
+    .type( swingTextAreaText ).pause( 1000 )
+    .clickOn( "#left-color-picker" ).pause( 1000 )
+    .moveBy( 60, 40 ).click().pause( 1000 )
+    .clickOn( "#fx-input" )
+    .type( fxInputText )
+    .moveBy( 100, 0 ).pause( 500 );
 
 JTextArea jTextArea = ( JTextArea ) lookup( "text-area", frame );
 TextField textField = ( TextField ) fxPanel.getScene().lookup( "#fx-input" );
+ColorPicker leftPicker = ( ColorPicker ) fxPanel.getScene().lookup( "#left-color-picker" );
 
 assertEquals( swingTextAreaText, jTextArea.getText() );
 assertEquals( fxInputText, textField.getText() );
-assertEquals( "0x999999ff", swingJavaFx.getTextLeftColor().toString() );
+assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
 ```
 
 The above is a copy of part of the SwingJavaFXSampleAppTestInJava class in this project.
@@ -223,13 +225,12 @@ Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefor
 String selectors work like this:
 
 * if the selector starts with a `.` or `#`, the lookup is made in the JavaFX app.
-* in all other cases, the lookup is made in the Swing part of the app.
+* in all other cases, the lookup re-directed to the Swinger (which can use built-in and custom selectors).
 
 Pretty simple!
 
 If you want to lookup a JavaFX Node, you'll use a css selector (starting with `.` = by css class, `#` by ID).
-To lookup a Swing Component by name, just use the name (eg. looking up `something` will return any Component whose name
-is exactly `something`).
+To lookup a Swing Component, just use the `Swinger` selector syntax (see `Swinger` section).
 
 
 ## Other useful things
