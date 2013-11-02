@@ -2,13 +2,13 @@ package com.athaydes.automaton.samples
 
 import com.athaydes.automaton.SwingerFxer
 import javafx.embed.swing.JFXPanel
+import javafx.scene.control.ColorPicker
 import javafx.scene.control.TextField
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
 import javafx.scene.text.Text
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 import javax.swing.*
@@ -21,7 +21,6 @@ import static java.util.concurrent.TimeUnit.SECONDS
  *
  * User: Renato
  */
-@Ignore( "Not executed as part of Automaton unit tests" )
 class SwingJavaFXSampleAppTest {
 
 	JFrame jFrame
@@ -49,17 +48,18 @@ class SwingJavaFXSampleAppTest {
 		final fxInputText = "Hello, JavaFX..."
 
 		SwingerFxer.userWith( jFrame, jfxPanel.scene.root )
+				.doubleClickOn( "text:colors" )
 				.clickOn( "text-area" )
 				.type( swingTextAreaText ).pause( 1000 )
-				.clickOn( "#left-color-picker" )
-				.pause( 1000 ).moveBy( 60, 40 ).click()
-				.pause( 1000 ).clickOn( "#fx-input" )
-				.type( fxInputText ).moveBy( 100, 0 )
-				.pause( 500 )
+				.clickOn( "#left-color-picker" ).pause( 1000 )
+				.moveBy( 60, 40 ).click().pause( 1000 )
+				.clickOn( "#fx-input" )
+				.type( fxInputText )
+				.moveBy( 100, 0 ).pause( 500 )
 
 		assert ( lookup( "text-area", jFrame ) as JTextArea ).text == swingTextAreaText
 		assert ( jfxPanel.scene.lookup( "#fx-input" ) as TextField ).text == fxInputText
-		assert textLeftColor.toString() == "0x999999ff"
+		assert ( jfxPanel.scene.lookup( "#left-color-picker" ) as ColorPicker ).value == textLeftColor
 	}
 
 	Color getTextLeftColor( ) {
