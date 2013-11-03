@@ -36,6 +36,8 @@ automaton.speed=VERY_FAST
 
 ## How to use it
 
+*For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md)*
+
 ### Platform-independent tests
 
 You can test or automate anything that a user can interact with in a computer using *Automaton*.

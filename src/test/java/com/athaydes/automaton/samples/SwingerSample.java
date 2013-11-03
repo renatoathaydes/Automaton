@@ -11,7 +11,9 @@ import org.junit.Test;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -25,7 +27,7 @@ public class SwingerSample {
 
     @BeforeClass
     public static void startup() {
-        new SwingJavaFXSampleAppTest().setup();
+        SwingJavaFXSampleAppTest.setup();
     }
 
     @AfterClass
@@ -35,6 +37,8 @@ public class SwingerSample {
         Swinger.forSwingWindow()
                 .clickOn( "text:File" ).pause( 250 )
                 .clickOn( "text:Exit" );
+
+        SwingJavaFXSampleAppTest.cleanup();
     }
 
     @Test
@@ -93,6 +97,25 @@ public class SwingerSample {
             }
         } );
 
+        // a custom selector to find things by ID
+        customSelectors.put( "$", new SwingerSelector( this ) {
+            List<Component> found = new ArrayList<Component>( 1 );
+
+            @Override
+            public Component call( final String selector, Component component ) {
+                SwingUtil.navigateBreadthFirst( component, new Closure( this ) {
+                    @Override
+                    public Object call( Object... args ) {
+                        if ( SwingUtil.callMethodIfExists( args[ 0 ], "getId" ).equals( selector ) ) {
+                            found.add( ( Component ) args[ 0 ] );
+                        }
+                        return !found.isEmpty();
+                    }
+                } );
+                return found.isEmpty() ? null : found.get( 0 );
+            }
+        } );
+
         // it is always good to keep Automaton's default selectors active
         customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
         return customSelectors;
@@ -106,5 +129,6 @@ public class SwingerSample {
                 .doubleClickOn( "text:sports" )
                 .doubleClickOn( "text:food" );
     }
+
 
 }

@@ -1,5 +1,7 @@
 package com.athaydes.automaton.samples
 
+import com.athaydes.automaton.SwingUtil
+import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.SwingerFxer
 import javafx.embed.swing.JFXPanel
 import javafx.scene.control.ColorPicker
@@ -7,11 +9,13 @@ import javafx.scene.control.TextField
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
 import javafx.scene.text.Text
-import org.junit.After
-import org.junit.Before
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 
 import javax.swing.*
+import java.awt.*
+import java.awt.event.KeyEvent
 import java.util.concurrent.ArrayBlockingQueue
 
 import static com.athaydes.automaton.SwingUtil.lookup
@@ -23,11 +27,11 @@ import static java.util.concurrent.TimeUnit.SECONDS
  */
 class SwingJavaFXSampleAppTest {
 
-	JFrame jFrame
-	JFXPanel jfxPanel
+	static JFrame jFrame
+	static JFXPanel jfxPanel
 
-	@Before
-	void setup( ) {
+	@BeforeClass
+	static void setup( ) {
 		def blockUntilReady = new ArrayBlockingQueue( 1 )
 		def app = new SwingWithFXSample()
 		app.createAndRunSwingApp( blockUntilReady )
@@ -37,8 +41,8 @@ class SwingJavaFXSampleAppTest {
 		println "Gui ready!"
 	}
 
-	@After
-	void cleanup( ) {
+	@AfterClass
+	static void cleanup( ) {
 		jFrame?.dispose()
 	}
 
@@ -60,6 +64,28 @@ class SwingJavaFXSampleAppTest {
 		assert ( lookup( "text-area", jFrame ) as JTextArea ).text == swingTextAreaText
 		assert ( jfxPanel.scene.lookup( "#fx-input" ) as TextField ).text == fxInputText
 		assert ( jfxPanel.scene.lookup( "#left-color-picker" ) as ColorPicker ).value == textLeftColor
+	}
+
+	@Test
+	void "Swinger can use custom selectors"( ) {
+		def customSelectors = [ "editable-textarea": { String selector, Component component ->
+			Component res = null
+			SwingUtil.navigateBreadthFirst( component ) { c ->
+				if ( c instanceof JTextArea && c.editable )
+					res = c
+				res != null
+			}
+			res
+		} ]
+
+		Swinger swinger = Swinger.forSwingWindow()
+		swinger.specialPrefixes = Swinger.DEFAULT_PREFIX_MAP + customSelectors
+
+		swinger.clickOn( 'editable-textarea' )
+		25.times { swinger.type( KeyEvent.VK_BACK_SPACE ) }
+		swinger.type( 'Hello World' ).pause( 100 )
+
+		assert ( lookup( "text-area", jFrame ) as JTextArea ).text == 'Hello World'
 	}
 
 	Color getTextLeftColor( ) {
