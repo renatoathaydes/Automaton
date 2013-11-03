@@ -94,6 +94,8 @@ Let's see how that works.
 
 * Selecting by name
   * `"name:component-name"` or simply `"component-name"` (if no custom selectors added)
+* Selecting by type
+  * `"type:JButton` or `"type:javax.swing.JButton`
 * Selecting by text (works with any Component which has text, and also with `JTree` nodes and `JTable` headers/cells):
   * `"text:Component label"`
 * Writing a selector to extend Automaton:
