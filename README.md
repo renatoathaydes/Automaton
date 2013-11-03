@@ -20,6 +20,20 @@ Please let me know if you would have interest! My email is renato@athaydes.com
 
 To see this project dependencies, check the build.gradle file in the root folder.
 
+## Providing custom Configuration
+
+The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
+
+To provide custom configuration, simply add a file called `/automaton-config.properties` to the classpath.
+
+The config file contains the following properties:
+
+```properties
+# Set the DEFAULT speed to be used by the Automaton when no speed is passed in a method call
+# Options are the values of enum: com.athaydes.automaton.Speed
+automaton.speed=VERY_FAST
+```
+
 ## How to use it
 
 ### Platform-independent tests
