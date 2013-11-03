@@ -97,7 +97,7 @@ Complete sample code at `SwingJavaFXSampleAppTest.groovy`
 #### Example custom selector in Groovy
 ```groovy
 // a custom selector to find things by ID
-customSelectors.put( "$", { Component component ->
+customSelectors[ "$" ] = { String selector, Component component ->
     Component result = null
     SwingUtil.navigateBreadthFirst( component ) {
         if ( SwingUtil.callMethodIfExists( it, "getId" ) == selector )
