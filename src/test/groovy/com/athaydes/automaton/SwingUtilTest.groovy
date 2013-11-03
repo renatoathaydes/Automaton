@@ -220,23 +220,24 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
 	def testText( ) {
 		given:
-		def tModel = [ [ firstCol: 'item 1 - Col 1', secCol: 'item 1 - Col 2' ] ]
+		def tModel = [ [ firstCol: 'item 1 - Col 1' ] ]
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 400, 300 ] as Dimension, show: true ) {
 				menuBar() {
 					menu( text: "File", mnemonic: 'F' ) {
 						menuItem( text: "Exit", mnemonic: 'X', actionPerformed: { dispose() } )
 					}
 				}
-				splitPane {
-					scrollPane( constraints: "left", minimumSize: [ 150, -1 ] as Dimension ) {
-						panel() {
+				hbox {
+					scrollPane( constraints: "left" ) {
+						vbox {
 							label( text: 'A tree' )
 							tree( rootVisible: false )
-							table {
-								tableModel( list: tModel ) {
-									propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
-									propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+							scrollPane {
+								table {
+									tableModel( list: tModel ) {
+										propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+									}
 								}
 							}
 						}
