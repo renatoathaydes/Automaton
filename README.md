@@ -84,17 +84,17 @@ See the `SwingerSample` for more examples:
 
 blob/master/src/test/java/com/athaydes/automaton/samples/SwingerSample.java
 
-#### Swinger Selection Mechanism
+#### Swinger Selectors
 
-So far, we have seen only selection by name, ie. we are only able to select components by their name. This is not ideal because many times, the Component you want to select is exactly the one that the developers forgot to name! Not to mention that you might need to select certain items which do not even have a name, such as a `JTree` node.
+So far, we have seen only selection by name, ie. we are only able to select components by their name. This is not ideal because often times, the Component you want to select is exactly the one that the developers forgot to name! Not to mention that you might need to select certain items which do not even have a name, such as a `JTree` node.
 
 The `Swinger` uses a powerful mechanism to allow you to find just about anything you want. This mechanism is easily extensible, which means that if the `Automaton` does not provide what you need, you can write it yourself and use it seamlessly with the rest of the framework.
 
 Let's see how that works.
 
 * Selecting by name
-  * `"name:component-name"` or simply `"component-name"`
-* Selecting by text (works with any Component which has text, and also with `JTree` nodes):
+  * `"name:component-name"` or simply `"component-name"` (if no custom selectors added)
+* Selecting by text (works with any Component which has text, and also with `JTree` nodes and `JTable` headers/cells):
   * `"text:Component label"`
 * Writing a selector to extend Automaton:
 ```java
@@ -134,8 +134,8 @@ The `SwingUtil` class contains a few helpful methods which you can also use dire
 Some other methods:
 
 * `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components and JTree nodes by their text.
-* `navigateBreadthFirst( Component | JTree root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure. To stop navigating, the Closure must return `true`.
-* `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible. Very useful inside the action Closure when navigating through a tree.
+* `navigateBreadthFirst( Component | JTree | JTable root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure (the `JTable` version also passes `row` and `column` indexes to the Closure). To stop navigating, the Closure must return `true`.
+* `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible (returns an empty List if the method does not exist). Very useful inside the action Closure when navigating through a tree.
 
 #### Making efficient lookups
 
