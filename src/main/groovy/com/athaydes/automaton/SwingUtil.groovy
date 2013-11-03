@@ -72,6 +72,23 @@ class SwingUtil {
 	}
 
 	/**
+	 * Breadth-first search for any Component with the given type
+	 * @param selector class simple name or qualified name
+	 * @param root to be looked into
+	 * @return component if found, null otherwise
+	 */
+	static Component type( String selector, Component root ) {
+		def isQualified = selector.contains( '.' )
+		Component res = null
+		navigateBreadthFirst( root ) { comp ->
+			if ( comp.class."${isQualified ? 'name' : 'simpleName'}" == selector )
+				res = comp
+			res != null
+		}
+		res
+	}
+
+	/**
 	 * @param parentAbsLocation parent Component's absolute position
 	 * @param bounds of the item for which a fake Component is required
 	 * @return a fake Component which can be located by any SwingAutomaton

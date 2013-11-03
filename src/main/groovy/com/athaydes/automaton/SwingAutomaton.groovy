@@ -48,7 +48,11 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 	static final Map<String, Closure<Component>> DEFAULT_PREFIX_MAP =
-		[ 'name:': SwingUtil.&lookup, 'text:': SwingUtil.&text ].asImmutable()
+		[
+				'name:': SwingUtil.&lookup,
+				'text:': SwingUtil.&text,
+				'type:': SwingUtil.&type,
+		].asImmutable()
 	Component component
 	protected delegate = SwingAutomaton.user
 	Map<String, Closure<Component>> specialPrefixes

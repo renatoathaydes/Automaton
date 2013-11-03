@@ -161,6 +161,46 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		!res // action never returned true
 	}
 
+	def testNavigateBreadthFirstJTablePartialTree( ) {
+		given:
+		def tModel = [
+				[ firstCol: 'item 1 - Col 1' ],
+				[ firstCol: 'item 2 - Col 1' ],
+		]
+
+		and:
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: false ) {
+				scrollPane {
+					jTable = table {
+						tableModel( list: tModel ) {
+							propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+						}
+					}
+				}
+			}
+		}
+		sleep 100
+
+		and:
+		def visited = [ ]
+
+		when:
+		def res = SwingUtil.navigateBreadthFirst( jTable ) { item, row, col ->
+			visited << [ item, row, col ]
+			item == 'item 1 - Col 1'
+		}
+
+		then:
+		visited == [
+				[ 'Col 1', -1, 0 ],
+				[ 'item 1 - Col 1', 0, 0 ]
+		]
+		res
+	}
+
 	def testLookup( ) {
 		given:
 		JTree mboxTree = null
@@ -260,6 +300,39 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
 		where:
 		textToFind << [ 'File', 'Exit', 'A tree', 'Click', 'colors', 'Col 1', 'item 1 - Col 1' ]
+	}
+
+	def testType( ) {
+		given:
+		new SwingBuilder().edt {
+			jFrame = frame( name: 'frame', title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: false ) {
+				vbox( name: 'vbox' ) {
+					hbox( name: 'hbox' ) {
+						label( name: 'label', text: 'lbl' )
+						textArea( name: 'text-area', text: 'txt-area' )
+					}
+				}
+			}
+		}
+		sleep 100
+
+		expect:
+		SwingUtil.type( typeToFind, jFrame )?.name == expectedName
+
+		where:
+		typeToFind              | expectedName
+		'JFrame'                | 'frame'
+		'javax.swing.JFrame'    | 'frame'
+		'Box'                   | 'vbox'
+		'javax.swing.Box'       | 'vbox'
+		'JLabel'                | 'label'
+		'javax.swing.JLabel'    | 'label'
+		'JTextArea'             | 'text-area'
+		'javax.swing.JTextArea' | 'text-area'
+		'JTable'                | null
+		'javax.swing.JTable'    | null
+		'Non existing class'    | null
 	}
 
 	def testFakeComponentForTreeNode( ) {

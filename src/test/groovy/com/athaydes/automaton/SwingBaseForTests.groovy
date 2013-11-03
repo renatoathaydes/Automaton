@@ -185,6 +185,11 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
+	void testMoveTo_Type( ) {
+		testMoveTo { Component c -> withDriver().moveTo( 'type:JButton' ) }
+	}
+
+	@Test
 	void testMoveTo_JTreeNode( ) {
 		JTree mTree = null
 		new SwingBuilder().edt {
@@ -302,6 +307,14 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
+	void testClickOn_Type( ) {
+		testClickOn { Component _1, Component _2 ->
+			withDriver().clickOn( 'type:JMenu' )
+					.pause( 250 ).clickOn( 'item-exit' )
+		}
+	}
+
+	@Test
 	void testDoubleClickOn_Name( ) {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'the-button' )
@@ -312,6 +325,13 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testDoubleClickOn_Text( ) {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'text:Click Me' )
+		}
+	}
+
+	@Test
+	void testDoubleClickOn_Type( ) {
+		testDoubleClickOn { Component c ->
+			withDriver().doubleClickOn( 'type:JButton' )
 		}
 	}
 
@@ -334,6 +354,13 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
 			withDriver().doubleClickOn( 'e1' ).drag( 'e1' ).onto( c2p.x, c2p.y )
+		} )
+	}
+
+	@Test
+	void testDragFromTo_Type( ) {
+		testDragFromTo( { Component c1, Component c2 ->
+			withDriver().doubleClickOn( 'type:JEditorPane' ).drag( 'text:abcdefg' ).onto( 'e2' )
 		} )
 	}
 
