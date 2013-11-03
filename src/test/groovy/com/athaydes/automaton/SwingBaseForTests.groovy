@@ -8,6 +8,7 @@ import org.junit.Test
 
 import javax.swing.*
 import java.awt.*
+import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.LinkedBlockingDeque
@@ -187,10 +188,10 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testMoveTo_JTreeNode( ) {
 		JTree mTree = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension,
 					location: [ 150, 50 ] as Point, show: true ) {
 				splitPane( name: 'pane1' ) {
-					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 150 ) {
+					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 50 ) {
 						button( text: 'Click Me', name: 'the-button' )
 						mTree = tree( name: 'mboxTree', rootVisible: false )
 					}
@@ -200,11 +201,88 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 		waitForJFrameToShowUp()
 
-		withDriver().moveTo( 100, 25, Speed.VERY_FAST ).moveTo( 'text:colors' )
+		def outsideFrame = new Point( 100, 25 )
+		withDriver().moveTo( outsideFrame.x, outsideFrame.y, Speed.VERY_FAST )
+				.moveTo( 'text:colors' )
 		def currPos = MouseInfo.pointerInfo.location
-		def screenBounds = new Rectangle( 150, 50, 300, 300 )
+		final screenBounds = new Rectangle( jFrame.locationOnScreen, jFrame.size )
 
 		assert screenBounds.contains( currPos )
+	}
+
+	@Test
+	void testMoveTo_TableCell( ) {
+		def tModel = [
+				[ firstCol: '1 - 1', secCol: '1 - 2' ],
+				[ firstCol: '2 - 1', secCol: '2 - 2' ],
+		]
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: true ) {
+				scrollPane {
+					jTable = table {
+						tableModel( list: tModel ) {
+							propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+							propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+						}
+					}
+				}
+			}
+		}
+		waitForJFrameToShowUp()
+
+		withDriver().moveTo( 'text:1 - 1' )
+				.doubleClick().doubleClick()
+				.type( 'row 1 col 1' )
+				.moveTo( 'text:1 - 2' )
+				.doubleClick().doubleClick()
+				.type( 'row 1 col 2' )
+				.moveTo( 'text:2 - 1' )
+				.doubleClick().doubleClick()
+				.type( 'row 2 col 1' )
+				.moveTo( 'text:2 - 2' )
+				.doubleClick().doubleClick()
+				.type( 'row 2 col 2' )
+				.type( KeyEvent.VK_ENTER ).pause( 500 )
+
+		assert jTable.model.getValueAt( 0, 0 ) == 'row 1 col 1'
+		assert jTable.model.getValueAt( 0, 1 ) == 'row 1 col 2'
+		assert jTable.model.getValueAt( 1, 0 ) == 'row 2 col 1'
+		assert jTable.model.getValueAt( 1, 1 ) == 'row 2 col 2'
+
+	}
+
+	@Test
+	void testMoveTo_TableHeader( ) {
+		def tModel = [
+				[ firstCol: '1 - 1', secCol: '1 - 2' ],
+		]
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: true ) {
+				vbox {
+					label( text: 'There is a table below me' )
+					scrollPane {
+						jTable = table {
+							tableModel( list: tModel ) {
+								propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+								propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+							}
+						}
+					}
+				}
+
+			}
+		}
+		waitForJFrameToShowUp()
+
+		withDriver().drag( 'text:Col 1' )
+				.onto( 'text:Col 2' ).pause( 500 )
+
+		assert jTable.tableHeader.columnModel.getColumn( 0 ).headerValue == 'Col 2'
+		assert jTable.tableHeader.columnModel.getColumn( 1 ).headerValue == 'Col 1'
 	}
 
 	@Test

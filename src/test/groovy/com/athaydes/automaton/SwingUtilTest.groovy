@@ -5,7 +5,6 @@ import groovy.swing.SwingBuilder
 import spock.lang.Specification
 
 import javax.swing.*
-import javax.swing.tree.DefaultMutableTreeNode
 import java.awt.*
 
 /**
@@ -118,6 +117,50 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		res
 	}
 
+	def testNavigateBreadthFirstJTableWholeTree( ) {
+		given:
+		def tModel = [
+				[ firstCol: 'item 1 - Col 1', secCol: 'item 1 - Col 2' ],
+				[ firstCol: 'item 2 - Col 1', secCol: 'item 2 - Col 2' ],
+				[ firstCol: 'item 3 - Col 1', secCol: 'item 3 - Col 2' ]
+		]
+
+		and:
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: false ) {
+				scrollPane {
+					jTable = table {
+						tableModel( list: tModel ) {
+							propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+							propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+						}
+					}
+				}
+			}
+		}
+		sleep 100
+
+		and:
+		def visited = [ ]
+
+		when:
+		def res = SwingUtil.navigateBreadthFirst( jTable ) { item, row, col ->
+			visited << [ item, row, col ]
+			false
+		}
+
+		then:
+		visited == [
+				[ 'Col 1', -1, 0 ], [ 'Col 2', -1, 1 ],
+				[ 'item 1 - Col 1', 0, 0 ], [ 'item 1 - Col 2', 0, 1 ],
+				[ 'item 2 - Col 1', 1, 0 ], [ 'item 2 - Col 2', 1, 1 ],
+				[ 'item 3 - Col 1', 2, 0 ], [ 'item 3 - Col 2', 2, 1 ]
+		]
+		!res // action never returned true
+	}
+
 	def testLookup( ) {
 		given:
 		JTree mboxTree = null
@@ -177,6 +220,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
 	def testText( ) {
 		given:
+		def tModel = [ [ firstCol: 'item 1 - Col 1', secCol: 'item 1 - Col 2' ] ]
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				menuBar() {
@@ -189,6 +233,12 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 						panel() {
 							label( text: 'A tree' )
 							tree( rootVisible: false )
+							table {
+								tableModel( list: tModel ) {
+									propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+									propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+								}
+							}
 						}
 					}
 					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 180 ) {
@@ -202,28 +252,22 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		waitForJFrameToShowUp()
 
 		expect:
-		SwingUtil.text( 'File', jFrame )
-		SwingUtil.text( 'Exit', jFrame )
-		SwingUtil.text( 'A tree', jFrame )
-		SwingUtil.text( 'Click', jFrame )
-		SwingUtil.text( 'colors', jFrame )
+		SwingUtil.text( textToFind, jFrame ) != null
 
 		cleanup:
 		jFrame?.dispose()
+
+		where:
+		textToFind << [ 'File', 'Exit', 'A tree', 'Click', 'colors', 'Col 1', 'item 1 - Col 1' ]
 	}
 
 	def testFakeComponentForTreeNode( ) {
 		given:
-		def tree = Stub( JTree )
-		def child = Stub( DefaultMutableTreeNode )
-
-		and:
-		child.getPath() >> [ new DefaultMutableTreeNode( 'fake' ) ]
-		tree.getPathBounds( _ ) >> new Rectangle( 5, 6, 7, 8 )
-		tree.getLocationOnScreen() >> new Point( 20, 30 )
+		def bounds = new Rectangle( 5, 6, 7, 8 )
+		def parentAbsLocation = new Point( 20, 30 )
 
 		when:
-		Component component = SwingUtil.fakeComponentFor( child, tree )
+		Component component = SwingUtil.fakeComponentFor( parentAbsLocation, bounds )
 
 		then:
 		component.locationOnScreen == new Point( 25, 36 )

@@ -3,7 +3,6 @@ package com.athaydes.automaton
 import com.athaydes.automaton.geometry.PointOperators
 
 import javax.swing.*
-import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreePath
 import java.awt.*
 
@@ -27,8 +26,10 @@ class SwingUtil {
 
 	/**
 	 * Finds any Component with the given text under the given root.
-	 * It works also for JTrees (the returned Component is a fake with the same location
-	 * as the found TreeNode, if any, so that it can be used with SwingAutomaton methods)
+	 * It also works for <code>JTrees</code> and <code>JTables</code>
+	 * (the returned Component is a fake with the same location
+	 * as the found TreeNode or Table cell/header, if any, so that it
+	 * can be used with <code>SwingAutomaton</code> methods)
 	 * @param textToFind
 	 * @param root
 	 * @return item found or null
@@ -38,9 +39,26 @@ class SwingUtil {
 		navigateBreadthFirst( root ) { comp ->
 			switch ( comp ) {
 				case JTree:
-					navigateBreadthFirst( comp as JTree ) { node ->
-						if ( node as String == textToFind )
-							res = fakeComponentFor( node, comp )
+					def tree = comp as JTree
+					navigateBreadthFirst( tree ) { node ->
+						if ( node as String == textToFind ) {
+							def bounds = tree.getPathBounds( new TreePath( node.path ) )
+							res = fakeComponentFor( tree.locationOnScreen, bounds )
+						}
+						res != null
+					}
+					break
+				case JTable:
+					def table = comp as JTable
+					navigateBreadthFirst( table ) { data, row, col ->
+						if ( data as String == textToFind ) {
+							def bounds = ( row < 0 ?
+								table.tableHeader.getHeaderRect( col ) :
+								table.getCellRect( row, col, true ) )
+							res = fakeComponentFor( row < 0 ?
+								table.tableHeader.locationOnScreen :
+								table.locationOnScreen, bounds )
+						}
 						res != null
 					}
 					break
@@ -54,18 +72,16 @@ class SwingUtil {
 	}
 
 	/**
-	 * @param node to be converted into a Component for location purposes
-	 * @return a fake Component for the given node which can be used with any SwingAutomaton
-	 * method (eg. <code>clickOn( fakeComponentFor( treeNode ) )</code> )
+	 * @param parentAbsLocation parent Component's absolute position
+	 * @param bounds of the item for which a fake Component is required
+	 * @return a fake Component which can be located by any SwingAutomaton
+	 * method (eg. <code>clickOn( fakeComponentFor( tree.locationOnScreen, node.bounds ) )</code> )
 	 */
-	static Component fakeComponentFor( DefaultMutableTreeNode node, JTree tree ) {
-		def path = new TreePath( node.path )
-		Rectangle nodeBounds = tree.getPathBounds( path )
-		def parentAbsLocation = tree.locationOnScreen
+	static Component fakeComponentFor( Point parentAbsLocation, Rectangle bounds ) {
 		use( PointOperators ) {
-			[ getLocationOnScreen: nodeBounds.location + parentAbsLocation,
-					getWidth: nodeBounds.width,
-					getHeight: nodeBounds.height ] as Component
+			[ getLocationOnScreen: bounds.location + parentAbsLocation,
+					getWidth: bounds.width,
+					getHeight: bounds.height ] as Component
 		}
 	}
 
@@ -104,6 +120,20 @@ class SwingUtil {
 						tree.model.getChild( node, i )
 					}
 				}.flatten()
+			}
+		}
+		return false
+	}
+
+	static boolean navigateBreadthFirst( JTable table, Closure action ) {
+		def cols = ( 0..<table.model.columnCount )
+		def rows = ( 0..<table.model.rowCount )
+		for ( col in cols ) {
+			if ( action( table.model.getColumnName( col ), -1, col ) ) return true
+		}
+		for ( row in rows ) {
+			for ( col in cols ) {
+				if ( action( table.model.getValueAt( row, col ), row, col ) ) return true
 			}
 		}
 		return false
