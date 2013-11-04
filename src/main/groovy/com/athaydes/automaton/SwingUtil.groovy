@@ -3,6 +3,7 @@ package com.athaydes.automaton
 import com.athaydes.automaton.geometry.PointOperators
 
 import javax.swing.*
+import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 import java.awt.*
 
@@ -40,9 +41,10 @@ class SwingUtil {
 			switch ( comp ) {
 				case JTree:
 					def tree = comp as JTree
-					navigateBreadthFirst( tree ) { node ->
+					navigateBreadthFirst( tree ) { TreeNode node ->
 						if ( node as String == textToFind ) {
-							def bounds = tree.getPathBounds( new TreePath( node.path ) )
+							def bounds = tree.getPathBounds(
+									new TreePath( pathOf( node ) ) )
 							res = fakeComponentFor( tree.locationOnScreen, bounds )
 						}
 						res != null
@@ -160,6 +162,16 @@ class SwingUtil {
 		( component?.components?.toList() ?: [ ] ) +
 				callMethodIfExists( component, 'getContentPane' ) +
 				callMethodIfExists( component, 'getMenuComponents' ).toList()
+	}
+
+	private static Object[] pathOf( TreeNode node ) {
+		def path = [ ]
+		def parent = node
+		while ( parent ) {
+			path << parent
+			parent = parent.parent
+		}
+		path.reverse()
 	}
 
 	private static visit( nextLevel, action ) {
