@@ -206,7 +206,8 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		JTree mboxTree = null
 		def pane1 = null, pane1_1 = null, pane1_2 = null,
 		    pane1_2a = null, pane1_2b = null, menuButton = null,
-		    itemExit = null
+		    itemExit = null, tabs = null, tab1 = null, tab2 = null,
+		    tab1Lbl = null, tab2Lbl = null
 
 		and:
 		new SwingBuilder().edt {
@@ -226,6 +227,14 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 						pane1_2b = scrollPane( name: 'pane1-2b', constraints: "bottom" ) { textArea() }
 					}
 				}
+				tabs = tabbedPane( name: 'tabs' ) {
+					tab1 = panel( name: 'tab-1' ) {
+						tab1Lbl = label( name: 'tab-1-label', text: 'One' )
+					}
+					tab2 = panel( name: 'tab-2' ) {
+						tab2Lbl = label( name: 'tab-2-label', text: 'Two' )
+					}
+				}
 			}
 		}
 
@@ -240,6 +249,11 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		pane1_2 == SwingUtil.lookup( 'pane1-2', pane1 )
 		pane1_2a == SwingUtil.lookup( 'pane1-2a', jFrame )
 		pane1_2b == SwingUtil.lookup( 'pane1-2b', pane1_2 )
+		tabs == SwingUtil.lookup( 'tabs', jFrame )
+		tab1 == SwingUtil.lookup( 'tab-1', jFrame )
+		tab2 == SwingUtil.lookup( 'tab-2', jFrame )
+		tab1Lbl == SwingUtil.lookup( 'tab-1-label', jFrame )
+		tab2Lbl == SwingUtil.lookup( 'tab-2-label', jFrame )
 	}
 
 	def testCallMethodIfExists( ) {
