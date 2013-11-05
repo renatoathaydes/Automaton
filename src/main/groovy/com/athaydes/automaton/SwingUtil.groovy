@@ -44,7 +44,7 @@ class SwingUtil {
 						if ( node as String == textToFind ) {
 							def bounds = tree.getPathBounds(
 									new TreePath( pathOf( node ) ) )
-							res = fakeComponentFor( tree.locationOnScreen, bounds )
+							res = fakeComponentFor( node, tree.locationOnScreen, bounds )
 						}
 						res != null
 					}
@@ -56,7 +56,7 @@ class SwingUtil {
 							def bounds = ( row < 0 ?
 								table.tableHeader.getHeaderRect( col ) :
 								table.getCellRect( row, col, true ) )
-							res = fakeComponentFor( row < 0 ?
+							res = fakeComponentFor( data, row < 0 ?
 								table.tableHeader.locationOnScreen :
 								table.locationOnScreen, bounds )
 						}
@@ -90,16 +90,19 @@ class SwingUtil {
 	}
 
 	/**
+	 * @param swingObject to fake a Component for
+	 * (this object can be accessed via the <code>getRealObject</code> on the returned Component)
 	 * @param parentAbsLocation parent Component's absolute position
 	 * @param bounds of the item for which a fake Component is required
 	 * @return a fake Component which can be located by any SwingAutomaton
 	 * method (eg. <code>clickOn( fakeComponentFor( tree.locationOnScreen, node.bounds ) )</code> )
 	 */
-	static Component fakeComponentFor( Point parentAbsLocation, Rectangle bounds ) {
+	static Component fakeComponentFor( swingObject, Point parentAbsLocation, Rectangle bounds ) {
 		def locationOnScreen = new Point(
 				( bounds.location.x + parentAbsLocation.x ) as int,
 				( bounds.location.y + parentAbsLocation.y ) as int )
-		[ getLocationOnScreen: { locationOnScreen },
+		[ getRealObject: { swingObject },
+				getLocationOnScreen: { locationOnScreen },
 				getWidth: { bounds.width },
 				getHeight: { bounds.height } ] as Component
 

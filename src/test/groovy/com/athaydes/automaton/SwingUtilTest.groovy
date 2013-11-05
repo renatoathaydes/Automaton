@@ -388,13 +388,15 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
 	def testFakeComponentForTreeNode( ) {
 		given:
+		def swingObject = 'SWING'
 		def bounds = new Rectangle( 5, 6, 7, 8 )
 		def parentAbsLocation = new Point( 20, 30 )
 
 		when:
-		Component component = SwingUtil.fakeComponentFor( parentAbsLocation, bounds )
+		Component component = SwingUtil.fakeComponentFor( swingObject, parentAbsLocation, bounds )
 
 		then:
+		component.getRealObject() == swingObject
 		component.locationOnScreen == new Point( 25, 36 )
 		component.width == 7
 		component.height == 8
