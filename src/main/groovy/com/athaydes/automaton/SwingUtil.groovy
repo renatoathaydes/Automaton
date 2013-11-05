@@ -1,9 +1,11 @@
 package com.athaydes.automaton
 
 import javax.swing.*
+import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 import java.awt.*
+
 /**
  *
  * User: Renato
@@ -94,12 +96,12 @@ class SwingUtil {
 	 * method (eg. <code>clickOn( fakeComponentFor( tree.locationOnScreen, node.bounds ) )</code> )
 	 */
 	static Component fakeComponentFor( Point parentAbsLocation, Rectangle bounds ) {
-        def locationOnScreen = new Point(
-                (bounds.location.x + parentAbsLocation.x) as int,
-                (bounds.location.y + parentAbsLocation.y) as int )
-        [ getLocationOnScreen: { locationOnScreen },
-					getWidth: { bounds.width },
-					getHeight: { bounds.height } ] as Component
+		def locationOnScreen = new Point(
+				( bounds.location.x + parentAbsLocation.x ) as int,
+				( bounds.location.y + parentAbsLocation.y ) as int )
+		[ getLocationOnScreen: { locationOnScreen },
+				getWidth: { bounds.width },
+				getHeight: { bounds.height } ] as Component
 
 	}
 
@@ -129,13 +131,25 @@ class SwingUtil {
 	 * @return true if action returned true for any node
 	 */
 	static boolean navigateBreadthFirst( JTree tree, Closure action ) {
-		if ( tree.model ) {
-			def nextLevel = [ tree.model.root ]
+		navigateBreadthFirst( tree.model.root as TreeNode, tree.model, action )
+	}
+
+	/**
+	 * Navigates the given tree, calling the given action for each node, including the startNode.
+	 * To stop navigating, action may return true
+	 * @param startNode node to start navigation from
+	 * @param model JTree model
+	 * @param action to be called on each visited node. Return true to stop navigating.
+	 * @return true if action returned true for any node
+	 */
+	static boolean navigateBreadthFirst( TreeNode startNode, TreeModel model, Closure action ) {
+		if ( model ) {
+			def nextLevel = [ startNode ]
 			while ( nextLevel ) {
 				if ( visit( nextLevel, action ) ) return true
 				nextLevel = nextLevel.collect { node ->
-					( 0..<tree.model.getChildCount( node ) ).collect { i ->
-						tree.model.getChild( node, i )
+					( 0..<model.getChildCount( node ) ).collect { i ->
+						model.getChild( node, i )
 					}
 				}.flatten()
 			}
@@ -155,6 +169,33 @@ class SwingUtil {
 			}
 		}
 		return false
+	}
+
+	/**
+	 * @param tree to navigate
+	 * @param path to search
+	 * @return true if the given tree contains the given path, false otherwise
+	 */
+	static boolean hasPath( JTree tree, Iterable<String> path ) {
+		def runningPath = path.toList()
+		def parent = tree.model.root as TreeNode
+		def foundNode = null
+
+		while ( runningPath ) {
+
+			def target = runningPath.remove( 0 )
+			foundNode = null
+			navigateBreadthFirst( parent, tree.model ) { TreeNode node ->
+				if ( node == parent ) return false
+				def onSameLevel = node.parent == parent
+				if ( onSameLevel && node as String == target ) foundNode = node
+				!onSameLevel || foundNode
+			}
+			if ( !foundNode ) break
+			parent = foundNode
+		}
+
+		foundNode != null
 	}
 
 	private static subItemsOf( component ) {

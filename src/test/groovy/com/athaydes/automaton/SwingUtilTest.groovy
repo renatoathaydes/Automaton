@@ -3,6 +3,7 @@ package com.athaydes.automaton
 import com.athaydes.automaton.mixins.SwingTestHelper
 import groovy.swing.SwingBuilder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import javax.swing.*
 import java.awt.*
@@ -199,6 +200,42 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 				[ 'item 1 - Col 1', 0, 0 ]
 		]
 		res
+	}
+
+	@Unroll
+	def testHasPath( ) {
+		given:
+		JTree mTree = null
+		new SwingBuilder().edt {
+			frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
+				mTree = tree( rootVisible: false )
+			}
+		}
+		sleep 100
+
+		when:
+		def result = SwingUtil.hasPath( mTree, path )
+
+		then:
+		result == expected
+
+		where:
+		path                   | expected
+		[ ]                    | false
+		[ 'hi' ]               | false
+		[ '1', '2', '3' ]      | false
+		[ 'blue' ]             | false
+		[ 'soccer' ]           | false
+		[ 'pizza' ]            | false
+		[ 'colors', 'soccer' ] | false
+		[ 'sports', 'red' ]    | false
+		[ 'colors' ]           | true
+		[ 'sports' ]           | true
+		[ 'food' ]             | true
+		[ 'colors', 'blue' ]   | true
+		[ 'colors', 'red' ]    | true
+		[ 'sports', 'soccer' ] | true
+		[ 'food', 'pizza' ]    | true
 	}
 
 	def testLookup( ) {
