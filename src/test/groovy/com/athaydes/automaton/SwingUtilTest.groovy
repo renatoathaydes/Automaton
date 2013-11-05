@@ -203,7 +203,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 	}
 
 	@Unroll
-	def testHasPath( ) {
+	def testCollectNodes( ) {
 		given:
 		JTree mTree = null
 		new SwingBuilder().edt {
@@ -214,28 +214,29 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		sleep 100
 
 		when:
-		def result = SwingUtil.hasPath( mTree, path )
+		def result = SwingUtil.collectNodes( mTree, path ).collect { it as String }
 
 		then:
-		result == expected
+		result.empty == resultShouldBeEmpty
+		if ( !result.empty ) result == path
 
 		where:
-		path                   | expected
-		[ ]                    | false
-		[ 'hi' ]               | false
-		[ '1', '2', '3' ]      | false
-		[ 'blue' ]             | false
-		[ 'soccer' ]           | false
-		[ 'pizza' ]            | false
-		[ 'colors', 'soccer' ] | false
-		[ 'sports', 'red' ]    | false
-		[ 'colors' ]           | true
-		[ 'sports' ]           | true
-		[ 'food' ]             | true
-		[ 'colors', 'blue' ]   | true
-		[ 'colors', 'red' ]    | true
-		[ 'sports', 'soccer' ] | true
-		[ 'food', 'pizza' ]    | true
+		path                   | resultShouldBeEmpty
+		[ ]                    | true
+		[ 'hi' ]               | true
+		[ '1', '2', '3' ]      | true
+		[ 'blue' ]             | true
+		[ 'soccer' ]           | true
+		[ 'pizza' ]            | true
+		[ 'colors', 'soccer' ] | true
+		[ 'sports', 'red' ]    | true
+		[ 'colors' ]           | false
+		[ 'sports' ]           | false
+		[ 'food' ]             | false
+		[ 'colors', 'blue' ]   | false
+		[ 'colors', 'red' ]    | false
+		[ 'sports', 'soccer' ] | false
+		[ 'food', 'pizza' ]    | false
 	}
 
 	def testLookup( ) {
@@ -393,7 +394,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		def parentAbsLocation = new Point( 20, 30 )
 
 		when:
-		Component component = SwingUtil.fakeComponentFor( swingObject, parentAbsLocation, bounds )
+		Component component = new SwingUtil.FakeComponent( swingObject, { parentAbsLocation }, { bounds } )
 
 		then:
 		component.getRealObject() == swingObject

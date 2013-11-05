@@ -1,5 +1,6 @@
 package com.athaydes.automaton.samples;
 
+import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.SwingerFxer;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.ColorPicker;
@@ -9,6 +10,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.swing.*;
+import javax.swing.tree.TreeNode;
+import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.athaydes.automaton.SwingUtil.lookup;
 import static junit.framework.Assert.assertEquals;
@@ -54,6 +59,22 @@ public class SwingJavaFXSampleAppTestInJava {
         assertEquals( swingTextAreaText, jTextArea.getText() );
         assertEquals( fxInputText, textField.getText() );
         assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
+    }
+
+    @Test
+    public void canOpenNodesInJTrees() {
+        JFrame frame = swingJavaFx.getjFrame();
+        JFXPanel fxPanel = swingJavaFx.getJfxPanel();
+
+        JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
+        List<Component> nodes = SwingUtil.collectNodes( tree, Arrays.asList( "colors", "red" ) );
+
+        SwingerFxer swingerFxer = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+
+        for ( Component node : nodes ) {
+            swingerFxer.doubleClickOn( node ).pause( 2000 );
+        }
+
     }
 
 }

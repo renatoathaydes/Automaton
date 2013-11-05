@@ -128,3 +128,15 @@ Component c = SwingUtil.type( "complete.path.ComponentType", topLevelComponent )
 ```java
 Component c = SwingUtil.text( "component-text", topLevelComponent );
 ```
+
+#### Opening nodes in a JTree
+```java
+JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
+List<Component> nodes = SwingUtil.collectNodes( tree, Arrays.asList( "colors", "red" ) );
+
+Swinger swinger = Swinger.getUserWith( frame );
+
+for ( Component node : nodes ) {
+    swinger.doubleClickOn( node ).pause( 250 );
+}
+```

@@ -5,6 +5,7 @@ import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 import java.awt.*
+import java.util.List
 
 /**
  *
@@ -42,9 +43,7 @@ class SwingUtil {
 					def tree = comp as JTree
 					navigateBreadthFirst( tree ) { TreeNode node ->
 						if ( node as String == textToFind ) {
-							def bounds = tree.getPathBounds(
-									new TreePath( pathOf( node ) ) )
-							res = fakeComponentFor( node, tree.locationOnScreen, bounds )
+							res = treeNode2FakeComponent( tree, node )
 						}
 						res != null
 					}
@@ -53,12 +52,16 @@ class SwingUtil {
 					def table = comp as JTable
 					navigateBreadthFirst( table ) { data, row, col ->
 						if ( data as String == textToFind ) {
-							def bounds = ( row < 0 ?
-								table.tableHeader.getHeaderRect( col ) :
-								table.getCellRect( row, col, true ) )
-							res = fakeComponentFor( data, row < 0 ?
-								table.tableHeader.locationOnScreen :
-								table.locationOnScreen, bounds )
+							res = new FakeComponent( data, {
+								row < 0 ?
+									table.tableHeader.locationOnScreen :
+									table.locationOnScreen
+							}, {
+								row < 0 ?
+									table.tableHeader.getHeaderRect( col ) :
+									table.getCellRect( row, col, true )
+							} ) as Component
+
 						}
 						res != null
 					}
@@ -70,6 +73,12 @@ class SwingUtil {
 			res != null
 		}
 		return res
+	}
+
+	private static Component treeNode2FakeComponent( JTree tree, TreeNode node ) {
+		new FakeComponent( node,
+				{ tree.locationOnScreen },
+				{ tree.getPathBounds( new TreePath( pathOf( node ) ) ) } )
 	}
 
 	/**
@@ -87,25 +96,6 @@ class SwingUtil {
 			res != null
 		}
 		res
-	}
-
-	/**
-	 * @param swingObject to fake a Component for
-	 * (this object can be accessed via the <code>getRealObject</code> on the returned Component)
-	 * @param parentAbsLocation parent Component's absolute position
-	 * @param bounds of the item for which a fake Component is required
-	 * @return a fake Component which can be located by any SwingAutomaton
-	 * method (eg. <code>clickOn( fakeComponentFor( tree.locationOnScreen, node.bounds ) )</code> )
-	 */
-	static Component fakeComponentFor( swingObject, Point parentAbsLocation, Rectangle bounds ) {
-		def locationOnScreen = new Point(
-				( bounds.location.x + parentAbsLocation.x ) as int,
-				( bounds.location.y + parentAbsLocation.y ) as int )
-		[ getRealObject: { swingObject },
-				getLocationOnScreen: { locationOnScreen },
-				getWidth: { bounds.width },
-				getHeight: { bounds.height } ] as Component
-
 	}
 
 	/**
@@ -175,11 +165,13 @@ class SwingUtil {
 	}
 
 	/**
-	 * @param tree to navigate
+	 * @param tree to navigate, collecting each Node as a fake Component
+	 * (see <code>{@link FakeComponent}</code>)
 	 * @param path to search
-	 * @return true if the given tree contains the given path, false otherwise
+	 * @return all nodes corresponding to the given path, or an empty List otherwise
 	 */
-	static boolean hasPath( JTree tree, Iterable<String> path ) {
+	static List<Component> collectNodes( JTree tree, Iterable<String> path ) {
+		def result = [ ]
 		def runningPath = path.toList()
 		def parent = tree.model.root as TreeNode
 		def foundNode = null
@@ -195,10 +187,11 @@ class SwingUtil {
 				!onSameLevel || foundNode
 			}
 			if ( !foundNode ) break
+			result << treeNode2FakeComponent( tree, foundNode )
 			parent = foundNode
 		}
-
-		foundNode != null
+		if ( foundNode ) result
+		else [ ]
 	}
 
 	private static subItemsOf( component ) {
@@ -233,6 +226,40 @@ class SwingUtil {
 		if ( object?.metaClass?.respondsTo( object, methodName ) )
 			object."$methodName"( * args )
 		else [ ]
+	}
+
+	/**
+	 * A fake Component which can be located by any SwingAutomaton.
+	 * The TreeNode wrapped by this component can be accessed via the <code>getRealObject</code>.
+	 */
+	static class FakeComponent extends Component {
+
+		final realObject
+		final Closure<Point> parentLocationOnScreen
+		final Closure<Rectangle> getItemBounds
+
+		protected FakeComponent( realObject,
+		                         Closure<Point> parentLocationOnScreen,
+		                         Closure<Rectangle> getItemBounds ) {
+			this.realObject = realObject
+			this.parentLocationOnScreen = parentLocationOnScreen
+			this.getItemBounds = getItemBounds
+		}
+
+		def getRealObject( ) { realObject }
+
+		Point getLocationOnScreen( ) {
+			def parentLocation = parentLocationOnScreen()
+			def bounds = getItemBounds()
+			new Point(
+					( bounds.location.x + parentLocation.x ) as int,
+					( bounds.location.y + parentLocation.y ) as int )
+		}
+
+		int getWidth( ) { getItemBounds().width.intValue() }
+
+		int getHeight( ) { getItemBounds().height.intValue() }
+
 	}
 
 }
