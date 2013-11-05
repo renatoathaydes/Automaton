@@ -1,12 +1,9 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.geometry.PointOperators
-
 import javax.swing.*
 import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
 import java.awt.*
-
 /**
  *
  * User: Renato
@@ -97,11 +94,13 @@ class SwingUtil {
 	 * method (eg. <code>clickOn( fakeComponentFor( tree.locationOnScreen, node.bounds ) )</code> )
 	 */
 	static Component fakeComponentFor( Point parentAbsLocation, Rectangle bounds ) {
-		use( PointOperators ) {
-			[ getLocationOnScreen: bounds.location + parentAbsLocation,
-					getWidth: bounds.width,
-					getHeight: bounds.height ] as Component
-		}
+        def locationOnScreen = new Point(
+                (bounds.location.x + parentAbsLocation.x) as int,
+                (bounds.location.y + parentAbsLocation.y) as int )
+        [ getLocationOnScreen: { locationOnScreen },
+					getWidth: { bounds.width },
+					getHeight: { bounds.height } ] as Component
+
 	}
 
 	/**
