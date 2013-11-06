@@ -294,6 +294,37 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		tab2Lbl == SwingUtil.lookup( 'tab-2-label', jFrame )
 	}
 
+	def testLookupAll( ) {
+		given:
+		def tab1Lbl = null
+		def tab2Lbl = null
+		def tab3Lbl = null
+
+		and:
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: false ) {
+				tabbedPane( name: 'tabs' ) {
+					panel( name: 'tab-1' ) {
+						tab1Lbl = label( name: 'tab-1-label', text: 'One' )
+					}
+					panel( name: 'tab-2' ) {
+						tab2Lbl = label( name: 'tab-1-label', text: 'Two' )
+					}
+					panel( name: 'tab-3' ) {
+						tab3Lbl = label( name: 'tab-1-label', text: 'Three' )
+					}
+				}
+			}
+		}
+
+		sleep 100
+
+		expect:
+		SwingUtil.lookupAll( 'tab-1-label', jFrame, 1 ) == [ tab1Lbl ]
+		SwingUtil.lookupAll( 'tab-1-label', jFrame, 2 ) as Set == [ tab1Lbl, tab2Lbl ] as Set
+		SwingUtil.lookupAll( 'tab-1-label', jFrame ) as Set == [ tab1Lbl, tab2Lbl, tab3Lbl ] as Set
+	}
+
 	def testCallMethodIfExists( ) {
 		when:
 		def result = SwingUtil.callMethodIfExists( obj, methodName, args )
@@ -312,9 +343,9 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
 	def testText( ) {
 		given:
-		def tModel = [ [ firstCol: 'item 1 - Col 1' ] ]
+		def tModel = [ [ firstCol: 'item 1 - Col 1', secCol: true ] ]
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 400, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 400, 300 ] as Dimension, show: false ) {
 				menuBar() {
 					menu( text: "File", mnemonic: 'F' ) {
 						menuItem( text: "Exit", mnemonic: 'X', actionPerformed: { dispose() } )
@@ -328,7 +359,8 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 							scrollPane {
 								table {
 									tableModel( list: tModel ) {
-										propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+										propertyColumn( header: 'Col 1', propertyName: 'firstCol', type: String )
+										propertyColumn( header: 'Col 2', propertyName: 'secCol', type: Boolean )
 									}
 								}
 							}
@@ -342,7 +374,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 			}
 		}
 
-		waitForJFrameToShowUp()
+		sleep 100
 
 		expect:
 		SwingUtil.text( textToFind, jFrame ) != null

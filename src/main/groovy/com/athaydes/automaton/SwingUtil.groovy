@@ -20,8 +20,20 @@ class SwingUtil {
 	 * @return component if found, null otherwise
 	 */
 	static Component lookup( String name, Component root ) {
-		Component res = null
-		navigateBreadthFirst( root ) { it?.name == name ? res = it : false }
+		def res = lookupAll( name, root, 1 )
+		res ? res[ 0 ] : null
+	}
+
+	/**
+	 * Breadth-first search for all Components with the given name
+	 * @param name of components being searched for
+	 * @param root to be looked into
+	 * @param limit maximum number of components to be returned
+	 * @return all components with the given name or an empty list if none
+	 */
+	static List<Component> lookupAll( String name, Component root, int limit = Integer.MAX_VALUE ) {
+		List<Component> res = [ ]
+		navigateBreadthFirst( root ) { if ( it?.name == name ) res << it; res.size() >= limit }
 		return res
 	}
 
