@@ -214,7 +214,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		sleep 100
 
 		when:
-		def result = SwingUtil.collectNodes( mTree, path ).collect { it as String }
+		def result = SwingUtil.collectNodes( mTree, path as String[] ).collect { it as String }
 
 		then:
 		result.empty == resultShouldBeEmpty

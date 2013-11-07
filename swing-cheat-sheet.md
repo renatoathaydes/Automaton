@@ -132,7 +132,7 @@ Component c = SwingUtil.text( "component-text", topLevelComponent );
 #### Opening nodes in a JTree
 ```java
 JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
-List<Component> nodes = SwingUtil.collectNodes( tree, Arrays.asList( "colors", "red" ) );
+List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 
 Swinger swinger = Swinger.getUserWith( frame );
 

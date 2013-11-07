@@ -67,7 +67,7 @@ public class SwingJavaFXSampleAppTestInJava {
         JFXPanel fxPanel = swingJavaFx.getJfxPanel();
 
         JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
-        List<Component> nodes = SwingUtil.collectNodes( tree, Arrays.asList( "colors", "red" ) );
+        List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 
         SwingerFxer swingerFxer = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
 

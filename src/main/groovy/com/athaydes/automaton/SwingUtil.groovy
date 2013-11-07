@@ -179,7 +179,7 @@ class SwingUtil {
 	 * @param model JTree model
 	 * @param action to be called on each visited node. Return true to stop navigating.
 	 * @return true if action returned true for any node
-	 * @see #collectNodes(JTree, Iterable)
+	 * @see #collectNodes(JTree, String [])
 	 */
 	static boolean navigateBreadthFirst( TreeNode startNode, TreeModel model, Closure action ) {
 		if ( model ) {
@@ -216,7 +216,7 @@ class SwingUtil {
 	 * @param path to search
 	 * @return all nodes corresponding to the given path, or an empty List if the full-path does not exist
 	 */
-	static List<Component> collectNodes( JTree tree, Iterable<String> path ) {
+	static List<Component> collectNodes( JTree tree, String... path ) {
 		def result = [ ]
 		def runningPath = path.toList()
 		def parent = tree.model.root as TreeNode
