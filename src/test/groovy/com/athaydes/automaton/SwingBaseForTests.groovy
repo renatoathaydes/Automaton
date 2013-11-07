@@ -175,6 +175,19 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
+	void testGet( ) {
+		def btn = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
+				btn = button( text: 'Click Me' )
+			}
+		}
+		sleep 100
+
+		assert withDriver().get( 'text:Click Me' ) == btn
+	}
+
+	@Test
 	void testMoveTo_Name( ) {
 		testMoveTo { Component c -> withDriver().moveTo( 'the-button' ) }
 	}

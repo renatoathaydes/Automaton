@@ -112,29 +112,29 @@ customSelectors[ "$" ] = { String selector, Component component ->
 
 #### By name
 ```java
-Component c = SwingUtil.lookup( "component-name", topLevelComponent );
+Component c = swinger.get( "component-name" );
 ```
 
 #### By type
 ```java
-Component c = SwingUtil.type( "ComponentType", topLevelComponent );
+Component c = swinger.get( "type:ComponentType" );
 ```
 ```java
-Component c = SwingUtil.type( "complete.path.ComponentType", topLevelComponent );
+Component c = swinger.get( "type:complete.path.ComponentType" );
 ```
 
 
 #### By text
 ```java
-Component c = SwingUtil.text( "component-text", topLevelComponent );
+Component c = swinger.get( "text:A Component Text" );
 ```
 
 #### Opening nodes in a JTree
 ```java
-JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
-List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
-
 Swinger swinger = Swinger.getUserWith( frame );
+
+JTree tree = ( JTree ) swinger.get( "mboxTree" );
+List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 
 for ( Component node : nodes ) {
     swinger.doubleClickOn( node ).pause( 250 );
