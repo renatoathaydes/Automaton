@@ -42,8 +42,9 @@ public class SwingJavaFXSampleAppTestInJava {
         String swingTextAreaText = "Hello, I am Swing...";
         String fxInputText = "Hello, JavaFX...";
 
-        SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() )
-                .doubleClickOn( "text:colors" )
+        SwingerFxer swfx = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+
+        swfx.doubleClickOn( "text:colors" )
                 .clickOn( "text-area" )
                 .type( swingTextAreaText ).pause( 1000 )
                 .clickOn( "#left-color-picker" ).pause( 1000 )
@@ -52,9 +53,9 @@ public class SwingJavaFXSampleAppTestInJava {
                 .type( fxInputText )
                 .moveBy( 100, 0 ).pause( 500 );
 
-        JTextArea jTextArea = ( JTextArea ) lookup( "text-area", frame );
-        TextField textField = ( TextField ) fxPanel.getScene().lookup( "#fx-input" );
-        ColorPicker leftPicker = ( ColorPicker ) fxPanel.getScene().lookup( "#left-color-picker" );
+        JTextArea jTextArea = ( JTextArea ) swfx.get( "text-area" );
+        TextField textField = ( TextField ) swfx.get( "#fx-input" );
+        ColorPicker leftPicker = ( ColorPicker ) swfx.get( "#left-color-picker" );
 
         assertEquals( swingTextAreaText, jTextArea.getText() );
         assertEquals( fxInputText, textField.getText() );
