@@ -20,195 +20,55 @@ Please let me know if you would have interest! My email is renato@athaydes.com
 
 To see this project dependencies, check the build.gradle file in the root folder.
 
-## Providing custom Configuration
+# Getting Started
 
-The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
+## Swing Applications
 
-To provide custom configuration, simply add a file called `/automaton-config.properties` to the classpath.
-
-The config file contains the following properties:
-
-```properties
-# Set the DEFAULT speed to be used by the Automaton when no speed is passed in a method call
-# Options are the values of enum: com.athaydes.automaton.Speed
-automaton.speed=VERY_FAST
-```
-
-## How to use it
-
-*For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md)*
-
-### Platform-independent tests
-
-You can test or automate anything that a user can interact with in a computer using *Automaton*.
-This is the simplest possible usage, but also the most limited:
-
+Sample usage:
 ```java
-Automaton.getUser().moveTo( 0, 0 ).moveBy( 50, 100 ).click()
-         .moveBy( 30, 0 ).rightClick().moveBy( 30, 50 )
-         .click().dragBy( 50, 100, Speed.SLOW )
-         .pause( 1000 ).type( "Automaton" ).type( KeyEvent.VK_ENTER );
-```
+// your code to start up an app
+myApp.start();
 
-All other drivers sub-class the Automaton, so they will all inherit its methods.
-
-### Swing applications
-
-Swing applications can be driven by 2 different drivers. Which one to use depends purely on your taste.
-The `SwingAutomaton` can be more efficient if used correctly (because it encourages you to select Components more
-carefully), but the `Swinger` is much easier to use.
-
-#### The SwingAutomaton
-
-By using the SwingAutomaton 'driver', you can interact with applications written with Java Swing much more easily.
-Here's an example of how to use it:
-
-```java
-JFrame frame = app.getjFrame();
-Component clickMe = SwingUtil.lookup( "button1-name", frame );
-Component draggable1 = SwingUtil.lookup( "draggable1", frame );
-
-SwingAutomaton.getUser().clickOn( clickMe )
-              .moveTo( draggable1 ).dragBy( 50, 0 );
-```
-
-The Strings passed to the lookup method ( SwingUtil is a utility class provided by *Automaton* ) are the *name* of
-the Swing components... so in order to be able to select a Swing Component with this method, its name must be specified.
-
-The next section shows how the `Swinger` allows much more flexible selection of Components by other means, among other
-convenient features for Swing testers.
-
-
-#### The Swinger
-
-The other Swing 'driver', the `Swinger`, allows you to skip the `SwingUtil.lookup` call
-and select components much more easily. It contains a powerful mechanism which allow you to select exactly what you want in a flexible, extensible way. It will be explained in the next sections, but first, let's look at what the example above could look like with the `Swinger`:
-
-```java
-JFrame frame = app.getjFrame();
-
-Swinger.getUserWith( frame ).clickOn( "button1-name" )
-       .moveTo( "draggable1" ).dragBy( 50, 0 );
-```
-You can even use the Swinger to locate the JFrame for you automatically, so in case your app developers forgot to make it easy for you as a tester to get it, the `Swinger` will save you lots of time!
-
-```java
+// get a Swing-driver, or Swinger
 Swinger swinger = Swinger.forSwingWindow();
+
+// drive your app!
+swinger.clickOn( "text-input-1" )     // select by Component name (no prefix required)
+       .type( "Hello Automaton!" )
+       .drag( "text:Drag this item" ) // select by text (works with almost anything)
+       .onto( "type:DropBoxImpl" );   // select by type
+       
+// get the tree nodes for the given tree path and open them
+JTree myTree = ( JTree ) swinger.get( "tree-name" );
+List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
+                 "Project 1", "Test Suite A", "Test Case 1" );
+swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
+
+// JUnit assertion with custom matchers (NOT YET IMPLEMENTED)
+assertThat( swinger.get( "text-input-1" ), hasText( "Hello Automaton!" ) );
+assertThat( nodesToOpen, areVisible() );
 ```
 
-See the `SwingerSample` for more examples:
+For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md).
 
-blob/master/src/test/java/com/athaydes/automaton/samples/SwingerSample.java
+The Automaton can be easily extended with the use of custom selectors. See the [Swing Advanced Usage](swing-advanced.md) page for details.
 
-#### Swinger Selectors
 
-So far, we have seen only selection by name, ie. we are only able to select components by their name. This is not ideal because often times, the Component you want to select is exactly the one that the developers forgot to name! Not to mention that you might need to select certain items which do not even have a name, such as a `JTree` node.
-
-The `Swinger` uses a powerful mechanism to allow you to find just about anything you want. This mechanism is easily extensible, which means that if the `Automaton` does not provide what you need, you can write it yourself and use it seamlessly with the rest of the framework.
-
-Let's see how that works.
-
-* Selecting by name
-  * `"name:component-name"` or simply `"component-name"` (if no custom selectors added)
-* Selecting by type
-  * `"type:JButton` or `"type:javax.swing.JButton`
-* Selecting by text (works with any Component which has text, and also with `JTree` nodes and `JTable` headers/cells):
-  * `"text:Component label"`
-* Writing a selector to extend Automaton:
-```java
-Swinger swinger = Swinger.forSwingWindow();
-swinger.setSpecialPrefixes( createCustomSelectors() );
------------------------------------------------------------------
-private Map<String, Closure<Component>> createCustomSelectors() {
-
-    // we must use a sorted map as the first entry in the map is used if no prefix is given
-    // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
-    Map<String, Closure<Component>> customSelectors = new LinkedHashMap<String, Closure<Component>>();
-    customSelectors.put( "cust:", new SwingerSelector( this ) {
-        @Override
-        public Component call( String selector, Component component ) {
-            // this custom selector does almost exactly the same thing as Automaton's default selector
-            // except that it turns all characters lower-case before looking up by name
-            return SwingUtil.lookup( selector.toLowerCase(), component );
-        }
-    } );
-
-    // it is always good to keep Automaton's default selectors active
-    customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
-    return customSelectors;
-}
----------------------------------------------------------------------
-// Now we can use the custom selector as follows
-swinger.clickOn( "cust:Text-AreA" );
-Component c = swinger.get( "cust:Another" );
-```
-Notice that the first item returned by the Map you use to specify custom selectors is used by default if no prefix is given. This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that! In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
-
-Notice that there is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>>"`, which would then be used like this: `clickOn( "myprefix>>>Something" ) `.
-
-#### SwingUtil
-
-The `SwingUtil` class contains a few helpful methods which you can also use directly to locate components, or inside your custom selectors, as in the example above, which uses `lookup( String name, Component root )` (finds Components by name).
-
-Some other methods:
-
-* `lookupAll( String name, Component root, int limit )` - find all Components with the given name. The `limit` argument is optional and if given, limits how many components will be returned.
-* `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components, JTree nodes and JTable cells/headers by their text.
-* `textAll( String textToFind, Component root, int limit )` - as `text(..)` but returns all items matching the selector.
-* `type( String type, Component root )` - finds a Component by its Java type. The type must be exactly the same (not just instanceof).
-* `typeAll( String type, Component root, int limit )` - as `type(..)` but returns all items matching the selector.
-* `navigateBreadthFirst( Component | JTree | JTable root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure (the `JTable` version also passes `row` and `column` indexes to the Closure). To stop navigating, the Closure must return `true`.
-* `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible (returns an empty List if the method does not exist). Very useful inside the action Closure when navigating through a tree.
-
-#### Making efficient lookups
-
-> Notice that although it is quite convenient to use the JFrame as the "root" component for all searches,
-> it is often better to use the lookup method directly to find the top-level Component you're interested in first,
-> and then use it as the "root" component (see example below).
-> That's because always using the same "root" component (the `frame` in the example above) as the starting point of
-> the search algorithm can be slow or, worse, return unrelated Components which happened to have the same name as the
-> one you're actually looking for!
-
-If you are simply testing a single component inside your application, you should do something like shown below
-(to restrict the search space to inside the `compUnderTest` hierarchy):
-
-```java
-JFrame frame = app.getjFrame();
-
-Component compUnderTest = SwingUtil.lookup( "component-under-test", frame );
-Swinger.getUserWith( compUnderTest )
-       .moveTo( "draggable1" ).dragBy( 50, 0 );
-```
-
-### JavaFX applications
-
-Just like Swing has 2 'drivers', so does JavaFX. However, no equivalent to `SwingUtil` exists for JavaFX because every
-`Node` in JavaFX has the ability to lookup other Nodes within it.
-
-#### The FXAutomaton:
-
-```java
-Node root = app.getScene().getRoot();
-FXAutomaton.getUser().clickOn( root.lookup( "#button-id" ) )
-           .moveTo( root.lookup( ".css-class-selector" ) ).rightClick();
-```
-
-#### The FXer:
+## JavaFX applications
 
 ```java
 Node root = app.getScene().getRoot();
 FXer.getUserWith( root ).clickOn( "#button-id" )
-    .moveTo( ".css-class-selector" ).rightClick();
+    .moveTo( ".css-class-selector" )
+    .rightClick()
+    .clickOn( "#exit" );
 ```
 
-Notice that the same warning about restricting your search space given in the Swing section is also valid in JavaFX.
-Basically, try to use a good starting-point for your searches rather than always use the root.
 
-### Mixed Swing/JavaFX applications
+## Mixed Swing/JavaFX applications
 
 If you have a big Swing application but want to still enjoy the capabilities of JavaFX (beautiful widgets,
-free effects, the web-view and many others), I hope you know [you can embed JavaFX into Swing quite easily!]
-(http://docs.oracle.com/javafx/2/swing/swing-fx-interoperability.htm#CHDIEEJE).
+free effects, the web-view and many others), I hope you know [you can embed JavaFX into Swing quite easily!](http://docs.oracle.com/javafx/2/swing/swing-fx-interoperability.htm#CHDIEEJE).
 
 You can check the [mixed Swing/JavaFX sample interface](https://github.com/renatoathaydes/Automaton/blob/master/src/test/groovy/com/athaydes/automaton/samples/SwingJavaFXSampleAppTest.groovy)
 I've created myself for testing the *Automaton*, written in Groovy.
@@ -222,8 +82,9 @@ JFXPanel fxPanel = swingJavaFx.getJfxPanel();
 String swingTextAreaText = "Hello, I am Swing...";
 String fxInputText = "Hello, JavaFX...";
 
-SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() )
-    .doubleClickOn( "text:colors" )
+SwingerFxer swfx = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+
+swfx.doubleClickOn( "text:colors" )
     .clickOn( "text-area" )
     .type( swingTextAreaText ).pause( 1000 )
     .clickOn( "#left-color-picker" ).pause( 1000 )
@@ -232,16 +93,16 @@ SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() )
     .type( fxInputText )
     .moveBy( 100, 0 ).pause( 500 );
 
-JTextArea jTextArea = ( JTextArea ) lookup( "text-area", frame );
-TextField textField = ( TextField ) fxPanel.getScene().lookup( "#fx-input" );
-ColorPicker leftPicker = ( ColorPicker ) fxPanel.getScene().lookup( "#left-color-picker" );
+JTextArea jTextArea = ( JTextArea ) swfx.get( "text-area" );
+TextField textField = ( TextField ) swfx.get( "#fx-input" );
+ColorPicker leftPicker = ( ColorPicker ) swfx.get( "#left-color-picker" );
 
 assertEquals( swingTextAreaText, jTextArea.getText() );
 assertEquals( fxInputText, textField.getText() );
 assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
 ```
 
-The above is a copy of part of the SwingJavaFXSampleAppTestInJava class in this project.
+The above is a copy of part of the (SwingJavaFXSampleAppTestInJava)[https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java] class in this project.
 Just type `t` in the GibHub main page and search for this class for the complete code.
 
 Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.
@@ -255,6 +116,34 @@ Pretty simple!
 If you want to lookup a JavaFX Node, you'll use a css selector (starting with `.` = by css class, `#` by ID).
 To lookup a Swing Component, just use the `Swinger` selector syntax (see `Swinger` section).
 
+## Platform-independent tests
+
+You can test or automate anything that a user can interact with in a computer using *Automaton*.
+This is the simplest possible usage, but also the most limited:
+
+```java
+Automaton.getUser().moveTo( 0, 0 ).moveBy( 50, 100 ).click()
+         .moveBy( 30, 0 ).rightClick().moveBy( 30, 50 )
+         .click().dragBy( 50, 100, Speed.SLOW )
+         .pause( 1000 ).type( "Automaton" ).type( KeyEvent.VK_ENTER );
+```
+
+All other drivers sub-class the Automaton, so they will all inherit its methods.
+
+
+# Providing custom Configuration
+
+The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
+
+To provide custom configuration, simply add a file called `/automaton-config.properties` to the classpath.
+
+The config file contains the following properties:
+
+```properties
+# Set the DEFAULT speed to be used by the Automaton when no speed is passed in a method call
+# Options are the values of enum: com.athaydes.automaton.Speed
+automaton.speed=VERY_FAST
+```
 
 ## Other useful things
 
