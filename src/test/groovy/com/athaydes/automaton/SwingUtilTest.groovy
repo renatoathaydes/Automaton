@@ -379,11 +379,37 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		expect:
 		SwingUtil.text( textToFind, jFrame ) != null
 
-		cleanup:
-		jFrame?.dispose()
-
 		where:
 		textToFind << [ 'File', 'Exit', 'A tree', 'Click', 'colors', 'Col 1', 'item 1 - Col 1' ]
+	}
+
+	def testTextAll( ) {
+		given:
+		def menu1 = null; def menuItem2 = null; def label2 = null; def text2 = null
+
+		and:
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 400, 300 ] as Dimension, show: false ) {
+				menuBar() {
+					menu1 = menu( text: "target1", mnemonic: 'F' ) {
+						menuItem2 = menuItem( name: 'target2', text: "target2", mnemonic: 'X', actionPerformed: { dispose() } )
+					}
+				}
+				vbox() {
+					label2 = label( text: 'target2' )
+					text2 = textField( text: 'target2' )
+				}
+			}
+		}
+
+		sleep 100
+
+		expect:
+		SwingUtil.textAll( 'target1', jFrame ) == [ menu1 ]
+		SwingUtil.textAll( 'target1', jFrame, 1 ) == [ menu1 ]
+		SwingUtil.textAll( 'target1', jFrame, 2 ) == [ menu1 ]
+		SwingUtil.textAll( 'target2', jFrame, 1 ).size() == 1
+		SwingUtil.textAll( 'target2', jFrame ) as Set == [ menuItem2, label2, text2 ] as Set
 	}
 
 	def testType( ) {
@@ -417,6 +443,28 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		'JTable'                | null
 		'javax.swing.JTable'    | null
 		'Non existing class'    | null
+	}
+
+	def testTypeAll( ) {
+		given:
+		new SwingBuilder().edt {
+			jFrame = frame( name: 'frame', title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: false ) {
+				vbox( name: 'A' ) {
+					hbox( name: 'B' ) {
+						label( name: 'label', text: 'lbl' )
+						textArea( name: 'text-area', text: 'txt-area' )
+					}
+				}
+			}
+		}
+		sleep 100
+
+		expect:
+		SwingUtil.typeAll( 'Box', jFrame, 1 ).size() == 1
+		SwingUtil.typeAll( 'Box', jFrame, 2 )*.name as Set == [ 'A', 'B' ] as Set
+		SwingUtil.typeAll( 'Box', jFrame )*.name as Set == [ 'A', 'B' ] as Set
+		SwingUtil.typeAll( 'JLabel', jFrame )*.name == [ 'label' ]
 	}
 
 	def testFakeComponentForTreeNode( ) {

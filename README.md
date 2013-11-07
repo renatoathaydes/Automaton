@@ -152,7 +152,10 @@ The `SwingUtil` class contains a few helpful methods which you can also use dire
 Some other methods:
 
 * `lookupAll( String name, Component root, int limit )` - find all Components with the given name. The `limit` argument is optional and if given, limits how many components will be returned.
-* `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components and JTree nodes by their text.
+* `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components, JTree nodes and JTable cells/headers by their text.
+* `textAll( String textToFind, Component root, int limit )` - as `text(..)` but returns all items matching the selector.
+* `type( String type, Component root )` - finds a Component by its Java type. The type must be exactly the same (not just instanceof).
+* `typeAll( String type, Component root, int limit )` - as `type(..)` but returns all items matching the selector.
 * `navigateBreadthFirst( Component | JTree | JTable root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure (the `JTable` version also passes `row` and `column` indexes to the Closure). To stop navigating, the Closure must return `true`.
 * `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible (returns an empty List if the method does not exist). Very useful inside the action Closure when navigating through a tree.
 
