@@ -81,7 +81,7 @@ class Automaton<T extends Automaton> {
 	}
 
 	T doubleClick( ) {
-		click().click()
+		click().pause( 50 ).click()
 	}
 
 	T pause( long millis ) {

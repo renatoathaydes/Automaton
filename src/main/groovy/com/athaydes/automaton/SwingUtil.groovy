@@ -306,6 +306,8 @@ class SwingUtil {
 
 		int getHeight( ) { getItemBounds().height.intValue() }
 
+		String getText() { realObject as String }
+
 	}
 
 }

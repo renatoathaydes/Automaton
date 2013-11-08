@@ -4,7 +4,6 @@ import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.SwingerFxer;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.TextField;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,7 +12,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
+import static com.athaydes.automaton.samples.SwingJavaFXSampleAppTest.getJfxPanel;
+import static com.athaydes.automaton.samples.SwingJavaFXSampleAppTest.getjFrame;
 import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * User: Renato
@@ -24,18 +27,18 @@ public class SwingJavaFXSampleAppTestInJava {
 
     @BeforeClass
     public static void setup() throws Exception {
-        swingJavaFx.setup();
+        SwingJavaFXSampleAppTest.setup();
     }
 
     @AfterClass
     public static void cleanup() {
-        swingJavaFx.cleanup();
+        SwingJavaFXSampleAppTest.cleanup();
     }
 
     @Test
     public void javaCodeCanAlsoDriveSwingJavaFxApps() {
-        JFrame frame = swingJavaFx.getjFrame();
-        JFXPanel fxPanel = swingJavaFx.getJfxPanel();
+        JFrame frame = getjFrame();
+        JFXPanel fxPanel = getJfxPanel();
         String swingTextAreaText = "Hello, I am Swing...";
         String fxInputText = "Hello, JavaFX...";
 
@@ -50,19 +53,17 @@ public class SwingJavaFXSampleAppTestInJava {
                 .type( fxInputText )
                 .moveBy( 100, 0 ).pause( 500 );
 
-        JTextArea jTextArea = ( JTextArea ) swfx.getAt( "text-area" );
-        TextField textField = ( TextField ) swfx.getAt( "#fx-input" );
         ColorPicker leftPicker = ( ColorPicker ) swfx.getAt( "#left-color-picker" );
 
-        assertEquals( swingTextAreaText, jTextArea.getText() );
-        assertEquals( fxInputText, textField.getText() );
+        assertThat( swfx.getAt( "text-area" ), hasText( swingTextAreaText ) );
+        assertThat( swfx.getAt( "#fx-input" ), hasText( fxInputText ) );
         assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
     }
 
     @Test
     public void canOpenNodesInJTrees() {
-        JFrame frame = swingJavaFx.getjFrame();
-        JFXPanel fxPanel = swingJavaFx.getJfxPanel();
+        JFrame frame = getjFrame();
+        JFXPanel fxPanel = getJfxPanel();
 
         JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
         List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
