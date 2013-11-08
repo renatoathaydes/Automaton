@@ -1,7 +1,6 @@
 package com.athaydes.automaton.assertion
 
-import com.athaydes.automaton.SwingUtil
-import org.hamcrest.Description
+import com.athaydes.internal.matcher.GenericMatcher
 import org.hamcrest.TypeSafeMatcher
 
 /**
@@ -9,20 +8,26 @@ import org.hamcrest.TypeSafeMatcher
  */
 class AutomatonMatcher {
 
+
 	static TypeSafeMatcher hasText( final String text ) {
-		def result = null
-		[
-				matchesSafely: { item ->
-					result = SwingUtil.callMethodIfExists( item, "getText" )
-					result == text
-				},
-				describeTo: { Description description ->
-					description.appendText( "Expected text '$text' but " +
-							( result == [ ] ?
-								"object did not have a 'getText' method" :
-								" found '$result'" ) )
-				}
-		] as TypeSafeMatcher
+		new GenericMatcher( text, "getText" )
+	}
+
+	static TypeSafeMatcher hasValue( final value ) {
+		new GenericMatcher( value, "getValue", "getText",
+				"getSelected", "getColor" )
+	}
+
+	static TypeSafeMatcher selected( ) {
+		new GenericMatcher( true, "isSelected" )
+	}
+
+	static TypeSafeMatcher visible( ) {
+		new GenericMatcher( true, "isVisible" )
+	}
+
+	static TypeSafeMatcher showing( ) {
+		new GenericMatcher( true, "isShowing" )
 	}
 
 }

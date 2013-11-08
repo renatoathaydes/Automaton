@@ -3,7 +3,6 @@ package com.athaydes.automaton.samples;
 import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.SwingerFxer;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.control.ColorPicker;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -13,9 +12,9 @@ import java.awt.*;
 import java.util.List;
 
 import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasValue;
 import static com.athaydes.automaton.samples.SwingJavaFXSampleAppTest.getJfxPanel;
 import static com.athaydes.automaton.samples.SwingJavaFXSampleAppTest.getjFrame;
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -53,11 +52,9 @@ public class SwingJavaFXSampleAppTestInJava {
                 .type( fxInputText )
                 .moveBy( 100, 0 ).pause( 500 );
 
-        ColorPicker leftPicker = ( ColorPicker ) swfx.getAt( "#left-color-picker" );
-
         assertThat( swfx.getAt( "text-area" ), hasText( swingTextAreaText ) );
         assertThat( swfx.getAt( "#fx-input" ), hasText( fxInputText ) );
-        assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
+        assertThat( swfx.getAt( "#left-color-picker" ), hasValue( swingJavaFx.getTextLeftColor() ) );
     }
 
     @Test

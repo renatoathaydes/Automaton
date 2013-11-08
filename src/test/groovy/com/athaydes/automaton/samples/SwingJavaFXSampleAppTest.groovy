@@ -4,7 +4,6 @@ import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.SwingerFxer
 import javafx.embed.swing.JFXPanel
-import javafx.scene.control.ColorPicker
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
 import javafx.scene.text.Text
@@ -18,6 +17,7 @@ import java.awt.event.KeyEvent
 import java.util.concurrent.ArrayBlockingQueue
 
 import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasValue
 import static java.util.concurrent.TimeUnit.SECONDS
 import static org.junit.Assert.assertThat
 
@@ -62,9 +62,9 @@ class SwingJavaFXSampleAppTest {
 				.type( fxInputText )
 				.moveBy( 100, 0 ).pause( 500 )
 
-		assertThat( swfx[ "text-area" ], hasText( swingTextAreaText ) )
-		assertThat( swfx[ "#fx-input" ], hasText( fxInputText ) )
-		assert ( swfx[ "#left-color-picker" ] as ColorPicker ).value == textLeftColor
+		assertThat swfx[ "text-area" ], hasText( swingTextAreaText )
+		assertThat swfx[ "#fx-input" ], hasText( fxInputText )
+		assertThat swfx[ "#left-color-picker" ], hasValue( textLeftColor )
 	}
 
 	@Test
