@@ -63,7 +63,7 @@ class Swinger extends Automaton<Swinger> {
 		new Swinger( specialPrefixes: DEFAULT_PREFIX_MAP, component: component )
 	}
 
-	Component get( String selector ) {
+	Component getAt( String selector ) {
 		findPrefixed( ensurePrefixed( selector ) ) as Component
 	}
 

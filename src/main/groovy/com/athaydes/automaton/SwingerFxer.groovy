@@ -24,11 +24,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		fxer = FXer.getUserWith( node )
 	}
 
-	def get( String selector ) {
+	def getAt( String selector ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer.node.lookup( selector )
 		else
-			swinger.get( selector )
+			swinger.getAt( selector )
 	}
 
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {

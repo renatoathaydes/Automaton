@@ -40,7 +40,7 @@ private Map<String, Closure<Component>> createCustomSelectors() {
 ---------------------------------------------------------------------
 // Now we can use the custom selector as follows
 swinger.clickOn( "cust:Text-AreA" );
-Component c = swinger.get( "cust:Another" );
+Component c = swinger.getAt( "cust:Another" );
 ```
 Notice that the first item returned by the Map you use to specify custom selectors is used by default if no prefix is given. This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that! In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
 

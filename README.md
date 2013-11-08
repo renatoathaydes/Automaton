@@ -39,13 +39,13 @@ swinger.clickOn( "text-input-1" )     // select by Component name (no prefix req
        .onto( "type:DropBoxImpl" );   // select by type
        
 // get the tree nodes for the given tree path and open them
-JTree myTree = ( JTree ) swinger.get( "tree-name" );
+JTree myTree = ( JTree ) swinger.getAt( "tree-name" );
 List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
                  "Project 1", "Test Suite A", "Test Case 1" );
 swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
 
 // JUnit assertion with custom matchers (NOT YET IMPLEMENTED)
-assertThat( swinger.get( "text-input-1" ), hasText( "Hello Automaton!" ) );
+assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
 assertThat( nodesToOpen, areVisible() );
 ```
 
@@ -93,9 +93,9 @@ swfx.doubleClickOn( "text:colors" )
     .type( fxInputText )
     .moveBy( 100, 0 ).pause( 500 );
 
-JTextArea jTextArea = ( JTextArea ) swfx.get( "text-area" );
-TextField textField = ( TextField ) swfx.get( "#fx-input" );
-ColorPicker leftPicker = ( ColorPicker ) swfx.get( "#left-color-picker" );
+JTextArea jTextArea = ( JTextArea ) swfx.getAt( "text-area" );
+TextField textField = ( TextField ) swfx.getAt( "#fx-input" );
+ColorPicker leftPicker = ( ColorPicker ) swfx.getAt( "#left-color-picker" );
 
 assertEquals( swingTextAreaText, jTextArea.getText() );
 assertEquals( fxInputText, textField.getText() );

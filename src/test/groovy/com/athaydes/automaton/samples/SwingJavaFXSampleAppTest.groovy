@@ -18,7 +18,6 @@ import java.awt.*
 import java.awt.event.KeyEvent
 import java.util.concurrent.ArrayBlockingQueue
 
-import static com.athaydes.automaton.SwingUtil.lookup
 import static java.util.concurrent.TimeUnit.SECONDS
 
 /**
@@ -51,8 +50,9 @@ class SwingJavaFXSampleAppTest {
 		final swingTextAreaText = "Hello, I am Swing..."
 		final fxInputText = "Hello, JavaFX..."
 
-		SwingerFxer.userWith( jFrame, jfxPanel.scene.root )
-				.doubleClickOn( "text:colors" )
+		def swfx = SwingerFxer.userWith( jFrame, jfxPanel.scene.root )
+
+		swfx.doubleClickOn( "text:colors" )
 				.clickOn( "text-area" )
 				.type( swingTextAreaText ).pause( 1000 )
 				.clickOn( "#left-color-picker" ).pause( 1000 )
@@ -61,9 +61,9 @@ class SwingJavaFXSampleAppTest {
 				.type( fxInputText )
 				.moveBy( 100, 0 ).pause( 500 )
 
-		assert ( lookup( "text-area", jFrame ) as JTextArea ).text == swingTextAreaText
-		assert ( jfxPanel.scene.lookup( "#fx-input" ) as TextField ).text == fxInputText
-		assert ( jfxPanel.scene.lookup( "#left-color-picker" ) as ColorPicker ).value == textLeftColor
+		assert ( swfx[ "text-area" ] as JTextArea ).text == swingTextAreaText
+		assert ( swfx[ "#fx-input" ] as TextField ).text == fxInputText
+		assert ( swfx[ "#left-color-picker" ] as ColorPicker ).value == textLeftColor
 	}
 
 	@Test
@@ -85,7 +85,7 @@ class SwingJavaFXSampleAppTest {
 		25.times { swinger.type( KeyEvent.VK_BACK_SPACE ) }
 		swinger.type( 'Hello World' ).pause( 100 )
 
-		assert ( lookup( "text-area", jFrame ) as JTextArea ).text == 'Hello World'
+		assert ( swinger[ "text-area" ] as JTextArea ).text == 'Hello World'
 	}
 
 	Color getTextLeftColor( ) {

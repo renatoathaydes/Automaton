@@ -10,12 +10,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.swing.*;
-import javax.swing.tree.TreeNode;
 import java.awt.*;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.athaydes.automaton.SwingUtil.lookup;
 import static junit.framework.Assert.assertEquals;
 
 /**
@@ -53,9 +50,9 @@ public class SwingJavaFXSampleAppTestInJava {
                 .type( fxInputText )
                 .moveBy( 100, 0 ).pause( 500 );
 
-        JTextArea jTextArea = ( JTextArea ) swfx.get( "text-area" );
-        TextField textField = ( TextField ) swfx.get( "#fx-input" );
-        ColorPicker leftPicker = ( ColorPicker ) swfx.get( "#left-color-picker" );
+        JTextArea jTextArea = ( JTextArea ) swfx.getAt( "text-area" );
+        TextField textField = ( TextField ) swfx.getAt( "#fx-input" );
+        ColorPicker leftPicker = ( ColorPicker ) swfx.getAt( "#left-color-picker" );
 
         assertEquals( swingTextAreaText, jTextArea.getText() );
         assertEquals( fxInputText, textField.getText() );
