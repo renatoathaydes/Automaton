@@ -193,7 +193,7 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
-	void testGetAt( ) {
+	void testGetAt_Selector( ) {
 		def btn = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
@@ -203,6 +203,19 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		sleep 100
 
 		assert withDriver().getAt( 'text:Click Me' ) == btn
+	}
+
+	@Test
+	void testGetAt_Class( ) {
+		def btn = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
+				btn = button( text: 'Click Me' )
+			}
+		}
+		sleep 100
+
+		assert withDriver().getAt( JButton ) == btn
 	}
 
 	@Test

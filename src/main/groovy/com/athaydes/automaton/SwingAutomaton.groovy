@@ -84,6 +84,10 @@ class Swinger extends Automaton<Swinger> {
 		findPrefixed( ensurePrefixed( selector ) ) as Component
 	}
 
+	def <K> K getAt( Class<K> type ) {
+		findPrefixed( 'type:', type.name ) as K
+	}
+
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
 		delegate.clickOn( component, speed )
 		this

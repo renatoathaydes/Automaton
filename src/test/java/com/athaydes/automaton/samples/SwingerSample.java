@@ -132,7 +132,7 @@ public class SwingerSample {
                 .doubleClickOn( "text:food" );
 
         // safer way explore trees by path (limits search space to the given tree)
-        JTree tree = ( JTree ) swinger.getAt( "type:JTree" );
+        JTree tree = swinger.getAt( JTree.class );
 
         swinger.clickOn( collectNodes( tree, "colors", "blue" ) )
                 .doubleClickOn( collectNodes( tree, "sports" ) )

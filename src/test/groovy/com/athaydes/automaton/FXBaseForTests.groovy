@@ -15,7 +15,7 @@ import javafx.scene.layout.Pane
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import org.junit.AfterClass
-import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 import java.util.concurrent.LinkedBlockingDeque
@@ -33,14 +33,14 @@ import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 @Mixin( TimeAware )
 class FXBaseForTests implements HasMixins {
 
-	@Before
-	void setup( ) {
+	@BeforeClass
+	static void setup( ) {
 		log.debug "Setting up FX Automaton Test"
 		FXApp.initialize()
 	}
 
 	@AfterClass
-	static void cleanup() {
+	static void cleanup( ) {
 		Platform.runLater { FXApp.initialize().close() }
 	}
 
@@ -270,6 +270,33 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	@Test
 	void testDoubleClickOn_Id( ) {
 		testDoubleClickOn { withDriver().doubleClickOn( '#b' ) }
+	}
+
+	def testGetAt( Closure doGetAt ) {
+		def future = new LinkedBlockingDeque( 1 )
+		def textArea = new TextArea( id: 'ta', maxWidth: 200, maxHeight: 150 )
+
+		Platform.runLater {
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.add textArea
+			FXApp.scene.root = hbox
+			future << true
+		}
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 250
+
+		assert doGetAt()
+	}
+
+	@Test
+	void testGetAt_Selector( ) {
+		testGetAt { withDriver().getAt( '#ta' ) }
+	}
+
+	@Test
+	void testGetAt_Class( ) {
+		testGetAt { withDriver().getAt( TextArea ) }
 	}
 
 }

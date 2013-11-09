@@ -26,9 +26,14 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	def getAt( String selector ) {
 		if ( isJavaFXSelector( selector ) )
-			fxer.node.lookup( selector )
+			fxer[ selector ]
 		else
-			swinger.getAt( selector )
+			swinger[ selector ]
+	}
+
+	def <K> K getAt( Class<K> type ) {
+		if ( Node.isAssignableFrom( type ) ) fxer[ type ]
+		else swinger[ type ]
 	}
 
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {

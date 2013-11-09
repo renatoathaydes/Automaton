@@ -126,7 +126,7 @@ class FXer extends Automaton<FXer> {
 	}
 
 	FXer clickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.clickOn( node.lookup( selector ), speed )
+		delegate.clickOn( this[ selector ], speed )
 		this
 	}
 
@@ -135,7 +135,7 @@ class FXer extends Automaton<FXer> {
 	}
 
 	FXer doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		moveTo( node.lookup( selector ), speed ).doubleClick()
+		moveTo( this[ selector ], speed ).doubleClick()
 	}
 
 	FXer moveTo( Node node, Speed speed = DEFAULT ) {
@@ -144,7 +144,7 @@ class FXer extends Automaton<FXer> {
 	}
 
 	FXer moveTo( String selector, Speed speed = DEFAULT ) {
-		delegate.moveTo( node.lookup( selector ), speed )
+		delegate.moveTo( this[ selector ], speed )
 		this
 	}
 
@@ -154,8 +154,18 @@ class FXer extends Automaton<FXer> {
 	}
 
 	FXDragOn<FXer> drag( String selector ) {
-		def target = centerOf node.lookup( selector )
+		def target = centerOf this[ selector ]
 		new FXerDragOn( this, target.x, target.y )
+	}
+
+	Node getAt( String selector ) {
+		def res = node.lookup( selector )
+		if ( res ) res else
+			throw new RuntimeException( "Could not locate Node: $selector" )
+	}
+
+	def <K extends Node> K getAt( Class<K> type ) {
+		this[ type.simpleName ] as K
 	}
 
 	Point centerOf( Node node ) {
@@ -184,7 +194,7 @@ class FXerDragOn extends FXDragOn<FXer> {
 	}
 
 	FXer onto( String selector, Speed speed = Automaton.DEFAULT ) {
-		def node = automaton.node.lookup( selector )
+		def node = automaton[ selector ]
 		onto( node, speed )
 	}
 }
