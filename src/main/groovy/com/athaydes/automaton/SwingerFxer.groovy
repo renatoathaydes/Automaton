@@ -41,6 +41,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		swinger.clickOn( components, pauseBetween, speed )
+		this
+	}
+
 	SwingerFxer clickOn( String selector, Speed speed = DEFAULT ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer.clickOn( selector, speed )
@@ -59,6 +64,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		swinger.doubleClickOn( components, pauseBetween, speed )
+		this
+	}
+
 	SwingerFxer doubleClickOn( String selector, Speed speed = DEFAULT ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer.doubleClickOn( selector, speed )
@@ -74,6 +84,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFxer moveTo( Component component, Speed speed = DEFAULT ) {
 		swinger.moveTo( component, speed )
+		this
+	}
+
+	SwingerFxer moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		swinger.moveTo( components, pauseBetween, speed )
 		this
 	}
 

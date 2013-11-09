@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.athaydes.automaton.SwingUtil.collectNodes;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -124,11 +125,18 @@ public class SwingerSample {
     @Test
     public void exploringJTreeItems() {
         Swinger swinger = Swinger.forSwingWindow();
+
         swinger.doubleClickOn( "text:colors" ).pause( 250 )
                 .clickOn( "text:blue" )
                 .doubleClickOn( "text:sports" )
                 .doubleClickOn( "text:food" );
-    }
 
+        // safer way explore trees by path (limits search space to the given tree)
+        JTree tree = ( JTree ) swinger.getAt( "type:JTree" );
+
+        swinger.clickOn( collectNodes( tree, "colors", "blue" ) )
+                .doubleClickOn( collectNodes( tree, "sports" ) )
+                .doubleClickOn( collectNodes( tree, "food" ) );
+    }
 
 }

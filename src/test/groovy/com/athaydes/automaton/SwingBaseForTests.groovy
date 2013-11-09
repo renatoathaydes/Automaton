@@ -76,7 +76,6 @@ abstract class SwingBaseForTests implements HasSwingCode {
 
 		// wait up to 2 secs for the button to be clicked
 		assert buttonClickedFuture.poll( 2, TimeUnit.SECONDS )
-
 	}
 
 	void testDoubleClickOn( Closure doDoubleClick ) {
@@ -141,6 +140,11 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	}
 
 	@Test
+	void testMoveTo_Components( ) {
+		testMoveTo { Component c -> withDriver().moveTo( [ c ] ) }
+	}
+
+	@Test
 	void testClickOn_Component( ) {
 		testClickOn { Component c1, Component c2 ->
 			withDriver().clickOn( c1 )
@@ -149,9 +153,23 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	}
 
 	@Test
+	void testClickOn_Components( ) {
+		testClickOn { Component c1, Component c2 ->
+			withDriver().clickOn( [ c1, c2 ] )
+		}
+	}
+
+	@Test
 	void testDoubleClickOn_Component( ) {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( c )
+		}
+	}
+
+	@Test
+	void testDoubleClickOn_Components( ) {
+		testDoubleClickOn { Component c ->
+			withDriver().doubleClickOn( [ c ] )
 		}
 	}
 

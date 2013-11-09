@@ -22,14 +22,29 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		moveTo( component, speed ).click()
 	}
 
+	SwingAutomaton clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		components.each { c -> clickOn( c, speed ).pause( pauseBetween ) }
+		this
+	}
+
 	SwingAutomaton doubleClickOn( Component component, Speed speed = DEFAULT ) {
 		moveTo( component, speed ).doubleClick()
+	}
+
+	SwingAutomaton doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		components.each { c -> doubleClickOn( c, speed ).pause( pauseBetween ) }
+		this
 	}
 
 	SwingAutomaton moveTo( Component component, Speed speed = DEFAULT ) {
 		def currPos = MouseInfo.pointerInfo.location
 		def target = centerOf component
 		move( currPos, target, speed )
+	}
+
+	SwingAutomaton moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		components.each { c -> moveTo( c, speed ).pause( pauseBetween ) }
+		this
 	}
 
 	SwingDragOn<SwingAutomaton> drag( Component component ) {
@@ -47,12 +62,14 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 }
 
 class Swinger extends Automaton<Swinger> {
+
 	static final Map<String, Closure<Component>> DEFAULT_PREFIX_MAP =
 		[
 				'name:': SwingUtil.&lookup,
 				'text:': SwingUtil.&text,
 				'type:': SwingUtil.&type,
 		].asImmutable()
+
 	Component component
 	protected delegate = SwingAutomaton.user
 	Map<String, Closure<Component>> specialPrefixes
@@ -72,13 +89,28 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
+	Swinger clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.clickOn( components, pauseBetween, speed )
+		this
+	}
+
 	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
 		delegate.doubleClickOn( component, speed )
 		this
 	}
 
+	Swinger doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.doubleClickOn( components, pauseBetween, speed )
+		this
+	}
+
 	Swinger moveTo( Component component, Speed speed = DEFAULT ) {
 		delegate.moveTo( component, speed )
+		this
+	}
+
+	Swinger moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.moveTo( components, pauseBetween, speed )
 		this
 	}
 
