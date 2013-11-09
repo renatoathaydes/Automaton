@@ -48,7 +48,10 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 
 	static Point centerOf( Node node ) {
 		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
-		def scenePos = new Point( node.scene.x.intValue(), node.scene.y.intValue() )
+
+		// Y-coordinate of Scene seems to be always off if the Stage is shown before the Scene is set
+		def scenePos = new Point( node.scene.x.intValue(), Math.max( node.scene.y.intValue(), 24 ) )
+
 		def boundsInScene = node.localToScene node.boundsInLocal
 		def absX = windowPos.x + scenePos.x + boundsInScene.minX
 		def absY = windowPos.y + scenePos.y + boundsInScene.minY
@@ -66,10 +69,11 @@ class FXApp extends Application {
 
 	static Scene getScene( ) { initialize().scene }
 
-	synchronized static Stage initialize( ) {
+	synchronized static Stage initialize( String... args ) {
 		if ( !stage ) {
 			log.debug 'Initializing FXApp'
-			Thread.start { launch FXApp }
+			Thread.start { launch FXApp, args }
+			sleep 500
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			assert stage
 			stageFuture = null
@@ -94,8 +98,8 @@ class FXApp extends Application {
 		}
 	}
 
-	static void startApp( Application app ) {
-		initialize()
+	static void startApp( Application app, String... args ) {
+		initialize( args )
 		Platform.runLater { app.start stage }
 	}
 
