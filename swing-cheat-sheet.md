@@ -4,9 +4,9 @@
 ```java
 Swinger swinger = Swinger.getUserWith( topLevelComponent );
 ```
-Or, if you do not have a top-level component:
+Or, if you do not have a top-level component available:
 ```java
-// will use the first Swing Window returned by java.awt.Window.getWindows() as the topLevelComponent
+// will use the first JFrame returned by java.awt.Window.getWindows() as the topLevelComponent
 Swinger swinger = Swinger.forSwingWindow();
 ```
 
@@ -117,6 +117,10 @@ Component c = swinger.getAt( "component-name" );
 
 #### By type
 ```java
+JButton b = swinger.getAt( JButton.class );
+```
+
+```java
 Component c = swinger.getAt( "type:ComponentType" );
 ```
 ```java
@@ -133,10 +137,7 @@ Component c = swinger.getAt( "text:A Component Text" );
 ```java
 Swinger swinger = Swinger.getUserWith( frame );
 
-JTree tree = ( JTree ) swinger.getAt( "mboxTree" );
+JTree tree = swinger.getAt( JTree.class );
 List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
-
-for ( Component node : nodes ) {
-    swinger.doubleClickOn( node ).pause( 250 );
-}
+swinger.doubleClickOn( nodes );
 ```

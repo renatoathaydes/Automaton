@@ -1,6 +1,7 @@
 # Automaton
 * easy tests for Swing and JavaFX applications
-* by Renato Athaydes
+* written for testers. Only basic coding skills required.
+
 
 Automaton is a framework which makes it easy to test Java GUIs developed with Swing, JavaFX 2, or both.
 
@@ -24,30 +25,39 @@ To see this project dependencies, check the build.gradle file in the root folder
 
 ## Swing Applications
 
-Sample usage:
+Starting:
 ```java
 // your code to start up an app
 myApp.start();
 
 // get a Swing-driver, or Swinger
 Swinger swinger = Swinger.forSwingWindow();
+```
 
-// drive your app!
+Emulating user's actions in the GUI:
+```java
 swinger.clickOn( "text-input-1" )     // select by Component name (no prefix required)
        .type( "Hello Automaton!" )
        .drag( "text:Drag this item" ) // select by text (works with almost anything)
        .onto( "type:DropBoxImpl" );   // select by type
        
 // get the tree nodes for the given tree path and open them
-JTree myTree = ( JTree ) swinger.getAt( "tree-name" );
+JTree myTree = swinger.getAt( JTree.class );
 List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
                  "Project 1", "Test Suite A", "Test Case 1" );
 swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
-
-// JUnit assertion with custom matchers (NOT YET IMPLEMENTED)
-assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
-assertThat( nodesToOpen, areVisible() );
 ```
+
+Making assertions with `Automaton`'s Hamcrest matchers:
+```java
+assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
+
+for ( Component node : nodesToOpen ) {
+    assertThat( node, is( visible() ) );
+}
+```
+
+### More Swing information
 
 For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md).
 
@@ -56,12 +66,32 @@ The Automaton can be easily extended with the use of custom selectors. See the [
 
 ## JavaFX applications
 
+Starting:
+
+You can simply let the `Automaton` start your app:
+
 ```java
-Node root = app.getScene().getRoot();
-FXer.getUserWith( root ).clickOn( "#button-id" )
-    .moveTo( ".css-class-selector" )
-    .rightClick()
-    .clickOn( "#exit" );
+FXApp.startApp( new MyApp() );
+FXer fxer = FXer.getUserWith( FXApp.getScene().getRoot() );
+```
+
+Or you can launch it using your own launcher, then create a FXer istance from any node at any time:
+
+```java
+FXer fxer = FXer.getUserWith( node );
+```
+
+Emulating user's actions in the GUI:
+```java
+fxer.clickOn( fxer.getAt( TextField.class ) )
+    .type( "Automaton" )
+    .clickOn( "#login-button" );
+```
+
+Making assertions with `Automaton`'s Hamcrest matchers:
+
+```java
+assertThat( fxer.getAt( "#message-area" ), hasText( "Please enter your password" ) );
 ```
 
 
@@ -77,12 +107,10 @@ But you're probably interested in knowing how you'll be able to test such a mixe
 Easily, with the `SwingerFXer` *Automaton* driver:
 
 ```java
-JFrame frame = swingJavaFx.getjFrame();
-JFXPanel fxPanel = swingJavaFx.getJfxPanel();
 String swingTextAreaText = "Hello, I am Swing...";
 String fxInputText = "Hello, JavaFX...";
 
-SwingerFxer swfx = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+SwingerFxer swfx = SwingerFxer.userWith( swingFrame, fxNode );
 
 swfx.doubleClickOn( "text:colors" )
     .clickOn( "text-area" )
@@ -90,19 +118,18 @@ swfx.doubleClickOn( "text:colors" )
     .clickOn( "#left-color-picker" ).pause( 1000 )
     .moveBy( 60, 40 ).click().pause( 1000 )
     .clickOn( "#fx-input" )
-    .type( fxInputText )
-    .moveBy( 100, 0 ).pause( 500 );
-
-JTextArea jTextArea = ( JTextArea ) swfx.getAt( "text-area" );
-TextField textField = ( TextField ) swfx.getAt( "#fx-input" );
-ColorPicker leftPicker = ( ColorPicker ) swfx.getAt( "#left-color-picker" );
-
-assertEquals( swingTextAreaText, jTextArea.getText() );
-assertEquals( fxInputText, textField.getText() );
-assertEquals( leftPicker.getValue(), swingJavaFx.getTextLeftColor() );
+    .type( fxInputText );
 ```
 
-The above is a copy of part of the (SwingJavaFXSampleAppTestInJava)[https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java] class in this project.
+Assertions work for both Swing and JavaFX seamlessly.
+
+```java
+assertThat( swfx.getAt( "text-area" ), hasText( swingTextAreaText ) );
+assertThat( swfx.getAt( "#fx-input" ), hasText( fxInputText ) );
+assertThat( swfx.getAt( "#left-color-picker" ), hasValue( swingJavaFx.getTextLeftColor() ) );
+```
+
+The above is a based on the (SwingJavaFXSampleAppTestInJava)[https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java] sample class in this project.
 Just type `t` in the GibHub main page and search for this class for the complete code.
 
 Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.

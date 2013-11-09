@@ -8,27 +8,37 @@ This mechanism is easily extensible, which means that if the `Automaton` does no
 
 Let's see how that works.
 
+### Existing selectors
+
 * Selecting by name
   * `"name:component-name"` or simply `"component-name"` (if no custom selectors added)
 * Selecting by type
   * `"type:JButton` or `"type:javax.swing.JButton`
+  * You can also use the class itself as a selector to get a Component type-safely:
+      * Java: ```JButton button = swinger.getAt( JButton.class );```
+      * Groovy: ```def button = swinger[ JButton ]``` 
 * Selecting by text (works with any Component which has text, and also with `JTree` nodes and `JTable` headers/cells):
   * `"text:Component label"`
-* Writing a selector to extend Automaton:
-```java
-Swinger swinger = Swinger.forSwingWindow();
-swinger.setSpecialPrefixes( createCustomSelectors() );
------------------------------------------------------------------
-private Map<String, Closure<Component>> createCustomSelectors() {
 
-    // we must use a sorted map as the first entry in the map is used if no prefix is given
-    // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
-    Map<String, Closure<Component>> customSelectors = new LinkedHashMap<String, Closure<Component>>();
+#### Usage example
+
+```java
+swinger.clickOn( "button-name" ).pause( 250 )
+       .drag( "text:Drag me to the inbox" )
+       .onto( "type:" + InboxWidget.class.getName() );
+```
+
+### Writing a selector to extend Automaton:
+
+Create a custom selector:
+
+```java
+private Map<String, Closure<Component>> createCustomSelector() {
+    Map<String, Closure<Component>> customSelectors = new LinkedHashMap<>();
+    
     customSelectors.put( "cust:", new SwingerSelector( this ) {
         @Override
         public Component call( String selector, Component component ) {
-            // this custom selector does almost exactly the same thing as Automaton's default selector
-            // except that it turns all characters lower-case before looking up by name
             return SwingUtil.lookup( selector.toLowerCase(), component );
         }
     } );
@@ -37,16 +47,33 @@ private Map<String, Closure<Component>> createCustomSelectors() {
     customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
     return customSelectors;
 }
----------------------------------------------------------------------
-// Now we can use the custom selector as follows
+```
+
+Add the custom selector to a `Swinger` instance:
+
+```java
+Swinger swinger = Swinger.forSwingWindow();
+swinger.setSpecialPrefixes( createCustomSelector() );
+```
+
+Use the custom selector:
+```java
 swinger.clickOn( "cust:Text-AreA" );
 Component c = swinger.getAt( "cust:Another" );
 ```
-Notice that the first item returned by the Map you use to specify custom selectors is used by default if no prefix is given. This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that! In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
 
-Notice that there is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>>"`, which would then be used like this: `clickOn( "myprefix>>>Something" ) `.
+#### Note: you can change which selector is used by default
 
-#### SwingUtil
+Notice that the first item of the selectors Map is used by default if no prefix is given (this is why we used a `LinkedHashMap`, which follows insertion order when iterating over items).
+
+This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that!
+
+In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
+
+Notice that there is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>"`, which would then be used like this: `clickOn( "myprefix>>Something" ) `.
+
+
+### SwingUtil  - help when trying to find difficult items
 
 The `SwingUtil` class contains a few helpful methods which you can also use directly to locate components, or inside your custom selectors, as in the example above, which uses `lookup( String name, Component root )` (finds Components by name).
 

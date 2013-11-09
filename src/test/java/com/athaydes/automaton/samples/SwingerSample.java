@@ -56,8 +56,8 @@ public class SwingerSample {
 
         swinger.type( "This is a Swing test" );
 
-        // Lookup the TextArea using Automaton's SwingUtil class
-        JTextArea textArea = ( JTextArea ) SwingUtil.lookup( "text-area", swinger.getComponent() );
+        // Lookup the TextArea by class
+        JTextArea textArea = swinger.getAt( JTextArea.class );
 
         assertThat( textArea.getText(), is( "This is a Swing test" ) );
     }
