@@ -57,6 +57,32 @@ for ( Component node : nodesToOpen ) {
 }
 ```
 
+### Comparison with FEST-Swing
+Here's a code snippet copied from the FEST-Swing main page:
+```java
+dialog.comboBox("domain").select("Users");
+dialog.textBox("username").enterText("alex.ruiz");
+dialog.button("ok").click();
+dialog.optionPane().requireErrorMessage()
+                   .requireMessage("Please enter your password");
+```
+And here's how you would achieve the same thing with Automaton:
+```java
+swinger.clickOn( "domain" )
+       .clickOn( "text:Users" )
+       .clickOn( "username" )
+       .type( "automaton" )
+       .clickOn( "ok" ).pause( 250 );
+
+assertThat( swinger.getAt( "message-area" ), hasText( "Please enter your password" ) );
+```
+
+With Automaton, when you write a test, you describe the actions a user would have taken within your application using a fluent API which reads as close to English as possible.
+
+This is why it's so easy to write tests with Automaton!
+
+With Fest, this is not the case. The code does not read anything like how a person would describe the actions the tester wants to have tested.
+
 ### More Swing information
 
 For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md).
