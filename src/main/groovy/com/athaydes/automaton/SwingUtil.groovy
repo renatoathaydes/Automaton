@@ -71,6 +71,9 @@ class SwingUtil {
 				case JTable:
 					jTableText( comp as JTable, textToFind, res, limit )
 					break
+				case JComboBox:
+					jComboBoxText( comp as JComboBox, textToFind, res, limit )
+					break
 				case Component:
 					if ( callMethodIfExists( comp, 'getText' ) == textToFind )
 						res << ( comp as Component )
@@ -80,7 +83,7 @@ class SwingUtil {
 		return res
 	}
 
-	private static boolean jTableText( JTable table, String textToFind, List<Component> res, int limit ) {
+	private static jTableText( JTable table, String textToFind, List<Component> res, int limit ) {
 		navigateBreadthFirst( table ) { data, row, col ->
 			if ( data as String == textToFind ) {
 				res << ( new FakeComponent( data, {
@@ -98,13 +101,34 @@ class SwingUtil {
 		}
 	}
 
-	private static boolean jTreeText( tree, String textToFind, List<Component> res, int limit ) {
+	private static jTreeText( tree, String textToFind, List<Component> res, int limit ) {
 		navigateBreadthFirst( tree ) { TreeNode node ->
 			if ( node as String == textToFind ) {
 				res << treeNode2FakeComponent( tree, node )
 			}
 			res.size() >= limit
 		}
+	}
+
+	private static jComboBoxText( JComboBox combo, String textToFind, List<Component> res, int limit ) {
+		if ( res.size() >= limit ) return
+		for ( index in 0..<combo.itemCount ) {
+			def item = combo.getItemAt( index )
+			if ( item as String == textToFind ) {
+				res << comboBoxItem2FakeComponent( combo, index )
+				break
+			}
+		}
+	}
+
+	private static Component comboBoxItem2FakeComponent( JComboBox combo, int index ) {
+		def getList = { combo.ui.getAccessibleChild( combo, 0 ).list as JList }
+		new FakeComponent( combo,
+				{ getList().locationOnScreen },
+				{
+					new Rectangle( getList().indexToLocation( index ),
+							[ getList().width, ( getList().height / combo.itemCount ).intValue() ] as Dimension )
+				} )
 	}
 
 	private static Component treeNode2FakeComponent( JTree tree, TreeNode node ) {
@@ -196,6 +220,13 @@ class SwingUtil {
 		return false
 	}
 
+	/**
+	 * Navigates the given table, calling the given action for each header and cell.
+	 * To stop navigating, action may return true
+	 * @param table to navigate through
+	 * @param action to be called on each visited header/cell. Return true to stop navigating.
+	 * @return true if action returned true for any header/cell
+	 */
 	static boolean navigateBreadthFirst( JTable table, Closure action ) {
 		def cols = ( 0..<table.model.columnCount )
 		def rows = ( 0..<table.model.rowCount )
@@ -306,7 +337,7 @@ class SwingUtil {
 
 		int getHeight( ) { getItemBounds().height.intValue() }
 
-		String getText() { realObject as String }
+		String getText( ) { realObject as String }
 
 	}
 

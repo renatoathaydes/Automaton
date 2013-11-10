@@ -364,6 +364,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 									}
 								}
 							}
+							comboBox( items: [ 'combo1', 'combo2' ] )
 						}
 					}
 					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 180 ) {
@@ -380,7 +381,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		SwingUtil.text( textToFind, jFrame ) != null
 
 		where:
-		textToFind << [ 'File', 'Exit', 'A tree', 'Click', 'colors', 'Col 1', 'item 1 - Col 1' ]
+		textToFind << [ 'File', 'Exit', 'A tree', 'Click', 'colors', 'Col 1', 'item 1 - Col 1', 'combo1', 'combo2' ]
 	}
 
 	def testTextAll( ) {

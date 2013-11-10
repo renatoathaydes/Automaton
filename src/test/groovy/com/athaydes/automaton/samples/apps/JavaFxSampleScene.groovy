@@ -1,4 +1,4 @@
-package com.athaydes.automaton.samples
+package com.athaydes.automaton.samples.apps
 
 import javafx.event.ActionEvent
 import javafx.event.EventHandler

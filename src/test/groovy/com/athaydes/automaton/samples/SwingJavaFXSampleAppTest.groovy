@@ -3,6 +3,7 @@ package com.athaydes.automaton.samples
 import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.SwingerFxer
+import com.athaydes.automaton.samples.apps.SwingWithFXSample
 import javafx.embed.swing.JFXPanel
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient

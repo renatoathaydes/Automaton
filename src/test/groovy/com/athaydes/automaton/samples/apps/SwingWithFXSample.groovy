@@ -1,4 +1,4 @@
-package com.athaydes.automaton.samples
+package com.athaydes.automaton.samples.apps
 
 import groovy.swing.SwingBuilder
 import javafx.application.Platform

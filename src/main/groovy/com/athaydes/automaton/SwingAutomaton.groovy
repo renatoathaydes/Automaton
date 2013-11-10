@@ -53,10 +53,14 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	}
 
 	static Point centerOf( Component component ) {
-		def center = component.locationOnScreen
-		center.x += component.width / 2
-		center.y += component.height / 2
-		return center
+		try {
+			def center = component.locationOnScreen
+			center.x += component.width / 2
+			center.y += component.height / 2
+			return center
+		} catch ( IllegalComponentStateException ignore ) {
+			throw new RuntimeException( "Component not showing on screen: " + component )
+		}
 	}
 
 }
