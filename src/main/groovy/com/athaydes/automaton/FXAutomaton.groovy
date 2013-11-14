@@ -40,9 +40,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	FXAutomaton moveTo( Node node, Speed speed = DEFAULT ) {
-		def currPos = MouseInfo.pointerInfo.location
-		def target = centerOf node
-		move( currPos, target, speed )
+		moveTo( { centerOf( node ) }, speed )
 	}
 
 	FXDragOn<FXAutomaton> drag( Node node ) {
@@ -51,6 +49,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	static Point centerOf( Node node ) {
+		assert node != null, "Node could not be found"
 		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
 
 		// Y-coordinate of Scene seems to be always off if the Stage is shown before the Scene is set

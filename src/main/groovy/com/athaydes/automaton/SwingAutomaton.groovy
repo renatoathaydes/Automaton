@@ -42,9 +42,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	}
 
 	SwingAutomaton moveTo( Component component, Speed speed = DEFAULT ) {
-		def currPos = MouseInfo.pointerInfo.location
-		def target = centerOf component
-		move( currPos, target, speed )
+		moveTo( { centerOf( component ) }, speed )
 	}
 
 	SwingAutomaton moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
@@ -58,6 +56,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	}
 
 	static Point centerOf( Component component ) {
+		assert component != null, 'Component could not be found'
 		try {
 			def center = component.locationOnScreen
 			center.x += component.width / 2

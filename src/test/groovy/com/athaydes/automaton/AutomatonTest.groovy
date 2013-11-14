@@ -2,9 +2,6 @@ package com.athaydes.automaton
 
 import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
-import com.google.code.tempusfugit.temporal.Duration
-import com.google.code.tempusfugit.temporal.Timeout
-import com.google.code.tempusfugit.temporal.WaitFor
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -37,7 +34,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testMoveTo( ) {
+	void testMoveToXY( ) {
 		beforeTimeRelyingTest()
 
 		Automaton.user.moveTo 50, 50, VERY_FAST
@@ -80,6 +77,44 @@ class AutomatonTest implements HasSwingCode {
 		Automaton.user.moveTo( 50, 50 ).moveTo( 100, 100 ).moveTo( 150, 50 )
 		assert MouseInfo.pointerInfo.location == new Point( 150, 50 )
 
+	}
+
+	@Test
+	void testMoveToPoint( ) {
+		beforeTimeRelyingTest()
+
+		Automaton.user.moveTo new Point( 60, 60 ), VERY_FAST
+		assert MouseInfo.pointerInfo.location == new Point( 60, 60 )
+	}
+
+	@Test
+	void testMoveToPointWhenPointMoves( ) {
+		beforeTimeRelyingTest()
+
+		def target = new Point( 200, 150 )
+		Automaton.user.moveTo( 20, 50 )
+
+		Thread.start { Automaton.user.moveTo target, MEDIUM }
+		sleep 500
+		target.setLocation( 300, 100 )
+
+		waitOrTimeout( condition { MouseInfo.pointerInfo.location == target },
+				timeout( seconds( 5 ) ) )
+	}
+
+	@Test
+	void testMoveToClosure( ) {
+		beforeTimeRelyingTest()
+
+		def target = new Point( 200, 150 )
+		Automaton.user.moveTo( 20, 50 )
+
+		Thread.start { Automaton.user.moveTo( { new Point( target ) }, MEDIUM ) }
+		sleep 500
+		target.setLocation( 300, 100 )
+
+		waitOrTimeout( condition { MouseInfo.pointerInfo.location == target },
+				timeout( seconds( 5 ) ) )
 	}
 
 	static long defaultFrom( long slow, long medium, long fast, long veryFast ) {

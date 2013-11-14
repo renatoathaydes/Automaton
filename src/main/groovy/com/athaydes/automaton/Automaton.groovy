@@ -33,9 +33,21 @@ class Automaton<T extends Automaton> {
 	protected Automaton( ) {}
 
 	T moveTo( Number x, Number y, Speed speed = DEFAULT ) {
+		moveTo( new Point( x.intValue(), y.intValue() ), speed )
+	}
+
+	T moveTo( Point target, Speed speed = DEFAULT ) {
 		def currPos = MouseInfo.pointerInfo.location
-		def target = new Point( x.intValue(), y.intValue() )
 		move( currPos, target, speed )
+	}
+
+	T moveTo( Closure<Point> getTarget, Speed speed = DEFAULT ) {
+		def target = null
+		while ( !target || getTarget() != target ) {
+			target = getTarget()
+			moveTo( target, speed )
+		}
+		this as T
 	}
 
 	T moveBy( Number x, Number y, Speed speed = DEFAULT ) {
