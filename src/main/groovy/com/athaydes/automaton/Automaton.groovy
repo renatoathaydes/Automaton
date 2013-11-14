@@ -21,9 +21,13 @@ class Automaton<T extends Automaton> {
 	private static Automaton instance
 	private abortAfter = new TimeLimiter().&abortAfter
 
-	static synchronized T getUser( ) {
+	/**
+	 * Get the singleton instance of Automaton, which is lazily created.
+	 * @return Automaton singleton instance
+	 */
+	static synchronized Automaton<Automaton> getUser( ) {
 		if ( !instance ) instance = new Automaton<Automaton>()
-		instance as T
+		instance
 	}
 
 	protected Automaton( ) {}

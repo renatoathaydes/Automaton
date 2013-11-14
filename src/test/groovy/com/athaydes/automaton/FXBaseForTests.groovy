@@ -314,6 +314,6 @@ class FXerTest extends FxDriverWithSelectorsTest {
 
 class SwingerFXerFXTest extends FxDriverWithSelectorsTest {
 
-	{ withDriver = { SwingerFxer.userWith( null, FXApp.scene.root ) } }
+	{ withDriver = { SwingerFxer.getUserWith( null, FXApp.scene.root ) } }
 
 }

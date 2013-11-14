@@ -52,7 +52,7 @@ class SwingJavaFXSampleAppTest {
 		final swingTextAreaText = "Hello, I am Swing..."
 		final fxInputText = "Hello, JavaFX..."
 
-		def swfx = SwingerFxer.userWith( jFrame, jfxPanel.scene.root )
+		def swfx = SwingerFxer.getUserWith( jFrame, jfxPanel.scene.root )
 
 		swfx.doubleClickOn( "text:colors" )
 				.clickOn( "text-area" )

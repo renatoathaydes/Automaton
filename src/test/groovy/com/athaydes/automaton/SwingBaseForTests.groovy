@@ -463,6 +463,6 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 
 class SwingerFXer_SwingTest extends SwingDriverWithSelectorsTest {
 
-	{ withDriver = { SwingerFxer.userWith( jFrame, null ) } }
+	{ withDriver = { SwingerFxer.getUserWith( jFrame, null ) } }
 
 }

@@ -28,7 +28,7 @@ class SwingerFxerTest {
 
 	@Test
 	void "SwingerFxer can run mixed Swing/JavaFX apps"( ) {
-		SwingerFxer.userWith( swingFx.jFrame, swingFx.jfxPanel.scene.root )
+		SwingerFxer.getUserWith( swingFx.jFrame, swingFx.jfxPanel.scene.root )
 				.clickOn( 'text-area' )
 				.type( 'Hello, I am the Swing Automaton!' ).pause( 1000 )
 				.clickOn( '#left-color-picker' )

@@ -136,7 +136,7 @@ Easily, with the `SwingerFXer` *Automaton* driver:
 String swingTextAreaText = "Hello, I am Swing...";
 String fxInputText = "Hello, JavaFX...";
 
-SwingerFxer swfx = SwingerFxer.userWith( swingFrame, fxNode );
+SwingerFxer swfx = SwingerFxer.getUserWith( swingFrame, fxNode );
 
 swfx.doubleClickOn( "text:colors" )
     .clickOn( "text-area" )

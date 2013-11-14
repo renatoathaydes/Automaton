@@ -41,7 +41,7 @@ public class SwingJavaFXSampleAppTestInJava {
         String swingTextAreaText = "Hello, I am Swing...";
         String fxInputText = "Hello, JavaFX...";
 
-        SwingerFxer swfx = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+        SwingerFxer swfx = SwingerFxer.getUserWith( frame, fxPanel.getScene().getRoot() );
 
         swfx.doubleClickOn( "text:colors" )
                 .clickOn( "text-area" )
@@ -65,7 +65,7 @@ public class SwingJavaFXSampleAppTestInJava {
         JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
         List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 
-        SwingerFxer swingerFxer = SwingerFxer.userWith( frame, fxPanel.getScene().getRoot() );
+        SwingerFxer swingerFxer = SwingerFxer.getUserWith( frame, fxPanel.getScene().getRoot() );
 
         for ( Component node : nodes ) {
             swingerFxer.doubleClickOn( node ).pause( 2000 );

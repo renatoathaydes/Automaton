@@ -20,6 +20,10 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 
 	private static instance
 
+	/**
+	 * Get the singleton instance of FXAutomaton, which is lazily created.
+	 * @return FXAutomaton singleton instance
+	 */
 	static synchronized FXAutomaton getUser( ) {
 		if ( !instance ) instance = new FXAutomaton()
 		instance
@@ -118,11 +122,19 @@ class FXer extends Automaton<FXer> {
 	Node node
 	def delegate = FXAutomaton.user
 
-	protected FXer( ) {}
-
+	/**
+	 * Gets a new instance of <code>FXer</code> using the given
+	 * top-level Node.
+	 * <br/>
+	 * The search space is limited to the given Node.
+	 * @param node top level JavaFX Node to use
+	 * @return a new FXer instance
+	 */
 	static FXer getUserWith( Node node ) {
 		new FXer( node: node )
 	}
+
+	protected FXer( ) {}
 
 	FXer clickOn( Node node, Speed speed = DEFAULT ) {
 		delegate.clickOn( node, speed )

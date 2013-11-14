@@ -1,5 +1,6 @@
 package com.athaydes.automaton
 
+import javax.swing.*
 import java.awt.*
 import java.util.List
 
@@ -11,6 +12,10 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 	private static instance
 
+	/**
+	 * Get the singleton instance of SwingAutomaton, which is lazily created.
+	 * @return SwingAutomaton singleton instance
+	 */
 	static synchronized SwingAutomaton getUser( ) {
 		if ( !instance ) instance = new SwingAutomaton()
 		instance
@@ -78,11 +83,33 @@ class Swinger extends Automaton<Swinger> {
 	protected delegate = SwingAutomaton.user
 	Map<String, Closure<Component>> specialPrefixes
 
-	protected Swinger( ) {}
-
+	/**
+	 * Gets a new instance of <code>Swinger</code> using the given
+	 * top-level component.
+	 * <br/>
+	 * The search space is limited to the given Component.
+	 * @param component top level Swing component to use
+	 * @return a new Swinger instance
+	 */
 	static Swinger getUserWith( Component component ) {
 		new Swinger( specialPrefixes: DEFAULT_PREFIX_MAP, component: component )
 	}
+
+	/**
+	 * @return Swinger whose root element is the first Window that can be found
+	 * by calling {@code java.awt.Window.getWindows ( )} which is an instance of
+	 * {@code JFrame}.
+	 */
+	static Swinger forSwingWindow( ) {
+		def isJFrame = { it instanceof JFrame }
+		if ( Window.windows && Window.windows.any( isJFrame ) ) {
+			getUserWith( Window.windows.find( isJFrame ) )
+		} else {
+			throw new RuntimeException( 'Impossible to get any Swing window which is a JFrame' )
+		}
+	}
+
+	protected Swinger( ) {}
 
 	Component getAt( String selector ) {
 		findPrefixed( ensurePrefixed( selector ) ) as Component
@@ -162,17 +189,6 @@ class Swinger extends Automaton<Swinger> {
 			throw new RuntimeException( "Unable to locate prefix=$prefix, selector=$selector" )
 	}
 
-	/**
-	 * @return Swinger whose root element is the first Window that can be found
-	 * by calling {@code java.awt.Window.getWindows ( )}
-	 */
-	static Swinger forSwingWindow( ) {
-		if ( Window.windows ) {
-			getUserWith( Window.windows[ 0 ] )
-		} else {
-			throw new RuntimeException( 'Impossible to get any Swing window' )
-		}
-	}
 }
 
 class SwingDragOn<T extends Automaton<? extends Automaton>> extends DragOn<T> {

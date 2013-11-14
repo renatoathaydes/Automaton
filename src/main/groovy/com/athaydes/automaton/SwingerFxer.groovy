@@ -15,12 +15,22 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	final fxSelector1stChars = [ '.', '#' ].asImmutable()
 
-	static SwingerFxer userWith( Container container, Node node ) {
-		new SwingerFxer( container, node )
+	/**
+	 * Gets a new instance of <code>SwingerFxer</code> using the given
+	 * top-level component and node.
+	 * <br/>
+	 * The search space is limited to the given Component (in Swing) and
+	 * Node (in JavaFX).
+	 * @param component top level Swing container to use
+	 * @param node top level JavaFX Node to use
+	 * @return a new SwingerFxer instance
+	 */
+	static SwingerFxer getUserWith( Component component, Node node ) {
+		new SwingerFxer( component, node )
 	}
 
-	protected SwingerFxer( Container container, Node node ) {
-		swinger = Swinger.getUserWith( container )
+	protected SwingerFxer( Component component, Node node ) {
+		swinger = Swinger.getUserWith( component )
 		fxer = FXer.getUserWith( node )
 	}
 
