@@ -65,7 +65,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	// required because of JavaFX bug: RT-34307
-	private static Point getScenePosition( Node node ) {
+	protected static Point getScenePosition( Node node ) {
 		scenePos.x = Math.max( node.scene.x.intValue(), scenePos.x )
 		scenePos.y = Math.max( node.scene.y.intValue(), scenePos.y )
 		scenePos
@@ -100,6 +100,7 @@ class FXApp extends Application {
 			ensureShowing( stage )
 		}
 		log.debug "Stage now showing!"
+		FXAutomaton.getScenePosition( scene.root )
 		stage
 	}
 
