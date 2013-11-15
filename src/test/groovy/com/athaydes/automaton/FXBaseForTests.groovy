@@ -1,26 +1,32 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.geometry.PointOperators
 import com.athaydes.automaton.mixins.TimeAware
 import groovy.util.logging.Slf4j
+import javafx.application.Application
 import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.scene.Node
+import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.TextArea
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
+import javafx.scene.layout.VBox
 import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
-import org.junit.AfterClass
-import org.junit.BeforeClass
+import javafx.stage.Stage
+import org.junit.Before
 import org.junit.Test
 
+import java.awt.*
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
+import static com.athaydes.automaton.Speed.VERY_FAST
 import static com.google.code.tempusfugit.temporal.Duration.seconds
 import static com.google.code.tempusfugit.temporal.Timeout.timeout
 import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
@@ -33,15 +39,10 @@ import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 @Mixin( TimeAware )
 class FXBaseForTests implements HasMixins {
 
-	@BeforeClass
-	static void setup( ) {
+	@Before
+	void setup( ) {
 		log.debug "Setting up FX Automaton Test"
 		FXApp.initialize()
-	}
-
-	@AfterClass
-	static void cleanup( ) {
-		Platform.runLater { FXApp.initialize().close() }
 	}
 
 	void testMoveTo( Closure getDriver, Closure optionalDoMoveTo = null ) {
@@ -248,6 +249,47 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	@Test
 	void testType( ) {
 		testType withDriver
+	}
+
+	@Test
+	void testGetSceneActualPosition( ) {
+		def future = new LinkedBlockingDeque( 1 )
+		def root = null
+
+		Automaton.user.moveTo( 20, 20, VERY_FAST )
+
+		def app = new Application() {
+			@Override
+			void start( Stage stage ) throws Exception {
+				root = new VBox( spacing: 0 )
+				root.onMouseEntered = new EventHandler<MouseEvent>() {
+					@Override
+					void handle( MouseEvent event ) {
+						future << event
+					}
+				}
+				root.children.setAll new Rectangle( 30, 40, Color.BLUEVIOLET )
+				stage.scene = new Scene( root, 35, 50 )
+				future << true
+			}
+		}
+
+		FXApp.startApp( app )
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 250
+
+		def windowPos = FXAutomaton.getWindowPosition( root )
+
+		def sceneActualPosition = FXAutomaton.getScenePosition( root )
+		def margins = new Point( 5, 2 )
+
+		use( PointOperators ) {
+			Automaton.user.moveTo(
+					windowPos + sceneActualPosition + margins, VERY_FAST )
+		}
+
+		assert future.poll() instanceof MouseEvent
 	}
 
 }

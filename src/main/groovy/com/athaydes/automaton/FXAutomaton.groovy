@@ -50,10 +50,8 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 
 	static Point centerOf( Node node ) {
 		assert node != null, "Node could not be found"
-		def windowPos = new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
-
-		// Y-coordinate of Scene seems to be always off if the Stage is shown before the Scene is set
-		def scenePos = new Point( node.scene.x.intValue(), Math.max( node.scene.y.intValue(), 24 ) )
+		def windowPos = getWindowPosition( node )
+		def scenePos = getScenePosition( node )
 
 		def boundsInScene = node.localToScene node.boundsInLocal
 		def absX = windowPos.x + scenePos.x + boundsInScene.minX
@@ -61,6 +59,19 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		[ ( absX + boundsInScene.width / 2 ).intValue(),
 				( absY + boundsInScene.height / 2 ).intValue() ] as Point
 	}
+
+	static Point getWindowPosition( Node node ) {
+		new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
+	}
+
+	// required because of JavaFX bug: RT-34307
+	private static Point getScenePosition( Node node ) {
+		scenePos.x = Math.max( node.scene.x.intValue(), scenePos.x )
+		scenePos.y = Math.max( node.scene.y.intValue(), scenePos.y )
+		scenePos
+	}
+
+	private static scenePos = new Point()
 
 }
 
@@ -70,7 +81,10 @@ class FXApp extends Application {
 	private static Stage stage
 	private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
-	static Scene getScene( ) { initialize().scene }
+	static Scene getScene( ) {
+		if ( stage ) stage.scene
+		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )
+	}
 
 	synchronized static Stage initialize( String... args ) {
 		if ( !stage ) {
@@ -81,7 +95,10 @@ class FXApp extends Application {
 			assert stage
 			stageFuture = null
 		}
-		doInFXThreadBlocking { ensureShowing( stage ) }
+		doInFXThreadBlocking {
+			stage.scene = emptyScene()
+			ensureShowing( stage )
+		}
 		log.debug "Stage now showing!"
 		stage
 	}
@@ -91,12 +108,12 @@ class FXApp extends Application {
 		stage.toFront()
 	}
 
-	static doInFXThreadBlocking( Closure toRun ) {
+	static doInFXThreadBlocking( Runnable toRun ) {
 		if ( Platform.isFxApplicationThread() )
-			toRun()
+			toRun.run()
 		else {
 			def blockUntilDone = new ArrayBlockingQueue( 1 )
-			Platform.runLater { toRun(); blockUntilDone << true }
+			Platform.runLater { toRun.run(); blockUntilDone << true }
 			assert blockUntilDone.poll( 5, TimeUnit.SECONDS )
 		}
 	}
@@ -108,10 +125,12 @@ class FXApp extends Application {
 
 	@Override
 	void start( Stage primaryStage ) throws Exception {
-		primaryStage.scene = new Scene( new VBox(), 600, 500 )
 		primaryStage.title = 'FXAutomaton Stage'
-		ensureShowing( primaryStage )
 		stageFuture.add primaryStage
+	}
+
+	private static Scene emptyScene( ) {
+		new Scene( new VBox(), 600, 500 )
 	}
 
 }
