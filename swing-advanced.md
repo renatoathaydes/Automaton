@@ -44,7 +44,7 @@ private Map<String, Closure<Component>> createCustomSelector() {
     } );
 
     // it is always good to keep Automaton's default selectors active
-    customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
+    customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
     return customSelectors;
 }
 ```
@@ -53,7 +53,7 @@ Add the custom selector to a `Swinger` instance:
 
 ```java
 Swinger swinger = Swinger.forSwingWindow();
-swinger.setSpecialPrefixes( createCustomSelector() );
+swinger.setSelectors( createCustomSelector() );
 ```
 
 Use the custom selector:

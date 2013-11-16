@@ -54,12 +54,12 @@ customSelectors.put( "cust:", new SwingerSelector( this ) {
         // return a component based on the given selector and component
     }
 } );
-swinger.setSpecialPrefixes( customSelectors );
+swinger.setSelectors( customSelectors );
 ```
 To keep the `Automaton` selectors working, make sure to re-add the default selectors to the map:
 
 ```java
-customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
+customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
 ```
 Complete sample code at `SwingerSample.java`
 
@@ -89,7 +89,7 @@ customSelectors.put( "$", new SwingerSelector( this ) {
 def customSelectors = [ "cust:": { String selector, Component component ->
         // return a component based on the given selector and component
 } ]
-swinger.specialPrefixes = Swinger.DEFAULT_PREFIX_MAP + customSelectors
+swinger.selectors = Swinger.DEFAULT_SELECTORS + customSelectors
 ```
 
 Complete sample code at `SwingJavaFXSampleAppTest.groovy`

@@ -71,7 +71,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 
-	static final Map<String, Closure<Component>> DEFAULT_PREFIX_MAP =
+	static final Map<String, Closure<Component>> DEFAULT_SELECTORS =
 		[
 				'name:': SwingUtil.&lookup,
 				'text:': SwingUtil.&text,
@@ -80,7 +80,7 @@ class Swinger extends Automaton<Swinger> {
 
 	Component component
 	protected delegate = SwingAutomaton.user
-	Map<String, Closure<Component>> specialPrefixes
+	Map<String, Closure<Component>> selectors
 
 	/**
 	 * Gets a new instance of <code>Swinger</code> using the given
@@ -91,7 +91,7 @@ class Swinger extends Automaton<Swinger> {
 	 * @return a new Swinger instance
 	 */
 	static Swinger getUserWith( Component component ) {
-		new Swinger( specialPrefixes: DEFAULT_PREFIX_MAP, component: component )
+		new Swinger( selectors: DEFAULT_SELECTORS, component: component )
 	}
 
 	/**
@@ -177,13 +177,13 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	protected List ensurePrefixed( String selector ) {
-		def prefixes = specialPrefixes.keySet()
+		def prefixes = selectors.keySet()
 		def prefix = prefixes.find { selector.startsWith it }
 		[ prefix ?: prefixes[ 0 ], prefix ? selector - prefix : selector ]
 	}
 
 	protected findPrefixed( String prefix, String selector ) {
-		def target = specialPrefixes[ prefix ]( selector, component )
+		def target = selectors[ prefix ]( selector, component )
 		if ( target ) target else
 			throw new RuntimeException( "Unable to locate prefix=$prefix, selector=$selector" )
 	}

@@ -66,7 +66,7 @@ public class SwingerSample {
     public void extendingSwinger() {
         Swinger swinger = Swinger.forSwingWindow();
 
-        swinger.setSpecialPrefixes( createCustomSelectors() );
+        swinger.setSelectors( createCustomSelectors() );
 
         // click on the Component with name 'text-area', turning all chars lower-case with the custom selector
         swinger.clickOn( "cust:Text-AreA" );
@@ -118,7 +118,7 @@ public class SwingerSample {
         } );
 
         // it is always good to keep Automaton's default selectors active
-        customSelectors.putAll( Swinger.getDEFAULT_PREFIX_MAP() );
+        customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
         return customSelectors;
     }
 

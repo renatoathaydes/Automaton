@@ -81,7 +81,7 @@ class SwingJavaFXSampleAppTest {
 		} ]
 
 		Swinger swinger = Swinger.forSwingWindow()
-		swinger.specialPrefixes = Swinger.DEFAULT_PREFIX_MAP + customSelectors
+		swinger.selectors = Swinger.DEFAULT_SELECTORS + customSelectors
 
 		swinger.clickOn( 'editable-textarea' )
 		25.times { swinger.type( KeyEvent.VK_BACK_SPACE ) }

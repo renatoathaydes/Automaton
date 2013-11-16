@@ -425,7 +425,7 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
-		driver.specialPrefixes = [
+		driver.selectors = [
 				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
 				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
@@ -446,12 +446,12 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
-		driver.specialPrefixes = [
+		driver.selectors = [
 				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
 				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
 
-		assert 'abc:' == driver.specialPrefixes.keySet().first()
+		assert 'abc:' == driver.selectors.keySet().first()
 
 		driver.clickOn( '123' )
 
