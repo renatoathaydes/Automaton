@@ -128,6 +128,12 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
+	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
+		def prefix_selector = ensurePrefixed selector
+		delegate.clickOn( findPrefixed( prefix_selector ), speed )
+		this
+	}
+
 	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
 		delegate.doubleClickOn( component, speed )
 		this
@@ -135,6 +141,12 @@ class Swinger extends Automaton<Swinger> {
 
 	Swinger doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		delegate.doubleClickOn( components, pauseBetween, speed )
+		this
+	}
+
+	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
+		def prefix_selector = ensurePrefixed selector
+		delegate.doubleClickOn( findPrefixed( prefix_selector ), speed )
 		this
 	}
 
@@ -148,27 +160,15 @@ class Swinger extends Automaton<Swinger> {
 		this
 	}
 
-	SwingerDragOn drag( Component component ) {
-		def center = SwingAutomaton.centerOf( component )
-		new SwingerDragOn( this, center.x, center.y )
-	}
-
-	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		def prefix_selector = ensurePrefixed selector
-		delegate.clickOn( findPrefixed( prefix_selector ), speed )
-		this
-	}
-
-	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		def prefix_selector = ensurePrefixed selector
-		delegate.doubleClickOn( findPrefixed( prefix_selector ), speed )
-		this
-	}
-
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
 		def prefix_selector = ensurePrefixed selector
 		delegate.moveTo( findPrefixed( prefix_selector ), speed )
 		this
+	}
+
+	SwingerDragOn drag( Component component ) {
+		def center = SwingAutomaton.centerOf( component )
+		new SwingerDragOn( this, center.x, center.y )
 	}
 
 	SwingerDragOn drag( String selector ) {
