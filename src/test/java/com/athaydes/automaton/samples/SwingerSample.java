@@ -2,7 +2,7 @@ package com.athaydes.automaton.samples;
 
 import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.Swinger;
-import com.athaydes.automaton.SwingerSelector;
+import com.athaydes.automaton.selector.SwingerSelector;
 import groovy.lang.Closure;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
