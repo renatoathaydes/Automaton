@@ -60,6 +60,7 @@ Making assertions with `Automaton`'s Hamcrest matchers (using simple JUnit asser
 ```java
 import static org.junit.Assert.assertThat;
 import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
+import static com.athaydes.automaton.assertion.AutomatonMatcher.visible;
 
 assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
 
@@ -67,6 +68,19 @@ for ( Component node : nodesToOpen ) {
     assertThat( node, is( visible() ) );
 }
 ```
+
+Creating your own selectors:
+
+```java
+new SimpleSwingerSelector() {
+    @Override
+    public boolean matches( String selector, Component component ) {
+        // return true if the given component matches the selector
+        return false;
+    }
+};
+```
+See the [Swing Advanced Usage](swing-advanced.md) page for details.
 
 ### Comparison with FEST-Swing
 Here's a code snippet copied from the FEST-Swing main page:
