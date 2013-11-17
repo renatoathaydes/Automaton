@@ -1,6 +1,7 @@
 package com.athaydes.automaton.samples;
 
 import com.athaydes.automaton.SwingUtil;
+import com.athaydes.automaton.Swinger;
 import com.athaydes.automaton.SwingerFxer;
 import javafx.embed.swing.JFXPanel;
 import org.junit.AfterClass;
@@ -62,7 +63,7 @@ public class SwingJavaFXSampleAppTestInJava {
         JFrame frame = getjFrame();
         JFXPanel fxPanel = getJfxPanel();
 
-        JTree tree = ( JTree ) SwingUtil.lookup( "mboxTree", frame );
+        JTree tree = ( JTree ) Swinger.forSwingWindow().getAt( "mboxTree" );
         List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 
         SwingerFxer swingerFxer = SwingerFxer.getUserWith( frame, fxPanel.getScene().getRoot() );

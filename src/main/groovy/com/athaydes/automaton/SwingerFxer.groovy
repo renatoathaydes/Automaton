@@ -130,7 +130,7 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 			drag( fxer.node.lookup( selector ) )
 		} else {
 			def prefix_selector = swinger.ensurePrefixed selector
-			drag( swinger.findPrefixed( prefix_selector ) )
+			drag( swinger.findOnePrefixed( prefix_selector ) )
 		}
 	}
 

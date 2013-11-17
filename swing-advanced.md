@@ -10,17 +10,64 @@ Let's see how that works.
 
 ### Existing selectors
 
-* Selecting by name
-  * `"name:component-name"` or simply `"component-name"` (if no custom selectors added)
-* Selecting by type
-  * `"type:JButton` or `"type:javax.swing.JButton`
-  * You can also use the class itself as a selector to get a Component type-safely:
-      * Java: ```JButton button = swinger.getAt( JButton.class );```
-      * Groovy: ```def button = swinger[ JButton ]``` 
-* Selecting by text (works with any Component which has text, and also with `JTree` nodes and `JTable` headers/cells):
-  * `"text:Component label"`
+#### By name
 
-#### Usage example
+Selector:
+```java
+com.athaydes.automaton.selector.SwingerSelectors.byName()
+```
+Usage with `Swinger`:
+```java
+swinger.clickOn( "name:component-name" );
+```
+Because this is the default selector when using the `Swinger`, this is equivalent to:
+```java
+swinger.clickOn( "component-name" );
+```
+
+#### By type
+
+Selector:
+```java
+com.athaydes.automaton.selector.SwingerSelectors.byType()
+```
+Usage with `Swinger`:
+```java
+swinger.clickOn( "type:javax.swing.JButton" );
+```
+Simple names can also be used:
+```java
+swinger.clickOn( "type:JButton" );
+```
+For type-safe usage, you can pass the class itself as a parameter to the `getAt` method:
+```java
+JButton button = swinger.getAt( JButton.class );
+swinger.clickOn( button );
+```
+Notice that in **Groovy**, we can always replace a method call to `getAt` with a nicer syntax:
+```groovy
+JButton button = swinger[ JButton ]
+```
+
+#### By text
+
+Selector:
+```java
+com.athaydes.automaton.selector.SwingerSelectors.byText()
+```
+Usage with `Swinger`:
+```java
+swinger.clickOn( "text:Text on my component" );
+```
+
+The text selector works with almost anything:
+
+* any `Component` which has a `getText` method
+* any `JTree`'s `TreeNode` using the `toString` method
+* any `JTable` header or cell
+
+
+### Example combining several selectors
 
 ```java
 swinger.clickOn( "button-name" ).pause( 250 )
@@ -33,18 +80,19 @@ swinger.clickOn( "button-name" ).pause( 250 )
 Create a custom selector:
 
 ```java
-private Map<String, Closure<Component>> createCustomSelector() {
-    Map<String, Closure<Component>> customSelectors = new LinkedHashMap<>();
-    
-    customSelectors.put( "cust:", new SwingerSelector( this ) {
+private Map<String, SimpleSwingerSelector> createCustomSelectors() {
+    // always keep the `Automaton` built-in selectors!
+    customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
+
+    Map<String, SimpleSwingerSelector> customSelectors = new LinkedHashMap<>();
+    customSelectors.put( "cust:", new SimpleSwingerSelector() {
         @Override
-        public Component call( String selector, Component component ) {
-            return SwingUtil.lookup( selector.toLowerCase(), component );
+        public boolean matches( String selector, Component component ) {
+            // return true if the given component matches the selector
+            return false;
         }
     } );
 
-    // it is always good to keep Automaton's default selectors active
-    customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
     return customSelectors;
 }
 ```
@@ -64,26 +112,44 @@ Component c = swinger.getAt( "cust:Another" );
 
 #### Note: you can change which selector is used by default
 
-Notice that the first item of the selectors Map is used by default if no prefix is given (this is why we used a `LinkedHashMap`, which follows insertion order when iterating over items).
+Notice that the first item of the selectors Map is used by default if no prefix is given (this is why we used a `LinkedHashMap`, which follows insertion order when iterating over items, in the example above).
 
 This is the reason why selecting `"comp"` is the same as `"name:comp"` in `Automaton` unless you modify that!
 
-In the example above, as the first item in the Map is the `"cust:"` selector, the `"cust:"` selector will be used by default.
+#### What's up with the `:` in selectors?
 
-Notice that there is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>"`, which would then be used like this: `clickOn( "myprefix>>Something" ) `.
+There is nothing special about the `:` in the prefixes, it's just the convention adopted in `Automaton`. You could just as well have used prefixes like `"myprefix>>"`, which would then be used like this: `clickOn( "myprefix>>Something" ) `.
 
+### Using SwingerSelectors directly
+
+You don't need to use the `Swinger` to find components, you can use the selectors directly if you want to (although using the `Swinger` is almost always more convenient).
+
+The `Swinger` itself uses these selector internally to find components.
+
+```java
+import static com.athaydes.automaton.selector.SwingerSelectors.byName;
+import static com.athaydes.automaton.selector.SwingerSelectors.byType;
+import static com.athaydes.automaton.selector.SwingerSelectors.byText;
+
+// convenient way to get the root component
+Component root = Swinger.forSwingWindow().getComponent();
+
+// find the first 2 components named 'abc'
+List<Component> components = byName().apply( "abc", root, 2 );
+
+// find all `JButton`s
+List<Component> components = byType().apply( "JButton", root );
+
+// find anything with text 'Click me'
+List<Component> components = byText().apply( "Click me", root );
+```
 
 ### SwingUtil  - help when trying to find difficult items
 
-The `SwingUtil` class contains a few helpful methods which you can also use directly to locate components, or inside your custom selectors, as in the example above, which uses `lookup( String name, Component root )` (finds Components by name).
+The `SwingUtil` class contains a few helpful methods which you can also use directly to locate components.
 
-Some other methods:
+Some examples:
 
-* `lookupAll( String name, Component root, int limit )` - find all Components with the given name. The `limit` argument is optional and if given, limits how many components will be returned.
-* `text( String textToFind, Component root )` - used by `Automaton`'s own `"text:"` selector, finds Components, JTree nodes and JTable cells/headers by their text.
-* `textAll( String textToFind, Component root, int limit )` - as `text(..)` but returns all items matching the selector.
-* `type( String type, Component root )` - finds a Component by its Java type. The type must be exactly the same (not just instanceof).
-* `typeAll( String type, Component root, int limit )` - as `type(..)` but returns all items matching the selector.
 * `navigateBreadthFirst( Component | JTree | JTable root, Closure action )` - navigates through the Swing Component tree or JTree hierarchy, passing each visited component to the given Closure (the `JTable` version also passes `row` and `column` indexes to the Closure). To stop navigating, the Closure must return `true`.
 * `callMethodIfExists( Object obj, String methodName, Object... args )` - very useful if you want to safely try to call a certain method on instances of different classes when possible (returns an empty List if the method does not exist). Very useful inside the action Closure when navigating through a tree.
 

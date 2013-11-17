@@ -2,6 +2,7 @@ package com.athaydes.automaton
 
 import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
+import com.athaydes.automaton.selector.SimpleSwingerSelector
 import groovy.swing.SwingBuilder
 import org.junit.After
 import org.junit.Test
@@ -426,8 +427,8 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc } as SimpleSwingerSelector,
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } as SimpleSwingerSelector ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
 
 		driver.clickOn( 'efgh:4567890123' )
@@ -447,8 +448,8 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc },
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } ]
+				'abc:': { argForAbc, _ -> abcCalls << argForAbc } as SimpleSwingerSelector,
+				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } as SimpleSwingerSelector ]
 		driver.delegate = [ clickOn: { c, Speed _ -> } ]
 
 		assert 'abc:' == driver.selectors.keySet().first()

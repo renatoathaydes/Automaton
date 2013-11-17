@@ -2,8 +2,7 @@ package com.athaydes.automaton.samples;
 
 import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.Swinger;
-import com.athaydes.automaton.selector.SwingerSelector;
-import groovy.lang.Closure;
+import com.athaydes.automaton.selector.SimpleSwingerSelector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,12 +10,13 @@ import org.junit.Test;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.athaydes.automaton.SwingUtil.collectNodes;
+import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
+import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAny;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -79,41 +79,31 @@ public class SwingerSample {
         swinger.type( "Using a custom selector" );
 
         // attempt to locate any Swing Component with the given text
-        Object areaWithTypedText = SwingUtil.text( "Using a custom selector", swinger.getComponent() );
+        Component areaWithTypedText = swinger.getAt( "text:Using a custom selector" );
 
         assertThat( areaWithTypedText, instanceOf( JTextArea.class ) );
     }
 
-    private Map<String, Closure<Component>> createCustomSelectors() {
+    private Map<String, SimpleSwingerSelector> createCustomSelectors() {
 
         // we must use a sorted map as the first entry in the map is used if no prefix is given
         // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
-        Map<String, Closure<Component>> customSelectors = new LinkedHashMap<String, Closure<Component>>();
-        customSelectors.put( "cust:", new SwingerSelector( this ) {
+        Map<String, SimpleSwingerSelector> customSelectors = new LinkedHashMap<>();
+        customSelectors.put( "cust:", new SimpleSwingerSelector() {
             @Override
-            public Component call( String selector, Component component ) {
+            public boolean matches( String selector, Component component ) {
                 // this custom selector does almost exactly the same thing as Automaton's default selector
-                // except that it turns all characters lower-case before looking up by name
-                return SwingUtil.lookup( selector.toLowerCase(), component );
+                // except that it disregards case before looking up by name
+                String compName = component.getName() == null ? "" : component.getName();
+                return selector.compareToIgnoreCase( compName ) == 0;
             }
         } );
 
         // a custom selector to find things by ID
-        customSelectors.put( "$", new SwingerSelector( this ) {
-            List<Component> found = new ArrayList<Component>( 1 );
-
+        customSelectors.put( "$", new SimpleSwingerSelector() {
             @Override
-            public Component call( final String selector, Component component ) {
-                SwingUtil.navigateBreadthFirst( component, new Closure( this ) {
-                    @Override
-                    public Object call( Object... args ) {
-                        if ( SwingUtil.callMethodIfExists( args[ 0 ], "getId" ).equals( selector ) ) {
-                            found.add( ( Component ) args[ 0 ] );
-                        }
-                        return !found.isEmpty();
-                    }
-                } );
-                return found.isEmpty() ? null : found.get( 0 );
+            public boolean matches( String selector, Component component ) {
+                return SwingUtil.callMethodIfExists( component, "getId" ).equals( selector );
             }
         } );
 
@@ -137,6 +127,20 @@ public class SwingerSample {
         swinger.clickOn( collectNodes( tree, "colors", "blue" ) )
                 .doubleClickOn( collectNodes( tree, "sports" ) )
                 .doubleClickOn( collectNodes( tree, "food" ) );
+    }
+
+    @Test
+    public void usingComplexSelectors() {
+        Swinger swinger = Swinger.forSwingWindow();
+
+        // will throw an Exception if nothing is found
+        swinger.getAt( matchingAll( "type:JTree", "name:mboxTree" ) );
+
+        List<Component> nodes = swinger.getAll( matchingAny( "text:colors", "text:sports" ) );
+        assertThat( nodes.size(), is( 2 ) );
+
+
+        swinger.clickOn( matchingAll( "type:JComboBox", "name:combo" ) );
     }
 
 }

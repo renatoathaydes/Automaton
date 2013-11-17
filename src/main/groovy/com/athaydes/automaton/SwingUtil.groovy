@@ -13,117 +13,22 @@ import java.util.List
  */
 class SwingUtil {
 
-	/**
-	 * Breadth-first search for any Component with the given name
-	 * @param name of component being searched for
-	 * @param root to be looked into
-	 * @return component if found, null otherwise
-	 */
-	static Component lookup( String name, Component root ) {
-		def res = lookupAll( name, root, 1 )
-		res ? res[ 0 ] : null
+	protected static FakeComponent tableCell2FakeComponent( JTable table, data, int row, int col ) {
+		new FakeComponent( data, {
+			row < 0 ?
+				table.tableHeader.locationOnScreen :
+				table.locationOnScreen
+		}, {
+			row < 0 ?
+				table.tableHeader.getHeaderRect( col ) :
+				table.getCellRect( row, col, true )
+		} )
 	}
 
-	/**
-	 * Breadth-first search for all Components with the given name
-	 * @param name of components being searched for
-	 * @param root to be looked into
-	 * @param limit maximum number of components to be returned
-	 * @return all components with the given name or an empty list if none
-	 */
-	static List<Component> lookupAll( String name, Component root, int limit = Integer.MAX_VALUE ) {
-		final List<Component> res = [ ]
-		navigateBreadthFirst( root ) { if ( it?.name == name ) res << it; res.size() >= limit }
-		return res
-	}
-
-	/**
-	 * Finds any Component with the given text under the given root.
-	 * It also works for <code>JTrees</code> and <code>JTables</code>
-	 * (the returned Component is a fake with the same location
-	 * as the found TreeNode or Table cell/header, if any, so that it
-	 * can be used with <code>SwingAutomaton</code> methods)
-	 * @param textToFind
-	 * @param root
-	 * @return item found or null
-	 */
-	static Component text( String textToFind, Component root ) {
-		def res = textAll( textToFind, root, 1 )
-		res ? res[ 0 ] : null
-	}
-
-	/**
-	 * Finds all Components with the given text under the given root.
-	 * It also works for <code>JTrees</code> and <code>JTables</code>
-	 * @param textToFind
-	 * @param root
-	 * @param limit maximum number of components to be returned
-	 * @return all components with the given text or an empty list if none
-	 * @see #text(String, Component)
-	 */
-	static List<Component> textAll( String textToFind, Component root, int limit = Integer.MAX_VALUE ) {
-		final List<Component> res = [ ]
-		navigateBreadthFirst( root ) { comp ->
-			switch ( comp ) {
-				case JTree:
-					jTreeText( comp as JTree, textToFind, res, limit )
-					break
-				case JTable:
-					jTableText( comp as JTable, textToFind, res, limit )
-					break
-				case JComboBox:
-					jComboBoxText( comp as JComboBox, textToFind, res, limit )
-					break
-				case Component:
-					if ( callMethodIfExists( comp, 'getText' ) == textToFind )
-						res << ( comp as Component )
-			}
-			res.size() >= limit
-		}
-		return res
-	}
-
-	private static jTableText( JTable table, String textToFind, List<Component> res, int limit ) {
-		navigateBreadthFirst( table ) { data, row, col ->
-			if ( data as String == textToFind ) {
-				res << ( new FakeComponent( data, {
-					row < 0 ?
-						table.tableHeader.locationOnScreen :
-						table.locationOnScreen
-				}, {
-					row < 0 ?
-						table.tableHeader.getHeaderRect( col ) :
-						table.getCellRect( row, col, true )
-				} ) as Component )
-
-			}
-			res.size() >= limit
-		}
-	}
-
-	private static jTreeText( tree, String textToFind, List<Component> res, int limit ) {
-		navigateBreadthFirst( tree ) { TreeNode node ->
-			if ( node as String == textToFind ) {
-				res << treeNode2FakeComponent( tree, node )
-			}
-			res.size() >= limit
-		}
-	}
-
-	private static jComboBoxText( JComboBox combo, String textToFind, List<Component> res, int limit ) {
-		if ( res.size() >= limit ) return
-		for ( index in 0..<combo.itemCount ) {
-			def item = combo.getItemAt( index )
-			if ( item as String == textToFind ) {
-				res << comboBoxItem2FakeComponent( combo, index )
-				break
-			}
-		}
-	}
-
-	private static Component comboBoxItem2FakeComponent( JComboBox combo, int index ) {
+	protected static Component comboBoxItem2FakeComponent( JComboBox combo, int index ) {
+		def item = combo.getItemAt( index )
 		def getList = { combo.ui.getAccessibleChild( combo, 0 ).list as JList }
-		new FakeComponent( combo,
+		new FakeComponent( item,
 				{ getList().locationOnScreen },
 				{
 					new Rectangle( getList().indexToLocation( index ),
@@ -131,39 +36,10 @@ class SwingUtil {
 				} )
 	}
 
-	private static Component treeNode2FakeComponent( JTree tree, TreeNode node ) {
+	protected static Component treeNode2FakeComponent( JTree tree, TreeNode node ) {
 		new FakeComponent( node,
 				{ tree.locationOnScreen },
 				{ tree.getPathBounds( new TreePath( pathOf( node ) ) ) } )
-	}
-
-	/**
-	 * Breadth-first search for any Component with the given type
-	 * @param selector class simple name or qualified name
-	 * @param root to be looked into
-	 * @return component if found, null otherwise
-	 */
-	static Component type( String selector, Component root ) {
-		def res = typeAll( selector, root, 1 )
-		res ? res[ 0 ] : null
-	}
-
-	/**
-	 * Breadth-first search for all Components with the given type
-	 * @param selector class simple name or qualified name
-	 * @param root to be looked into
-	 * @param limit maximum number of components to be returned
-	 * @return all components with the given type or an empty list if none
-	 */
-	static List<Component> typeAll( String selector, Component root, int limit = Integer.MAX_VALUE ) {
-		final isQualified = selector.contains( '.' )
-		final List<Component> res = [ ]
-		navigateBreadthFirst( root ) { comp ->
-			if ( comp.class."${isQualified ? 'name' : 'simpleName'}" == selector )
-				res << comp
-			res.size() >= limit
-		}
-		res
 	}
 
 	/**
@@ -339,6 +215,9 @@ class SwingUtil {
 
 		String getText( ) { realObject as String }
 
+		def methodMissing( String name, def args ) {
+			realObject."name"( args )
+		}
 	}
 
 }

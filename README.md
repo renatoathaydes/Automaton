@@ -40,7 +40,7 @@ swinger.clickOn( "text-input-1" )     // select by Component name (no prefix req
        .type( "Hello Automaton!" )
        .drag( "text:Drag this item" ) // select by text (works with almost anything)
        .onto( "type:DropBoxImpl" );   // select by type
-       
+
 // get the tree nodes for the given tree path and open them
 JTree myTree = swinger.getAt( JTree.class );
 List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
@@ -48,8 +48,19 @@ List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
 swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
 ```
 
-Making assertions with `Automaton`'s Hamcrest matchers:
+Building complex selectors:
+
 ```java
+import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
+
+swinger.clickOn( matchingAll( "type:MyDraggable", "text:Drag this item" ) );
+```
+
+Making assertions with `Automaton`'s Hamcrest matchers (using simple JUnit assertions):
+```java
+import static org.junit.Assert.assertThat;
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
+
 assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
 
 for ( Component node : nodesToOpen ) {
@@ -82,6 +93,8 @@ With Automaton, when you write a test, you describe the actions a user would hav
 This is why it's so easy to write tests with Automaton!
 
 With Fest, this is not the case. The code does not read anything like how a person would describe the actions the tester wants to have tested.
+
+Sometimes, you just don't care about what type of control is used to implement the interface, so Automaton lets you decide whether or not you want to specify that. Omitting this information makes your tests more resilient to implementation changes (if perhaps less robust if you don't use unique names or are not careful restricting the search space during tests - see the [Swing Advanced Usage](swing-advanced.md) page for details).
 
 ### More Swing information
 

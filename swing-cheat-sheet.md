@@ -43,76 +43,20 @@ swinger.clickOn( "text:A JTree Node" )
        .clickOn( "text:A JTable Header or Cell" )
 ```
 
-### Writing custom Swinger Selectors
-
-#### Adding custom selectors in Java:
-```java
-Map<String, Closure<Component>> customSelectors = new LinkedHashMap<>();
-customSelectors.put( "cust:", new SwingerSelector( this ) {
-    @Override
-    public Component call( String selector, Component component ) {
-        // return a component based on the given selector and component
-    }
-} );
-swinger.setSelectors( customSelectors );
-```
-To keep the `Automaton` selectors working, make sure to re-add the default selectors to the map:
-
-```java
-customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
-```
-Complete sample code at `SwingerSample.java`
-
-#### Example custom selector in Java:
-```java
-// a custom selector to find things by ID
-customSelectors.put( "$", new SwingerSelector( this ) {
-    List<Component> found = new ArrayList<Component>( 1 );
-    @Override
-    public Component call( final String selector, Component component ) {
-        SwingUtil.navigateBreadthFirst( component, new Closure( this ) {
-            @Override
-            public Object call( Object... args ) {
-                if ( SwingUtil.callMethodIfExists( args[ 0 ], "getId" ).equals( selector ) ) {
-                    found.add( ( Component ) args[ 0 ] );
-                }
-                return !found.isEmpty();
-            }
-        } );
-        return found.isEmpty() ? null : found.get( 0 );
-    }
-}
-```
-
-#### Adding custom selectors in  Groovy:
-```groovy
-def customSelectors = [ "cust:": { String selector, Component component ->
-        // return a component based on the given selector and component
-} ]
-swinger.selectors = Swinger.DEFAULT_SELECTORS + customSelectors
-```
-
-Complete sample code at `SwingJavaFXSampleAppTest.groovy`
-
-#### Example custom selector in Groovy
-```groovy
-// a custom selector to find things by ID
-customSelectors[ "$" ] = { String selector, Component component ->
-    Component result = null
-    SwingUtil.navigateBreadthFirst( component ) {
-        if ( SwingUtil.callMethodIfExists( it, "getId" ) == selector )
-            result = it
-        result != null
-    }
-    result
-} )
-```
-
 ### Finding Components
+
+**Note:**
+
+The `getAt` throws a `RuntimeException` if nothing is found.
+
+`getAll` returns all components matching the selector, or an empty list if none is found.
 
 #### By name
 ```java
 Component c = swinger.getAt( "component-name" );
+```
+```java
+List<Component> cs = swinger.getAll( "component-name" );
 ```
 
 #### By type
@@ -126,11 +70,46 @@ Component c = swinger.getAt( "type:ComponentType" );
 ```java
 Component c = swinger.getAt( "type:complete.path.ComponentType" );
 ```
-
+```java
+List<JButton> cs = swinger.getAll( JButton.class );
+```
 
 #### By text
 ```java
 Component c = swinger.getAt( "text:A Component Text" );
+```
+```java
+List<Component> cs = swinger.getAll( "text:Some Components Text" );
+```
+
+#### Using Complex matchers
+
+Matching any:
+```java
+import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAny;
+
+// throws an Exception if nothing is found
+Component c = swinger.getAt( matchingAny( "text:colors", "text:sports" ) );
+
+// finds all components matching the selector, or an empty list if nothing is found
+List<Component> nodes = swinger.getAll( matchingAny( "text:colors", "text:sports" ) );
+
+// uses `getAt` to find the component to clickOn
+swinger.clickOn( matchingAny( "text:colors", "text:sports" ) );
+```
+
+Matching all:
+```java
+import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
+
+// throws an Exception if nothing is found
+Component c = swinger.getAt( matchingAll( "type:JButton", "text:sports" ) );
+
+// finds all components matching the selector, or an empty list if nothing is found
+List<Component> nodes = swinger.getAll( matchingAll( "type:JButton", "text:sports" ) );
+
+// uses `getAt` to find the component to clickOn
+swinger.clickOn( matchingAll( "type:JButton", "text:sports" ) );
 ```
 
 #### Opening nodes in a JTree
@@ -140,4 +119,68 @@ Swinger swinger = Swinger.getUserWith( frame );
 JTree tree = swinger.getAt( JTree.class );
 List<Component> nodes = SwingUtil.collectNodes( tree, "colors", "red" );
 swinger.doubleClickOn( nodes );
+```
+
+### Automaton Matchers
+
+#### hasText
+Works the same way as the `byText` selector.
+```java
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText
+
+assertThat( myComponent, hasText( "Some text" ) );
+```
+#### hasValue
+Extends `hasText` to also work with anything that might have a value (uses the following methods to find a Component's value: `getValue`, `getText`,	`getSelected`, `getColor`).
+```java
+import static com.athaydes.automaton.assertion.AutomatonMatcher.hasValue
+
+assertThat( myComponent, hasValue( "Some text" ) );
+
+assertThat( myColorPicker, hasValue( Color.BLUE ) );
+```
+
+#### selected
+Check if a component is selected (usually used with the Hamcrest `is` matcher).
+```java
+import static com.athaydes.automaton.assertion.AutomatonMatcher.selected
+
+assertThat( myComponent, is( selected() ) );
+```
+
+#### visible
+Check if a component is visible (usually used with the Hamcrest `is` matcher) as reported by the component's `isVisible` method. This is NOT the same as `showing` (see below).
+```java
+import static com.athaydes.automaton.assertion.AutomatonMatcher.visible
+
+assertThat( myComponent, is( visible() ) );
+```
+
+
+#### showing
+Check if a component is showing on the screen (usually used with the Hamcrest `is` matcher) as reported by the component `isShowing` method.
+```java
+import static com.athaydes.automaton.assertion.AutomatonMatcher.showing
+
+assertThat( myComponent, is( showing() ) );
+```
+
+### For Groovy users
+
+You may have noticed that the `Automaton` intentionally uses the method `getAt`, which has special syntax in Groovy, to find elements. So anywhere you see `getAt`, you can use instead the `[]` operator:
+
+```groovy
+// by type
+JButton b = swinger[ JButton ]
+
+// by name
+def c = swinger[ 'component-name' ]
+
+// by text
+def d = swinger[ 'text:Something' ]
+
+// complex selectors
+def e = swinger[ matchingAny( 'click-me', 'text:Click me' ) ]
+
+def f = swinger[ matchingAll( 'type:JButton', 'text:Click me' ) ]
 ```

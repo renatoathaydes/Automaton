@@ -1,9 +1,9 @@
 package com.athaydes.automaton.samples
 
-import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.SwingerFxer
 import com.athaydes.automaton.samples.apps.SwingWithFXSample
+import com.athaydes.automaton.selector.SimpleSwingerSelector
 import javafx.embed.swing.JFXPanel
 import javafx.scene.paint.Color
 import javafx.scene.paint.LinearGradient
@@ -70,15 +70,13 @@ class SwingJavaFXSampleAppTest {
 
 	@Test
 	void "Swinger can use custom selectors"( ) {
-		def customSelectors = [ "editable-textarea": { String selector, Component component ->
-			Component res = null
-			SwingUtil.navigateBreadthFirst( component ) { c ->
-				if ( c instanceof JTextArea && c.editable )
-					res = c
-				res != null
-			}
-			res
-		} ]
+		def customSelectors = [
+				"editable-textarea": new SimpleSwingerSelector() {
+					@Override
+					boolean matches( String selector, Component c ) {
+						c instanceof JTextArea && c.editable
+					}
+				} ]
 
 		Swinger swinger = Swinger.forSwingWindow()
 		swinger.selectors = Swinger.DEFAULT_SELECTORS + customSelectors

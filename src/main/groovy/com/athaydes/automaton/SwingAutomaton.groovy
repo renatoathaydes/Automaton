@@ -1,5 +1,7 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.selector.*
+
 import javax.swing.*
 import java.awt.*
 import java.util.List
@@ -71,16 +73,16 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 
 class Swinger extends Automaton<Swinger> {
 
-	static final Map<String, Closure<Component>> DEFAULT_SELECTORS =
+	static final Map<String, ? extends SimpleSwingerSelector> DEFAULT_SELECTORS =
 		[
-				'name:': SwingUtil.&lookup,
-				'text:': SwingUtil.&text,
-				'type:': SwingUtil.&type,
+				'name:': SwingerSelectors.byName(),
+				'text:': SwingerSelectors.byText(),
+				'type:': SwingerSelectors.byType(),
 		].asImmutable()
 
 	Component component
 	protected delegate = SwingAutomaton.user
-	Map<String, Closure<Component>> selectors
+	Map<String, ? extends SimpleSwingerSelector> selectors
 
 	/**
 	 * Gets a new instance of <code>Swinger</code> using the given
@@ -111,11 +113,29 @@ class Swinger extends Automaton<Swinger> {
 	protected Swinger( ) {}
 
 	Component getAt( String selector ) {
-		findPrefixed( ensurePrefixed( selector ) ) as Component
+		findOnePrefixed( ensurePrefixed( selector ) )
 	}
 
 	def <K> K getAt( Class<K> type ) {
-		findPrefixed( 'type:', type.name ) as K
+		findOnePrefixed( 'type:', type.name ) as K
+	}
+
+	Component getAt( ComplexSelector selector ) {
+		def res = doGetAt( selector, 1 )
+		if ( res ) res.first()
+		else throw new RuntimeException( "Could not locate ${selector}" )
+	}
+
+	List<Component> getAll( String selector ) {
+		findAllPrefixed ensurePrefixed( selector )
+	}
+
+	def <K> List<K> getAll( Class<K> cls ) {
+		findAllPrefixed( "type:", cls.name ) as List<K>
+	}
+
+	List<Component> getAll( ComplexSelector selector ) {
+		doGetAt( selector )
 	}
 
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
@@ -129,9 +149,12 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		def prefix_selector = ensurePrefixed selector
-		delegate.clickOn( findPrefixed( prefix_selector ), speed )
+		delegate.clickOn( this[ selector ], speed )
 		this
+	}
+
+	Swinger clickOn( ComplexSelector selector, Speed speed = DEFAULT ) {
+		clickOn( this[ selector ], speed )
 	}
 
 	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
@@ -145,8 +168,7 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		def prefix_selector = ensurePrefixed selector
-		delegate.doubleClickOn( findPrefixed( prefix_selector ), speed )
+		delegate.doubleClickOn( this[ selector ], speed )
 		this
 	}
 
@@ -161,8 +183,7 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
-		def prefix_selector = ensurePrefixed selector
-		delegate.moveTo( findPrefixed( prefix_selector ), speed )
+		delegate.moveTo( this[ selector ], speed )
 		this
 	}
 
@@ -172,8 +193,7 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	SwingerDragOn drag( String selector ) {
-		def prefix_selector = ensurePrefixed selector
-		drag( findPrefixed( prefix_selector ) )
+		drag( this[ selector ] )
 	}
 
 	protected List ensurePrefixed( String selector ) {
@@ -182,10 +202,40 @@ class Swinger extends Automaton<Swinger> {
 		[ prefix ?: prefixes[ 0 ], prefix ? selector - prefix : selector ]
 	}
 
-	protected findPrefixed( String prefix, String selector ) {
-		def target = selectors[ prefix ]( selector, component )
-		if ( target ) target else
-			throw new RuntimeException( "Unable to locate prefix=$prefix, selector=$selector" )
+	protected Component findOnePrefixed( String prefix, String query ) {
+		def target = findAllPrefixed( prefix, query, 1 )
+		if ( target ) target.first() else
+			throw new RuntimeException( "Could not locate prefix=$prefix, selector=$query" )
+	}
+
+	protected List<Component> findAllPrefixed( String prefix, String query, int limit = Integer.MAX_VALUE ) {
+		SimpleSwingerSelector swingSelector = selectors[ prefix ]
+		swingSelector.apply( query, component, limit )
+	}
+
+	protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+		def prefixes_queries = selector.selectors.collect { ensurePrefixed( it ) }
+		//TODO add suport for antiprefixes
+		//def antiPrefixes_queries = ( selector instanceof ComplexSelectorWithAntiSelectors ?
+		//	selector.antiSelector ? selector.antiSelector.selectors : [ ] : [ ] ).collect { ensurePrefixed( it as String ) }
+
+		def selectors_queries = prefixes_queries.collect { String prefix, String query ->
+			new MapEntry( selectors[ prefix ], query )
+		}
+
+		SimpleSwingerSelector swingerSelector
+		switch ( selector.matchType ) {
+			case MatchType.ANY:
+				swingerSelector = new UnionSwingerSelector( selectors_queries )
+				break
+			case MatchType.ALL:
+				swingerSelector = new IntersectSwingerSelector( selectors_queries )
+				break
+			default:
+				throw new RuntimeException( "Forgot to implement selector of type ${selector.matchType}" )
+		}
+
+		swingerSelector.apply( null, component, limit )
 	}
 
 }
@@ -211,7 +261,7 @@ class SwingerDragOn extends SwingDragOn<Swinger> {
 
 	Swinger onto( String selector, Speed speed = Automaton.DEFAULT ) {
 		def prefix_selector = automaton.ensurePrefixed selector
-		onto( automaton.findPrefixed( prefix_selector ), speed )
+		onto( automaton.findOnePrefixed( prefix_selector ), speed )
 	}
 }
 
