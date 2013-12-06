@@ -29,7 +29,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 	JFrame jFrame
 
 	@After
-	void cleanup( ) {
+	void cleanup() {
 		jFrame?.dispose()
 	}
 
@@ -127,7 +127,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 	}
 
 	@Override
-	JFrame getJFrame( ) { jFrame }
+	JFrame getJFrame() { jFrame }
 
 }
 
@@ -136,17 +136,17 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	Closure withDriver
 
 	@Test
-	void testMoveTo_Component( ) {
+	void testMoveTo_Component() {
 		testMoveTo { Component c -> withDriver().moveTo c }
 	}
 
 	@Test
-	void testMoveTo_Components( ) {
+	void testMoveTo_Components() {
 		testMoveTo { Component c -> withDriver().moveTo( [ c ] ) }
 	}
 
 	@Test
-	void testClickOn_Component( ) {
+	void testClickOn_Component() {
 		testClickOn { Component c1, Component c2 ->
 			withDriver().clickOn( c1 )
 					.pause( 250 ).clickOn( c2 )
@@ -154,35 +154,35 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 	}
 
 	@Test
-	void testClickOn_Components( ) {
+	void testClickOn_Components() {
 		testClickOn { Component c1, Component c2 ->
 			withDriver().clickOn( [ c1, c2 ] )
 		}
 	}
 
 	@Test
-	void testDoubleClickOn_Component( ) {
+	void testDoubleClickOn_Component() {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( c )
 		}
 	}
 
 	@Test
-	void testDoubleClickOn_Components( ) {
+	void testDoubleClickOn_Components() {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( [ c ] )
 		}
 	}
 
 	@Test
-	void testDragFromTo_Components( ) {
+	void testDragFromTo_Components() {
 		testDragFromTo( { Component c1, Component c2 ->
 			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).onto( c2 )
 		} )
 	}
 
 	@Test
-	void testDragFromTo_FromComponentToPosition( ) {
+	void testDragFromTo_FromComponentToPosition() {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
 			withDriver().clickOn( c1 ).clickOn( c1 ).drag( c1 ).onto( c2p.x, c2p.y )
@@ -194,7 +194,7 @@ abstract class SimpleSwingDriverTest extends SwingBaseForTests {
 abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	@Test
-	void testGetAt_Selector( ) {
+	void testGetAt_Selector() {
 		def btn = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
@@ -207,7 +207,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testGetAt_Class( ) {
+	void testGetAt_Class() {
 		def btn = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
@@ -220,22 +220,22 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testMoveTo_Name( ) {
+	void testMoveTo_Name() {
 		testMoveTo { Component c -> withDriver().moveTo( 'the-button' ) }
 	}
 
 	@Test
-	void testMoveTo_Text( ) {
+	void testMoveTo_Text() {
 		testMoveTo { Component c -> withDriver().moveTo( 'text:Click Me' ) }
 	}
 
 	@Test
-	void testMoveTo_Type( ) {
+	void testMoveTo_Type() {
 		testMoveTo { Component c -> withDriver().moveTo( 'type:JButton' ) }
 	}
 
 	@Test
-	void testMoveTo_JTreeNode( ) {
+	void testMoveTo_JTreeNode() {
 		JTree mTree = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension,
@@ -261,7 +261,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testMoveTo_TableCell( ) {
+	void testMoveTo_TableCell() {
 		def tModel = [
 				[ firstCol: '1 - 1', secCol: '1 - 2' ],
 				[ firstCol: '2 - 1', secCol: '2 - 2' ],
@@ -304,7 +304,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testMoveTo_TableHeader( ) {
+	void testMoveTo_TableHeader() {
 		def tModel = [
 				[ firstCol: '1 - 1', secCol: '1 - 2' ],
 		]
@@ -336,7 +336,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testClickOn_Name( ) {
+	void testClickOn_Name() {
 		testClickOn { Component _1, Component _2 ->
 			withDriver().clickOn( 'menu-button' )
 					.pause( 250 ).clickOn( 'item-exit' )
@@ -344,7 +344,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testClickOn_Text( ) {
+	void testClickOn_Text() {
 		testClickOn { Component _1, Component _2 ->
 			withDriver().clickOn( 'text:File' )
 					.pause( 250 ).clickOn( 'text:Exit' )
@@ -352,7 +352,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testClickOn_Type( ) {
+	void testClickOn_Type() {
 		testClickOn { Component _1, Component _2 ->
 			withDriver().clickOn( 'type:JMenu' )
 					.pause( 250 ).clickOn( 'item-exit' )
@@ -360,42 +360,42 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testDoubleClickOn_Name( ) {
+	void testDoubleClickOn_Name() {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'the-button' )
 		}
 	}
 
 	@Test
-	void testDoubleClickOn_Text( ) {
+	void testDoubleClickOn_Text() {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'text:Click Me' )
 		}
 	}
 
 	@Test
-	void testDoubleClickOn_Type( ) {
+	void testDoubleClickOn_Type() {
 		testDoubleClickOn { Component c ->
 			withDriver().doubleClickOn( 'type:JButton' )
 		}
 	}
 
 	@Test
-	void testDragFromTo_Names( ) {
+	void testDragFromTo_Names() {
 		testDragFromTo( { Component c1, Component c2 ->
 			withDriver().doubleClickOn( 'e1' ).drag( 'e1' ).onto( 'e2' )
 		} )
 	}
 
 	@Test
-	void testDragFromTo_Texts( ) {
+	void testDragFromTo_Texts() {
 		testDragFromTo( { Component c1, Component c2 ->
 			withDriver().doubleClickOn( 'text:abcdefg' ).drag( 'text:abcdefg' ).onto( 'e2' )
 		} )
 	}
 
 	@Test
-	void testDragFromTo_FromNameToPosition( ) {
+	void testDragFromTo_FromNameToPosition() {
 		testDragFromTo( { Component c1, Component c2 ->
 			def c2p = SwingAutomaton.centerOf( c2 )
 			withDriver().doubleClickOn( 'e1' ).drag( 'e1' ).onto( c2p.x, c2p.y )
@@ -403,7 +403,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
 	@Test
-	void testDragFromTo_Type( ) {
+	void testDragFromTo_Type() {
 		testDragFromTo( { Component c1, Component c2 ->
 			withDriver().doubleClickOn( 'type:JEditorPane' ).drag( 'text:abcdefg' ).onto( 'e2' )
 		} )
@@ -413,23 +413,32 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 class SwingAutomatonTest extends SimpleSwingDriverTest {
 
-	{ withDriver = { SwingAutomaton.user } }
+	{
+		withDriver = { SwingAutomaton.user }
+	}
 
 }
 
 class SwingerTest extends SwingDriverWithSelectorsTest {
 
-	{ withDriver = { Swinger.getUserWith( jFrame ) } }
+	{
+		withDriver = { Swinger.getUserWith( jFrame ) }
+	}
 
 	@Test
-	void shouldUseMapToFindPrefixedNames( ) {
+	void shouldUseMapToFindPrefixedNames() {
 		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc } as SimpleSwingerSelector,
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } as SimpleSwingerSelector ]
-		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+				'abc:': {} as SimpleSwingerSelector,
+				'efgh:': {} as SimpleSwingerSelector ]
+		driver.automaton = [ clickOn: { c, Speed _ -> } ]
+		driver.metaClass.findOnePrefixed = { String prefix, String query ->
+			if ( prefix == 'abc:' ) abcCalls << query
+			else if ( prefix == 'efgh:' ) efghCalls << query
+			return {} as Component
+		}
 
 		driver.clickOn( 'efgh:4567890123' )
 
@@ -443,14 +452,19 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 	}
 
 	@Test
-	void shouldUseFirstEntryInMapOnUnprefixedNames( ) {
+	void shouldUseFirstEntryInMapOnUnprefixedNames() {
 		def abcCalls = [ ]
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': { argForAbc, _ -> abcCalls << argForAbc } as SimpleSwingerSelector,
-				'efgh:': { argForEfgh, _ -> efghCalls << argForEfgh } as SimpleSwingerSelector ]
-		driver.delegate = [ clickOn: { c, Speed _ -> } ]
+				'abc:': {} as SimpleSwingerSelector,
+				'efgh:': {} as SimpleSwingerSelector ]
+		driver.automaton = [ clickOn: { c, Speed _ -> } ]
+		driver.metaClass.findOnePrefixed = { String prefix, String query ->
+			if ( prefix == 'abc:' ) abcCalls << query
+			else if ( prefix == 'efgh:' ) efghCalls << query
+			return {} as Component
+		}
 
 		assert 'abc:' == driver.selectors.keySet().first()
 
@@ -464,6 +478,8 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 
 class SwingerFXer_SwingTest extends SwingDriverWithSelectorsTest {
 
-	{ withDriver = { SwingerFxer.getUserWith( jFrame, null ) } }
+	{
+		withDriver = { SwingerFxer.getUserWith( jFrame, null ) }
+	}
 
 }

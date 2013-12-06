@@ -1,7 +1,5 @@
 package com.athaydes.automaton.selector
 
-import com.athaydes.automaton.SwingUtil
-
 import javax.swing.*
 import javax.swing.tree.TreeNode
 import java.awt.*
@@ -30,6 +28,38 @@ abstract class SwingerSelectorBase extends Closure<List<Component>> {
 
 	abstract List<Component> apply( String selector, Component component, int limit )
 
+	protected void navigateEveryThing( Component component, Closure visitor ) {
+		navigateBreadthFirst( component ) { Component comp ->
+			def stop = visitor( comp )
+
+			if ( !stop )
+				switch ( comp ) {
+					case JTree:
+						def tree = comp as JTree
+						navigateBreadthFirst( tree ) { TreeNode node ->
+							def nodeComp = treeNode2FakeComponent( tree, node )
+							stop = visitor( nodeComp )
+						}
+						break
+					case JTable:
+						def table = comp as JTable
+						navigateBreadthFirst( table ) { data, int row, int col ->
+							def cell = tableCell2FakeComponent( table, data, row, col )
+							stop = visitor( cell )
+						}
+						break
+					case JComboBox:
+						def combo = comp as JComboBox
+						for ( index in 0..<combo.itemCount ) {
+							def itemComp = comboBoxItem2FakeComponent( combo, index )
+							stop = visitor( itemComp )
+						}
+						break
+				}
+			return stop
+		}
+	}
+
 }
 
 abstract class SimpleSwingerSelector extends SwingerSelectorBase {
@@ -37,44 +67,9 @@ abstract class SimpleSwingerSelector extends SwingerSelectorBase {
 	@Override
 	final List<Component> apply( String selector, Component component, int limit = Integer.MAX_VALUE ) {
 		final List<Component> res = [ ]
-		navigateBreadthFirst( component ) { Component comp ->
+		navigateEveryThing( component ) { Component comp ->
 			if ( matches( selector, comp ) )
 				res << comp
-
-			if ( res.size() < limit )
-				switch ( comp ) {
-					case JTree:
-						def tree = comp as JTree
-						SwingUtil.navigateBreadthFirst( tree ) { TreeNode node ->
-							def nodeComp = treeNode2FakeComponent( tree, node )
-							if ( matches( selector, nodeComp ) ) {
-								res << nodeComp
-							}
-							res.size() >= limit
-						}
-						break
-					case JTable:
-						def table = comp as JTable
-						SwingUtil.navigateBreadthFirst( table ) { data, int row, int col ->
-							def cell = tableCell2FakeComponent( table, data, row, col )
-							if ( matches( selector, cell ) ) {
-								res << cell
-							}
-							res.size() >= limit
-						}
-						break
-					case JComboBox:
-						def combo = comp as JComboBox
-						for ( index in 0..<combo.itemCount ) {
-							def itemComp = comboBoxItem2FakeComponent( combo, index )
-							if ( matches( selector, itemComp ) ) {
-								res << itemComp
-								break
-							}
-							if ( res.size() >= limit ) break
-						}
-						break
-				}
 			res.size() >= limit
 		}
 		return res
@@ -92,13 +87,6 @@ abstract class CompositeSwingerSelector extends SimpleSwingerSelector {
 		this.selectors_queries = selectors_queries
 	}
 
-	@Override
-	final boolean matches( String ignore, Component component ) {
-		matches( component )
-	}
-
-	abstract boolean matches( Component component )
-
 }
 
 class IntersectSwingerSelector extends CompositeSwingerSelector {
@@ -108,10 +96,8 @@ class IntersectSwingerSelector extends CompositeSwingerSelector {
 	}
 
 	@Override
-	boolean matches( Component component ) {
-		def matching = getSelectors_queries().count { it.key.matches( it.value, component ) }
-		def total = getSelectors_queries().size()
-		matching == total
+	boolean matches( String query, Component component ) {
+		getSelectors_queries().every { it.key.matches( it.value, component ) }
 	}
 
 }
@@ -123,7 +109,7 @@ class UnionSwingerSelector extends CompositeSwingerSelector {
 	}
 
 	@Override
-	boolean matches( Component component ) {
+	boolean matches( String query, Component component ) {
 		getSelectors_queries().any { it.key.matches( it.value, component ) }
 	}
 

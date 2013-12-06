@@ -75,6 +75,22 @@ swinger.clickOn( "button-name" ).pause( 250 )
        .onto( "type:" + InboxWidget.class.getName() );
 ```
 
+### Using complex selectors
+
+The class `StringSwingerSelectors` contains the following factory methods to create complex
+selectors:
+
+  * `matchingAny` - any in the sequence of String selectors should be matched.
+  * `matchingAll` - all in the sequence of String selectors must be matched.
+
+You can use complex selectors as follows:
+
+```java
+swinger.clickOn( matchingAll( "type:TextField", "txt-field-1" ) )
+       .moveTo( matchingAny( "text:Dont care about case", "text:Dont Care About Case" ) );
+```
+
+
 ### Writing a selector to extend Automaton:
 
 Create a custom selector:

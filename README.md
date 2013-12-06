@@ -39,7 +39,7 @@ Emulating user's actions in the GUI:
 swinger.clickOn( "text-input-1" )     // select by Component name (no prefix required)
        .type( "Hello Automaton!" )
        .drag( "text:Drag this item" ) // select by text (works with almost anything)
-       .onto( "type:DropBoxImpl" );   // select by type
+       .onto( matchingAll( "type:DropBoxImpl", "text:Drop here!" ) );   // select by type and text
 
 // get the tree nodes for the given tree path and open them
 JTree myTree = swinger.getAt( JTree.class );

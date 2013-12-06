@@ -6,10 +6,7 @@ import org.junit.After
 import org.junit.Test
 
 import javax.swing.*
-import java.awt.Dimension
-
-import static java.awt.event.KeyEvent.VK_ALT
-import static java.awt.event.KeyEvent.VK_SHIFT
+import java.awt.*
 
 /**
  *
@@ -20,12 +17,12 @@ class RobotTypingUtilTest {
 	JFrame jFrame
 
 	@After
-	void cleanup( ) {
+	void cleanup() {
 		jFrame?.dispose()
 	}
 
 	@Test
-	void testRobotCode( ) {
+	void testRobotCode() {
 		JTextArea jta
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
@@ -37,30 +34,21 @@ class RobotTypingUtilTest {
 		assert jta != null
 		assert jta.text == ''
 
+		def text = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
+		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
+		assert jta.text == text
+		jta.text = ''
 
-		def testCommonChars = {
-			SwingAutomaton.user.moveTo( jta ).click().type( 'ABCDEFGHIJKLMNOPQRSTUVXZWY' ).pause( 100 )
-			assert jta.text == 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
-			jta.text = ''
+		text = 'abcdefghijklmnopqrstuvxzwy'
+		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
+		assert jta.text == text
+		jta.text = ''
 
-			SwingAutomaton.user.moveTo( jta ).click().type( 'abcdefghijklmnopqrstuvxzwy' ).pause( 100 )
-			assert jta.text == 'abcdefghijklmnopqrstuvxzwy'
-			jta.text = ''
-
-			SwingAutomaton.user.moveTo( jta ).click()
-					.type( '1234567890 ,./-\n/+*\t' ).pause( 100 )
-			assert jta.text == '1234567890 ,./-\n/+*\t'
-			jta.text = ''
-		}
-
-		// try this in 3 different languages
-		3.times {
-			testCommonChars()
-
-			// FIXME Find way to change input language in any machine (haha)
-			// THIS CHANGES THE INPUT LANGUAGE ONLY IN MY MACHINE!!!
-			SwingAutomaton.user.pressSimultaneously( VK_ALT, VK_SHIFT ).pause( 500 )
-		}
+		text = '1234567890 ,./+*/'
+		SwingAutomaton.user.moveTo( jta ).click()
+				.type( text ).pause( 100 )
+		assert jta.text == text
+		jta.text = ''
 	}
 
 }

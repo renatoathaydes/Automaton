@@ -8,40 +8,18 @@ import static com.athaydes.automaton.selector.MatchType.ANY
  */
 class ComplexSelector {
 
-	final String[] selectors
+	final String[] queries
 	MatchType matchType
 
-	protected ComplexSelector( MatchType matchType, String... selectors ) {
+	protected ComplexSelector( MatchType matchType, String... queries ) {
 		this.matchType = matchType
-		this.selectors = selectors
+		this.queries = queries
 	}
-
-
 
 	@Override
-	public java.lang.String toString( ) {
-		"ComplexSelector(matchType:$matchType,selectors:$selectors)";
+	public String toString() {
+		"ComplexSelector(matchType:$matchType,queries:$queries)";
 	}
-}
-
-class ComplexSelectorWithAntiSelectors extends ComplexSelector {
-
-	ComplexSelector antiSelector
-
-	protected ComplexSelectorWithAntiSelectors( MatchType matchType, String... selectors ) {
-		super( matchType, selectors )
-	}
-
-	ComplexSelector except( String selector ) {
-		antiSelector = new ComplexSelector( ANY, selector )
-		this
-	}
-
-	ComplexSelector except( ComplexSelector selector ) {
-		antiSelector = selector
-		this
-	}
-
 }
 
 enum MatchType {
@@ -51,12 +29,12 @@ enum MatchType {
 
 class StringSwingerSelectors {
 
-	static ComplexSelectorWithAntiSelectors matchingAny( String query, String... queries ) {
-		new ComplexSelectorWithAntiSelectors( ANY, ( [ query ] + queries.toList() ) as String[] )
+	static ComplexSelector matchingAny( String query, String... queries ) {
+		new ComplexSelector( ANY, ( [ query ] + queries.toList() ) as String[] )
 	}
 
-	static ComplexSelectorWithAntiSelectors matchingAll( String query, String... queries ) {
-		new ComplexSelectorWithAntiSelectors( ALL, ( [ query ] + queries.toList() ) as String[] )
+	static ComplexSelector matchingAll( String query, String... queries ) {
+		new ComplexSelector( ALL, ( [ query ] + queries.toList() ) as String[] )
 	}
 
 }

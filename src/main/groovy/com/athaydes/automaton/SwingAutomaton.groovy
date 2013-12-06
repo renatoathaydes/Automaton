@@ -18,12 +18,12 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 	 * Get the singleton instance of SwingAutomaton, which is lazily created.
 	 * @return SwingAutomaton singleton instance
 	 */
-	static synchronized SwingAutomaton getUser( ) {
+	static synchronized SwingAutomaton getUser() {
 		if ( !instance ) instance = new SwingAutomaton()
 		instance
 	}
 
-	protected SwingAutomaton( ) {}
+	protected SwingAutomaton() {}
 
 	SwingAutomaton clickOn( Component component, Speed speed = DEFAULT ) {
 		moveTo( component, speed ).click()
@@ -74,14 +74,14 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 class Swinger extends Automaton<Swinger> {
 
 	static final Map<String, ? extends SimpleSwingerSelector> DEFAULT_SELECTORS =
-		[
-				'name:': SwingerSelectors.byName(),
-				'text:': SwingerSelectors.byText(),
-				'type:': SwingerSelectors.byType(),
-		].asImmutable()
+			[
+					'name:': SwingerSelectors.byName(),
+					'text:': SwingerSelectors.byText(),
+					'type:': SwingerSelectors.byType(),
+			].asImmutable()
 
 	Component component
-	protected delegate = SwingAutomaton.user
+	protected automaton = SwingAutomaton.user
 	Map<String, ? extends SimpleSwingerSelector> selectors
 
 	/**
@@ -101,7 +101,7 @@ class Swinger extends Automaton<Swinger> {
 	 * by calling {@code java.awt.Window.getWindows ( )} which is an instance of
 	 * {@code JFrame}.
 	 */
-	static Swinger forSwingWindow( ) {
+	static Swinger forSwingWindow() {
 		def isJFrame = { it instanceof JFrame }
 		if ( Window.windows && Window.windows.any( isJFrame ) ) {
 			getUserWith( Window.windows.find( isJFrame ) )
@@ -110,7 +110,7 @@ class Swinger extends Automaton<Swinger> {
 		}
 	}
 
-	protected Swinger( ) {}
+	protected Swinger() {}
 
 	Component getAt( String selector ) {
 		findOnePrefixed( ensurePrefixed( selector ) )
@@ -139,17 +139,17 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
-		delegate.clickOn( component, speed )
+		automaton.clickOn( component, speed )
 		this
 	}
 
 	Swinger clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		delegate.clickOn( components, pauseBetween, speed )
+		automaton.clickOn( components, pauseBetween, speed )
 		this
 	}
 
 	Swinger clickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.clickOn( this[ selector ], speed )
+		automaton.clickOn( this[ selector ], speed )
 		this
 	}
 
@@ -158,32 +158,32 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	Swinger doubleClickOn( Component component, Speed speed = DEFAULT ) {
-		delegate.doubleClickOn( component, speed )
+		automaton.doubleClickOn( component, speed )
 		this
 	}
 
 	Swinger doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		delegate.doubleClickOn( components, pauseBetween, speed )
+		automaton.doubleClickOn( components, pauseBetween, speed )
 		this
 	}
 
 	Swinger doubleClickOn( String selector, Speed speed = DEFAULT ) {
-		delegate.doubleClickOn( this[ selector ], speed )
+		automaton.doubleClickOn( this[ selector ], speed )
 		this
 	}
 
 	Swinger moveTo( Component component, Speed speed = DEFAULT ) {
-		delegate.moveTo( component, speed )
+		automaton.moveTo( component, speed )
 		this
 	}
 
 	Swinger moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		delegate.moveTo( components, pauseBetween, speed )
+		automaton.moveTo( components, pauseBetween, speed )
 		this
 	}
 
 	Swinger moveTo( String selector, Speed speed = DEFAULT ) {
-		delegate.moveTo( this[ selector ], speed )
+		automaton.moveTo( this[ selector ], speed )
 		this
 	}
 
@@ -214,28 +214,26 @@ class Swinger extends Automaton<Swinger> {
 	}
 
 	protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
-		def prefixes_queries = selector.selectors.collect { ensurePrefixed( it ) }
-		//TODO add suport for antiprefixes
-		//def antiPrefixes_queries = ( selector instanceof ComplexSelectorWithAntiSelectors ?
-		//	selector.antiSelector ? selector.antiSelector.selectors : [ ] : [ ] ).collect { ensurePrefixed( it as String ) }
-
-		def selectors_queries = prefixes_queries.collect { String prefix, String query ->
+		def prefixes_queries = selector.queries.collect { ensurePrefixed( it ) }
+		def toMapEntries = { String prefix, String query ->
 			new MapEntry( selectors[ prefix ], query )
 		}
 
-		SimpleSwingerSelector swingerSelector
-		switch ( selector.matchType ) {
-			case MatchType.ANY:
-				swingerSelector = new UnionSwingerSelector( selectors_queries )
-				break
-			case MatchType.ALL:
-				swingerSelector = new IntersectSwingerSelector( selectors_queries )
-				break
-			default:
-				throw new RuntimeException( "Forgot to implement selector of type ${selector.matchType}" )
-		}
+		def selectors_queries = prefixes_queries.collect( toMapEntries )
 
+		def swingerSelector = entries2SwingerSelector( selector.matchType, selectors_queries )
 		swingerSelector.apply( null, component, limit )
+	}
+
+	private CompositeSwingerSelector entries2SwingerSelector( MatchType type, List<MapEntry> selectors_queries ) {
+		switch ( type ) {
+			case MatchType.ANY:
+				return new UnionSwingerSelector( selectors_queries )
+			case MatchType.ALL:
+				return new IntersectSwingerSelector( selectors_queries )
+			default:
+				throw new RuntimeException( "Forgot to implement selector of type ${type}" )
+		}
 	}
 
 }
