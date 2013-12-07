@@ -35,12 +35,27 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		moveTo( node, speed ).click()
 	}
 
+	FXAutomaton clickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		nodes.each{ node -> clickOn( node, speed ).pause( pauseBetween ) }
+		this
+	}
+
 	FXAutomaton doubleClickOn( Node node, Speed speed = DEFAULT ) {
 		moveTo( node, speed ).doubleClick()
 	}
 
+	FXAutomaton doubleClickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		nodes.each{ node -> doubleClickOn( node, speed ).pause( pauseBetween ) }
+		this
+	}
+
 	FXAutomaton moveTo( Node node, Speed speed = DEFAULT ) {
 		moveTo( { centerOf( node ) }, speed )
+	}
+
+	FXAutomaton moveToNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		nodes.each{ node -> moveTo( node, speed ).pause( pauseBetween ) }
+		this
 	}
 
 	FXDragOn<FXAutomaton> drag( Node node ) {
@@ -160,6 +175,11 @@ class FXer extends Automaton<FXer> {
 		this
 	}
 
+	FXer clickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.clickOnNodes( nodes, pauseBetween, speed )
+		this
+	}
+
 	FXer clickOn( String selector, Speed speed = DEFAULT ) {
 		delegate.clickOn( this[ selector ], speed )
 		this
@@ -169,12 +189,22 @@ class FXer extends Automaton<FXer> {
 		moveTo( node, speed ).doubleClick()
 	}
 
+	FXer doubleClickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.doubleClickOnNodes( nodes, pauseBetween, speed )
+		this
+	}
+
 	FXer doubleClickOn( String selector, Speed speed = DEFAULT ) {
 		moveTo( this[ selector ], speed ).doubleClick()
 	}
 
 	FXer moveTo( Node node, Speed speed = DEFAULT ) {
 		delegate.moveTo( node, speed )
+		this
+	}
+
+	FXer moveToNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		delegate.moveToNodes( nodes, pauseBetween, speed )
 		this
 	}
 

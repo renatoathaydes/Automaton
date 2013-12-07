@@ -63,7 +63,7 @@ class FXBaseForTests implements HasMixins {
 		sleep 250
 
 		if ( optionalDoMoveTo )
-			optionalDoMoveTo()
+			optionalDoMoveTo( rect )
 		else
 			getDriver().moveTo rect
 
@@ -218,6 +218,11 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
+	void testMoveToNodes( ) {
+		testMoveTo withDriver, { node -> withDriver().moveToNodes( [ node ] ) }
+	}
+
+	@Test
 	void testCenterOf( ) {
 		testCenterOf withDriver
 	}
@@ -231,10 +236,26 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
+	void testClickOnNodes( ) {
+		testClickOn { Node n ->
+			def automaton = withDriver()
+			assert automaton == automaton.clickOnNodes( [ n ] )
+		}
+	}
+
+	@Test
 	void testDoubleClickOn_Node( ) {
 		testDoubleClickOn { Node n ->
 			def automaton = withDriver()
 			assert automaton == automaton.doubleClickOn( n )
+		}
+	}
+
+	@Test
+	void testDoubleClickOnNodes( ) {
+		testDoubleClickOn { Node n ->
+			def automaton = withDriver()
+			assert automaton == automaton.doubleClickOnNodes( [ n ] )
 		}
 	}
 
@@ -300,7 +321,7 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	void testMoveTo_Id( ) {
 		testMoveTo(
 				withDriver,
-				{ withDriver().moveTo( '#rec' ) }
+				{ node -> withDriver().moveTo( '#rec' ) }
 		)
 	}
 

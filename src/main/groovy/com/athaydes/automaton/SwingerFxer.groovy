@@ -51,6 +51,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer clickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		fxer.clickOnNodes( nodes, pauseBetween, speed )
+		this
+	}
+
 	SwingerFxer clickOn( Component component, Speed speed = DEFAULT ) {
 		swinger.clickOn( component, speed )
 		this
@@ -74,6 +79,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer doubleClickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		fxer.doubleClickOnNodes( nodes, pauseBetween, speed )
+		this
+	}
+
 	SwingerFxer doubleClickOn( Component component, Speed speed = DEFAULT ) {
 		swinger.doubleClickOn( component, speed )
 		this
@@ -94,6 +104,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFxer moveTo( Node node, Speed speed = DEFAULT ) {
 		fxer.moveTo( node, speed )
+		this
+	}
+
+	SwingerFxer moveToNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
+		fxer.moveToNodes( nodes, pauseBetween, speed )
 		this
 	}
 
