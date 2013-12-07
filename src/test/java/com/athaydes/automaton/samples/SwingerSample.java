@@ -2,6 +2,7 @@ package com.athaydes.automaton.samples;
 
 import com.athaydes.automaton.SwingUtil;
 import com.athaydes.automaton.Swinger;
+import com.athaydes.automaton.selector.AutomatonSelector;
 import com.athaydes.automaton.selector.SimpleSwingerSelector;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -84,11 +85,11 @@ public class SwingerSample {
         assertThat( areaWithTypedText, instanceOf( JTextArea.class ) );
     }
 
-    private Map<String, SimpleSwingerSelector> createCustomSelectors() {
+    private Map<String, AutomatonSelector<Component>> createCustomSelectors() {
 
         // we must use a sorted map as the first entry in the map is used if no prefix is given
         // eg. in this case, click( "cust:field" ) would be the same as click( "field" )
-        Map<String, SimpleSwingerSelector> customSelectors = new LinkedHashMap<>();
+        Map<String, AutomatonSelector<Component>> customSelectors = new LinkedHashMap<>();
         customSelectors.put( "cust:", new SimpleSwingerSelector() {
             @Override
             public boolean matches( String selector, Component component ) {

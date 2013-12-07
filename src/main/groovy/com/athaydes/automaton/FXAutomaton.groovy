@@ -1,5 +1,7 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.selector.AutomatonSelector
+import com.athaydes.automaton.selector.JavaFXSelector
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
@@ -9,6 +11,7 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 
 import java.awt.*
+import java.util.List
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -24,19 +27,19 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	 * Get the singleton instance of FXAutomaton, which is lazily created.
 	 * @return FXAutomaton singleton instance
 	 */
-	static synchronized FXAutomaton getUser( ) {
+	static synchronized FXAutomaton getUser() {
 		if ( !instance ) instance = new FXAutomaton()
 		instance
 	}
 
-	protected FXAutomaton( ) {}
+	protected FXAutomaton() {}
 
 	FXAutomaton clickOn( Node node, Speed speed = DEFAULT ) {
 		moveTo( node, speed ).click()
 	}
 
 	FXAutomaton clickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		nodes.each{ node -> clickOn( node, speed ).pause( pauseBetween ) }
+		nodes.each { node -> clickOn( node, speed ).pause( pauseBetween ) }
 		this
 	}
 
@@ -45,7 +48,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	FXAutomaton doubleClickOnNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		nodes.each{ node -> doubleClickOn( node, speed ).pause( pauseBetween ) }
+		nodes.each { node -> doubleClickOn( node, speed ).pause( pauseBetween ) }
 		this
 	}
 
@@ -54,7 +57,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	FXAutomaton moveToNodes( Collection<Node> nodes, long pauseBetween = 100, Speed speed = DEFAULT ) {
-		nodes.each{ node -> moveTo( node, speed ).pause( pauseBetween ) }
+		nodes.each { node -> moveTo( node, speed ).pause( pauseBetween ) }
 		this
 	}
 
@@ -96,7 +99,7 @@ class FXApp extends Application {
 	private static Stage stage
 	private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
-	static Scene getScene( ) {
+	static Scene getScene() {
 		if ( stage ) stage.scene
 		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )
 	}
@@ -145,16 +148,23 @@ class FXApp extends Application {
 		stageFuture.add primaryStage
 	}
 
-	private static Scene emptyScene( ) {
+	private static Scene emptyScene() {
 		new Scene( new VBox(), 600, 500 )
 	}
 
 }
 
-class FXer extends Automaton<FXer> {
+class FXer extends HasSelectors<Node, FXer> {
 
-	Node node
+	Node root
 	def delegate = FXAutomaton.user
+
+	static final Map<String, AutomatonSelector<Node>> DEFAULT_SELECTORS =
+			[
+					'#': JavaFXSelector.instance,
+					'.': JavaFXSelector.instance,
+					'type:': JavaFXSelector.instance
+			].asImmutable()
 
 	/**
 	 * Gets a new instance of <code>FXer</code> using the given
@@ -165,10 +175,10 @@ class FXer extends Automaton<FXer> {
 	 * @return a new FXer instance
 	 */
 	static FXer getUserWith( Node node ) {
-		new FXer( node: node )
+		new FXer( root: node, selectors: DEFAULT_SELECTORS )
 	}
 
-	protected FXer( ) {}
+	protected FXer() {}
 
 	FXer clickOn( Node node, Speed speed = DEFAULT ) {
 		delegate.clickOn( node, speed )
@@ -238,22 +248,10 @@ class FXer extends Automaton<FXer> {
 		new FXerDragOn( this, target.x, target.y )
 	}
 
-	Node getAt( String selector ) {
-		def res = node.lookup( selector )
-		if ( res ) res else
-			throw new RuntimeException( "Could not locate Node: $selector" )
-	}
-
-	def <K extends Node> K getAt( Class<K> type ) {
-		this[ type.simpleName ] as K
-	}
-
-	Set<Node> getAll( String selector ) {
-		node.lookupAll( selector ).grep{ !it.class.simpleName.endsWith( "Skin" ) }
-	}
-
-	def <K extends Node> Set<K> getAll( Class<K> type ) {
-		getAll( type.simpleName )
+	@Override
+	List<Node> getAll( String selector ) {
+		super.getAll( selector ).grep { !it.class.simpleName.endsWith( "Skin" ) }
+				.toList() as List<Node>
 	}
 
 	Point centerOf( Node node ) {

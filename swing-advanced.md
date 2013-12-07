@@ -96,11 +96,11 @@ swinger.clickOn( matchingAll( "type:TextField", "txt-field-1" ) )
 Create a custom selector:
 
 ```java
-private Map<String, SimpleSwingerSelector> createCustomSelectors() {
+private Map<String, AutomatonSelector<Component>> createCustomSelectors() {
     // always keep the `Automaton` built-in selectors!
     customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
 
-    Map<String, SimpleSwingerSelector> customSelectors = new LinkedHashMap<>();
+    Map<String, AutomatonSelector<Component>> customSelectors = new LinkedHashMap<>();
     customSelectors.put( "cust:", new SimpleSwingerSelector() {
         @Override
         public boolean matches( String selector, Component component ) {

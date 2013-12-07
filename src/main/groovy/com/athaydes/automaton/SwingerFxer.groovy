@@ -171,7 +171,7 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFXerDragOn drag( String selector ) {
 		if ( isJavaFXSelector( selector ) ) {
-			drag( fxer.node.lookup( selector ) )
+			drag( fxer.root.lookup( selector ) )
 		} else {
 			def prefix_selector = swinger.ensurePrefixed selector
 			drag( swinger.findOnePrefixed( prefix_selector ) )

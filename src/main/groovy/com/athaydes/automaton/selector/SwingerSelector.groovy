@@ -7,9 +7,10 @@ import java.util.List
 
 import static com.athaydes.automaton.SwingUtil.*
 
-abstract class SwingerSelectorBase extends Closure<List<Component>> {
+abstract class SwingerSelectorBase extends Closure<List<Component>>
+		implements AutomatonSelector<Component> {
 
-	SwingerSelectorBase( ) {
+	SwingerSelectorBase() {
 		super( new Object() )
 	}
 
@@ -23,10 +24,10 @@ abstract class SwingerSelectorBase extends Closure<List<Component>> {
 		assert args[ 0 ] instanceof String
 		assert args[ 1 ] instanceof Component
 		assert args[ 2 ] instanceof Integer
-		[ args[ 0 ] as String, args[ 1 ] as Component, args[ 2 ] as Integer ]
+		[ null, args[ 0 ] as String, args[ 1 ] as Component, args[ 2 ] as Integer ]
 	}
 
-	abstract List<Component> apply( String selector, Component component, int limit )
+	abstract List<Component> apply( String prefix, String selector, Component component, int limit )
 
 	protected void navigateEveryThing( Component component, Closure visitor ) {
 		navigateBreadthFirst( component ) { Component comp ->
@@ -65,7 +66,7 @@ abstract class SwingerSelectorBase extends Closure<List<Component>> {
 abstract class SimpleSwingerSelector extends SwingerSelectorBase {
 
 	@Override
-	final List<Component> apply( String selector, Component component, int limit = Integer.MAX_VALUE ) {
+	List<Component> apply( String prefix, String selector, Component component, int limit = Integer.MAX_VALUE ) {
 		final List<Component> res = [ ]
 		navigateEveryThing( component ) { Component comp ->
 			if ( matches( selector, comp ) )
@@ -73,6 +74,10 @@ abstract class SimpleSwingerSelector extends SwingerSelectorBase {
 			res.size() >= limit
 		}
 		return res
+	}
+
+	List<Component> apply( String selector, Component component, int limit = Integer.MAX_VALUE ) {
+		apply( null, selector, component, limit )
 	}
 
 	abstract boolean matches( String selector, Component component )
