@@ -185,6 +185,11 @@ class FXer extends Automaton<FXer> {
 		this
 	}
 
+	FXer clickOn( Class<? extends Node> cls, Speed speed = DEFAULT ) {
+		delegate.clickOn( this[ cls ], speed )
+		this
+	}
+
 	FXer doubleClickOn( Node node, Speed speed = DEFAULT ) {
 		moveTo( node, speed ).doubleClick()
 	}
@@ -196,6 +201,11 @@ class FXer extends Automaton<FXer> {
 
 	FXer doubleClickOn( String selector, Speed speed = DEFAULT ) {
 		moveTo( this[ selector ], speed ).doubleClick()
+	}
+
+	FXer doubleClickOn( Class<? extends Node> cls, Speed speed = DEFAULT ) {
+		delegate.doubleClickOn( this[ cls ], speed )
+		this
 	}
 
 	FXer moveTo( Node node, Speed speed = DEFAULT ) {
@@ -210,6 +220,11 @@ class FXer extends Automaton<FXer> {
 
 	FXer moveTo( String selector, Speed speed = DEFAULT ) {
 		delegate.moveTo( this[ selector ], speed )
+		this
+	}
+
+	FXer moveTo( Class<? extends Node> cls, Speed speed = DEFAULT ) {
+		delegate.moveTo( this[ cls ], speed )
 		this
 	}
 

@@ -74,6 +74,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer clickOn( Class cls, Speed speed = DEFAULT ) {
+		clickOn( this[ cls ], speed )
+		this
+	}
+
 	SwingerFxer doubleClickOn( Node node, Speed speed = DEFAULT ) {
 		fxer.doubleClickOn( node, speed )
 		this
@@ -102,6 +107,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+	SwingerFxer doubleClickOn( Class cls, Speed speed = DEFAULT ) {
+		doubleClickOn( this[ cls ], speed )
+		this
+	}
+
 	SwingerFxer moveTo( Node node, Speed speed = DEFAULT ) {
 		fxer.moveTo( node, speed )
 		this
@@ -127,6 +137,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 			fxer.moveTo( selector, speed )
 		else
 			swinger.moveTo( selector, speed )
+		this
+	}
+
+	SwingerFxer moveTo( Class cls, Speed speed = DEFAULT ) {
+		moveTo( this[ cls ], speed )
 		this
 	}
 

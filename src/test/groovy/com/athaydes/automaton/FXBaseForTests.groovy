@@ -326,13 +326,31 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	}
 
 	@Test
+	void testMoveTo_Class( ) {
+		testMoveTo(
+				withDriver,
+				{ node -> withDriver().moveTo( Rectangle ) }
+		)
+	}
+
+	@Test
 	void testClickOn_Id( ) {
 		testClickOn { withDriver().clickOn( '#b' ) }
 	}
 
 	@Test
+	void testClickOn_Class( ) {
+		testClickOn { withDriver().clickOn( Button ) }
+	}
+
+	@Test
 	void testDoubleClickOn_Id( ) {
 		testDoubleClickOn { withDriver().doubleClickOn( '#b' ) }
+	}
+
+	@Test
+	void testDoubleClickOn_Class( ) {
+		testDoubleClickOn { withDriver().doubleClickOn( Button ) }
 	}
 
 	def testGetAt( Closure doGetAt ) {
