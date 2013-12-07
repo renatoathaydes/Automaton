@@ -248,6 +248,14 @@ class FXer extends Automaton<FXer> {
 		this[ type.simpleName ] as K
 	}
 
+	Set<Node> getAll( String selector ) {
+		node.lookupAll( selector ).grep{ !it.class.simpleName.endsWith( "Skin" ) }
+	}
+
+	def <K extends Node> Set<K> getAll( Class<K> type ) {
+		getAll( type.simpleName )
+	}
+
 	Point centerOf( Node node ) {
 		delegate.centerOf( node )
 	}

@@ -46,6 +46,20 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		else swinger[ type ]
 	}
 
+	Collection getAll( String selector ) {
+		if ( isJavaFXSelector( selector ) )
+			fxer.getAll( selector )
+		else
+			swinger.getAll( selector )
+	}
+
+	Collection getAll( Class type ) {
+		if ( Node.isAssignableFrom( type ) )
+			fxer.getAll( type )
+		else
+			swinger.getAll( type )
+	}
+
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {
 		fxer.clickOn( node, speed )
 		this

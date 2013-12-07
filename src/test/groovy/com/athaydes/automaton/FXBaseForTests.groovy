@@ -11,6 +11,8 @@ import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
+import javafx.scene.control.Label
 import javafx.scene.control.TextArea
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
@@ -40,7 +42,7 @@ import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 class FXBaseForTests implements HasMixins {
 
 	@Before
-	void setup( ) {
+	void setup() {
 		log.debug "Setting up FX Automaton Test"
 		FXApp.initialize()
 	}
@@ -213,22 +215,22 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	Closure withDriver
 
 	@Test
-	void testMoveTo_Node( ) {
+	void testMoveTo_Node() {
 		testMoveTo withDriver
 	}
 
 	@Test
-	void testMoveToNodes( ) {
+	void testMoveToNodes() {
 		testMoveTo withDriver, { node -> withDriver().moveToNodes( [ node ] ) }
 	}
 
 	@Test
-	void testCenterOf( ) {
+	void testCenterOf() {
 		testCenterOf withDriver
 	}
 
 	@Test
-	void testClickOn_Node( ) {
+	void testClickOn_Node() {
 		testClickOn { Node n ->
 			def automaton = withDriver()
 			assert automaton == automaton.clickOn( n )
@@ -236,7 +238,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
-	void testClickOnNodes( ) {
+	void testClickOnNodes() {
 		testClickOn { Node n ->
 			def automaton = withDriver()
 			assert automaton == automaton.clickOnNodes( [ n ] )
@@ -244,7 +246,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
-	void testDoubleClickOn_Node( ) {
+	void testDoubleClickOn_Node() {
 		testDoubleClickOn { Node n ->
 			def automaton = withDriver()
 			assert automaton == automaton.doubleClickOn( n )
@@ -252,7 +254,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
-	void testDoubleClickOnNodes( ) {
+	void testDoubleClickOnNodes() {
 		testDoubleClickOn { Node n ->
 			def automaton = withDriver()
 			assert automaton == automaton.doubleClickOnNodes( [ n ] )
@@ -260,7 +262,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
-	void testDrag_Node( ) {
+	void testDrag_Node() {
 		testDrag { Node n1, Node target ->
 			def automaton = withDriver()
 			assert automaton == automaton.drag( n1 ).onto( target )
@@ -268,12 +270,12 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	}
 
 	@Test
-	void testType( ) {
+	void testType() {
 		testType withDriver
 	}
 
 	@Test
-	void testGetSceneActualPosition( ) {
+	void testGetSceneActualPosition() {
 		def future = new LinkedBlockingDeque( 1 )
 		def root = null
 
@@ -318,7 +320,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 
 	@Test
-	void testMoveTo_Id( ) {
+	void testMoveTo_Id() {
 		testMoveTo(
 				withDriver,
 				{ node -> withDriver().moveTo( '#rec' ) }
@@ -326,7 +328,7 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	}
 
 	@Test
-	void testMoveTo_Class( ) {
+	void testMoveTo_Class() {
 		testMoveTo(
 				withDriver,
 				{ node -> withDriver().moveTo( Rectangle ) }
@@ -334,22 +336,22 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	}
 
 	@Test
-	void testClickOn_Id( ) {
+	void testClickOn_Id() {
 		testClickOn { withDriver().clickOn( '#b' ) }
 	}
 
 	@Test
-	void testClickOn_Class( ) {
+	void testClickOn_Class() {
 		testClickOn { withDriver().clickOn( Button ) }
 	}
 
 	@Test
-	void testDoubleClickOn_Id( ) {
+	void testDoubleClickOn_Id() {
 		testDoubleClickOn { withDriver().doubleClickOn( '#b' ) }
 	}
 
 	@Test
-	void testDoubleClickOn_Class( ) {
+	void testDoubleClickOn_Class() {
 		testDoubleClickOn { withDriver().doubleClickOn( Button ) }
 	}
 
@@ -371,30 +373,82 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	}
 
 	@Test
-	void testGetAt_Selector( ) {
+	void testGetAt_Selector() {
 		testGetAt { withDriver().getAt( '#ta' ) }
 	}
 
 	@Test
-	void testGetAt_Class( ) {
+	void testGetAt_Class() {
 		testGetAt { withDriver().getAt( TextArea ) }
+	}
+
+	@Test
+	void testGetAll_Selector() {
+		def labelA = new Label( text: 'A', id: 'a' )
+		def labelB = new Label( text: 'B', id: 'b' )
+		[ labelA, labelB ].each { it.styleClass.add( 'sc' ) }
+		def checkBoxC = new CheckBox( text: 'C', id: 'c' )
+
+		def future = new LinkedBlockingDeque( 1 )
+
+		Platform.runLater {
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.addAll labelA, labelB, checkBoxC
+			FXApp.scene.root = hbox
+			future << true
+		}
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 250
+
+		assert withDriver().getAll( '#a' ) as Set == [ labelA ] as Set
+		assert withDriver().getAll( '.sc' ) as Set == [ labelA, labelB ] as Set
+	}
+
+	@Test
+	void testGetAll_Class() {
+		def labelA = new Label( text: 'A', id: 'a' )
+
+		def labelB = new Label( text: 'B', id: 'b' )
+		def checkBoxC = new CheckBox( text: 'C', id: 'c' )
+
+		def future = new LinkedBlockingDeque( 1 )
+
+		Platform.runLater {
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.addAll labelA, labelB, checkBoxC
+			FXApp.scene.root = hbox
+			future << true
+		}
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 250
+
+		assert withDriver().getAll( Label ) as Set == [ labelA, labelB ] as Set
+		assert withDriver().getAll( CheckBox ) as Set == [ checkBoxC ] as Set
 	}
 
 }
 
 class FXAutomatonTest extends SimpleFxDriverTest {
 
-	{ withDriver = { FXAutomaton.user } }
+	{
+		withDriver = { FXAutomaton.user }
+	}
 
 }
 
 class FXerTest extends FxDriverWithSelectorsTest {
 
-	{ withDriver = { FXer.getUserWith( FXApp.scene.root ) } }
+	{
+		withDriver = { FXer.getUserWith( FXApp.scene.root ) }
+	}
 }
 
 class SwingerFXerFXTest extends FxDriverWithSelectorsTest {
 
-	{ withDriver = { SwingerFxer.getUserWith( null, FXApp.scene.root ) } }
+	{
+		withDriver = { SwingerFxer.getUserWith( null, FXApp.scene.root ) }
+	}
 
 }

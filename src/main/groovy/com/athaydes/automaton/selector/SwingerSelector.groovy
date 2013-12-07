@@ -19,7 +19,7 @@ abstract class SwingerSelectorBase extends Closure<List<Component>> {
 	}
 
 	protected static toExpectedTypes( Object... args ) {
-		assert args.length == 2
+		assert args.length == 3
 		assert args[ 0 ] instanceof String
 		assert args[ 1 ] instanceof Component
 		assert args[ 2 ] instanceof Integer
