@@ -1,6 +1,8 @@
 package com.athaydes.automaton.selector
 
 import javafx.scene.Node
+import javafx.stage.PopupWindow
+import javafx.stage.Window
 
 import static com.athaydes.automaton.SwingUtil.callMethodIfExists
 
@@ -29,16 +31,34 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 		[ null, args[ 0 ] as String, args[ 1 ] as Node, args[ 2 ] as Integer ]
 	}
 
-	protected void navigateBreadthFirst( Node node, Closure visitor ) {
+	protected boolean navigateBreadthFirst( Node node, Closure visitor, followPopups = true ) {
 		def nextLevel = [ node ]
 		while ( nextLevel ) {
 			def grandChildren = [ ]
 			for ( child in nextLevel ) {
-				if ( visitor( child ) ) return
+				if ( visitor( child ) ) return true
 				grandChildren += subItemsOf( child )
 			}
 			nextLevel = grandChildren
 		}
+		if ( followPopups ) {
+			for ( popup in getAllPopups() ) {
+				def abort = navigateBreadthFirst( popup.scene.root, visitor, false )
+				if ( abort ) return true
+			}
+		}
+		return false
+	}
+
+	private List<PopupWindow> getAllPopups() {
+		def res = [ ]
+		def windows = Window.impl_getWindows()
+
+		while ( windows.hasNext() ) {
+			Window window = windows.next();
+			if ( window instanceof PopupWindow ) res << window
+		}
+		return res
 	}
 
 	private subItemsOf( node ) {
@@ -49,13 +69,15 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 
 abstract class SimpleFxSelector extends FxSelectorBase {
 
+	abstract boolean followPopups()
+
 	@Override
 	List<Node> apply( String prefix, String selector, Node root, int limit = Integer.MAX_VALUE ) {
 		def res = [ ]
-		navigateBreadthFirst( root ) { Node node ->
+		navigateBreadthFirst( root, { Node node ->
 			if ( matches( selector, node ) ) res << node
 			res.size() >= limit
-		}
+		}, followPopups() )
 		return res
 	}
 

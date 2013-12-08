@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.automaton.selector.AutomatonSelector
+import com.athaydes.automaton.selector.FxSelectors
 import com.athaydes.automaton.selector.JavaFXSelector
 import groovy.util.logging.Slf4j
 import javafx.application.Application
@@ -33,6 +34,14 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 	}
 
 	protected FXAutomaton() {}
+
+	/**
+	 * Block until all events in the JavaFX Thread have been processed.
+	 */
+	FXAutomaton waitForFxEvents() {
+		FXApp.doInFXThreadBlocking {}
+		this
+	}
 
 	FXAutomaton clickOn( Node node, Speed speed = DEFAULT ) {
 		moveTo( node, speed ).click()
@@ -163,7 +172,8 @@ class FXer extends HasSelectors<Node, FXer> {
 			[
 					'#': JavaFXSelector.instance,
 					'.': JavaFXSelector.instance,
-					'type:': JavaFXSelector.instance
+					'type:': JavaFXSelector.instance,
+					'text:': FxSelectors.byText()
 			].asImmutable()
 
 	/**
@@ -179,6 +189,14 @@ class FXer extends HasSelectors<Node, FXer> {
 	}
 
 	protected FXer() {}
+
+	/**
+	 * Block until all events in the JavaFX Thread have been processed.
+	 */
+	FXer waitForFxEvents() {
+		delegate.waitForFxEvents()
+		this
+	}
 
 	FXer clickOn( Node node, Speed speed = DEFAULT ) {
 		delegate.clickOn( node, speed )

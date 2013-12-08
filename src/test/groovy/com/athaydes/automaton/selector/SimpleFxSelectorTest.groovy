@@ -1,9 +1,10 @@
 package com.athaydes.automaton.selector
 
 import com.athaydes.automaton.FXApp
-import com.athaydes.automaton.samples.apps.JavaFxLoginPage
+import com.athaydes.automaton.samples.apps.JavaFxSampleScene
 import javafx.scene.Node
 import javafx.scene.Scene
+import javafx.stage.Stage
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import spock.lang.Specification
@@ -17,10 +18,12 @@ class SimpleFxSelectorTest extends Specification {
 
 	@BeforeClass
 	static void before() {
-		FXApp.startApp( new JavaFxLoginPage() );
+		Stage stage = FXApp.initialize()
 		FXApp.doInFXThreadBlocking {
-			scene = FXApp.scene
+			scene = new JavaFxSampleScene()
+			stage.scene = scene
 		}
+
 	}
 
 	@AfterClass
@@ -34,6 +37,8 @@ class SimpleFxSelectorTest extends Specification {
 			boolean matches( String query, Node node ) {
 				node.id == query
 			}
+
+			boolean followPopups() { false }
 		}
 
 		when:
@@ -43,8 +48,8 @@ class SimpleFxSelectorTest extends Specification {
 		result as Set == scene.root.lookupAll( "#$selector" ) as Set
 
 		where:
-		selector << [ 'login-panel', 'combo', 'user-name', 'user-password',
-				'message-area', 'login-button' ]
+		selector << [ 'left-color-picker', 'right-color-picker',
+				'fx-text', 'fx-input' ]
 	}
 
 }

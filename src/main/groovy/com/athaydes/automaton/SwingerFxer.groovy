@@ -34,6 +34,14 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		fxer = FXer.getUserWith( node )
 	}
 
+	/**
+	 * Block until all events in the JavaFX Thread have been processed.
+	 */
+	SwingerFxer waitForFxEvents() {
+		fxer.waitForFxEvents()
+		this
+	}
+
 	def getAt( String selector ) {
 		if ( isJavaFXSelector( selector ) )
 			fxer[ selector ]
