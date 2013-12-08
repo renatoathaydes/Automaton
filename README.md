@@ -36,16 +36,33 @@ Swinger swinger = Swinger.forSwingWindow();
 
 Emulating user's actions in the GUI:
 ```java
-swinger.clickOn( "text-input-1" )     // select by Component name (no prefix required)
+swinger.clickOn( "text-input-1" )
        .type( "Hello Automaton!" )
-       .drag( "text:Drag this item" ) // select by text (works with almost anything)
-       .onto( matchingAll( "type:DropBoxImpl", "text:Drop here!" ) );   // select by type and text
+       .drag( "text:Drag this item" )
+       .onto( matchingAll( "type:DropBoxImpl", "text:Drop here!" ) );
 
 // get the tree nodes for the given tree path and open them
 JTree myTree = swinger.getAt( JTree.class );
 List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
                  "Project 1", "Test Suite A", "Test Case 1" );
 swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
+```
+
+Built-in Swing selectors:
+
+  * `name:` select by name (the default, so no prefix is required).
+    * Example: `swinger.clickOn( "name:my-component" );`
+  * `text:` select by text (works for anything that has a label, `JTable`'s cells and `JTree`'s nodes.
+    * Example: `swinger.clickOn( "text:My Component" );`
+  * `type:` select by type. Use the class's simple or qualified name.
+    * Example: `swinger.clickOn( "type:JButton" );`
+
+You can also select a Component by type, type-safely, as follows:
+
+```java
+JButton button = fxer.getAt( JButton.class );
+// or to get the second button (index starts from 0)
+JButton button = fxer.getAll( JButton.class ).get( 1 );
 ```
 
 Building complex selectors:
@@ -134,17 +151,69 @@ Or you can launch it using your own launcher, then create a FXer istance from an
 FXer fxer = FXer.getUserWith( node );
 ```
 
+To just test a Node and its internals (eg. your custom components unit test), you can do this:
+
+```java
+final Stage stage = FXApp.initialize();
+FXApp.doInFXThreadBlocking( new Runnable() {
+  public void run() {
+    stage.getScene().setRoot( new CustomNode() );
+  }
+} );
+```
+
 Emulating user's actions in the GUI:
 ```java
 fxer.clickOn( fxer.getAt( TextField.class ) )
     .type( "Automaton" )
-    .clickOn( "#login-button" );
+    .clickOn( "#login-button" ).waitForFxEvents();
+```
+
+Built-in JavaFX selectors:
+
+  * `#` select by ID (the default, so no prefix is required).
+    * Example: `fxer.clickOn( "#my-node" );`
+  * `.` select by css class.
+    * Example: `fxer.clickOn( ".invalid" );`
+  * `text:` select by text (works for anything that has a label).
+    * Example: `fxer.clickOn( "text:My Node" );`
+
+You can also select a Node by type, type-safely, as follows:
+
+```java
+VBox vbox = fxer.getAt( VBox.class );
+// or to get the second VBox (index starts from 0)
+VBox vbox = fxer.getAll( VBox.class ).get( 1 );
 ```
 
 Making assertions with `Automaton`'s Hamcrest matchers:
 
 ```java
 assertThat( fxer.getAt( "#message-area" ), hasText( "Please enter your password" ) );
+```
+
+Creating your own selectors (the example below adds a selector which can find nodes
+whose style String contains a certain sub-string):
+
+```java
+Map<String, AutomatonSelector<Node>> customSelectors = new HashMap<>();
+
+customSelectors.put( "$", new SimpleFxSelector() {
+  @Override
+  public boolean followPopups() {
+    return false;
+  }
+
+  @Override
+  public boolean matches( String selector, Node node ) {
+    return node.getStyle().contains( selector );
+  }
+} );
+customSelectors.putAll( FXer.getDEFAULT_SELECTORS() );
+
+fxer.setSelectors( customSelectors );
+
+Node blueNode = fxer.getAt( "$blue" );
 ```
 
 
@@ -167,9 +236,9 @@ SwingerFxer swfx = SwingerFxer.getUserWith( swingFrame, fxNode );
 
 swfx.doubleClickOn( "text:colors" )
     .clickOn( "text-area" )
-    .type( swingTextAreaText ).pause( 1000 )
-    .clickOn( "#left-color-picker" ).pause( 1000 )
-    .moveBy( 60, 40 ).click().pause( 1000 )
+    .type( swingTextAreaText )
+    .clickOn( "#left-color-picker" ).waitForFxEvents()
+    .moveBy( 60, 40 ).click().waitForFxEvents()
     .clickOn( "#fx-input" )
     .type( fxInputText );
 ```

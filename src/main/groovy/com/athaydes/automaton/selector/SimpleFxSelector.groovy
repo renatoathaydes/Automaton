@@ -69,7 +69,7 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 
 abstract class SimpleFxSelector extends FxSelectorBase {
 
-	abstract boolean followPopups()
+	boolean followPopups() { false }
 
 	@Override
 	List<Node> apply( String prefix, String selector, Node root, int limit = Integer.MAX_VALUE ) {

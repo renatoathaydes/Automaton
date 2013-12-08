@@ -44,6 +44,7 @@ public class JavaFxLoginPage extends Application {
         messageLabel.setId( "message-area" );
 
         Button loginButton = new Button( "Login" );
+        loginButton.setStyle( "-fx-text-fill: blue;" );
         loginButton.setId( "login-button" );
         loginButton.setOnAction( new EventHandler<ActionEvent>() {
             @Override
