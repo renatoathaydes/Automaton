@@ -155,16 +155,18 @@ To just test a Node and its internals (eg. your custom components unit test), yo
 
 ```java
 final Stage stage = FXApp.initialize();
+final CustomNode customNode = new CustomNode();
 FXApp.doInFXThreadBlocking( new Runnable() {
   public void run() {
-    stage.getScene().setRoot( new CustomNode() );
+    stage.getScene().setRoot( customNode );
   }
 } );
+FXer fxer = FXer.getUserWith( customNode );
 ```
 
 Emulating user's actions in the GUI:
 ```java
-fxer.clickOn( fxer.getAt( TextField.class ) )
+fxer.clickOn( TextField.class )
     .type( "Automaton" )
     .clickOn( "#login-button" ).waitForFxEvents();
 ```
@@ -251,8 +253,9 @@ assertThat( swfx.getAt( "#fx-input" ), hasText( fxInputText ) );
 assertThat( swfx.getAt( "#left-color-picker" ), hasValue( swingJavaFx.getTextLeftColor() ) );
 ```
 
-The above is a based on the (SwingJavaFXSampleAppTestInJava)[https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java] sample class in this project.
-Just type `t` in the GibHub main page and search for this class for the complete code.
+The above is a based on the [SwingJavaFXSampleAppTestInJava](https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java) sample class in this project.
+
+//TODO the following behaviour may be confusing but is currently being improved
 
 Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.
 String selectors work like this:
