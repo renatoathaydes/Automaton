@@ -86,7 +86,7 @@ List<Component> cs = swinger.getAll( "text:Some Components Text" );
 
 Matching any:
 ```java
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAny;
+import static com.athaydes.automaton.selector.StringSelectors.matchingAny;
 
 // throws an Exception if nothing is found
 Component c = swinger.getAt( matchingAny( "text:colors", "text:sports" ) );
@@ -100,7 +100,7 @@ swinger.clickOn( matchingAny( "text:colors", "text:sports" ) );
 
 Matching all:
 ```java
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
+import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
 
 // throws an Exception if nothing is found
 Component c = swinger.getAt( matchingAll( "type:JButton", "text:sports" ) );

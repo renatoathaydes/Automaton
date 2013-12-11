@@ -9,8 +9,8 @@ import javax.swing.*
 import java.awt.*
 import java.util.concurrent.CountDownLatch
 
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAny
+import static StringSelectors.matchingAll
+import static StringSelectors.matchingAny
 
 /**
  * @author Renato

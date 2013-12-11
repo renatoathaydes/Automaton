@@ -27,7 +27,7 @@ enum MatchType {
 }
 
 
-class StringSwingerSelectors {
+class StringSelectors {
 
 	static ComplexSelector matchingAny( String query, String... queries ) {
 		new ComplexSelector( ANY, ( [ query ] + queries.toList() ) as String[] )

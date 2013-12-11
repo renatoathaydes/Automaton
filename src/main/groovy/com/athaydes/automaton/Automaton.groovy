@@ -17,7 +17,7 @@ import static com.athaydes.internal.RobotTypingUtil.robotCode
 class Automaton<T extends Automaton> {
 
 	protected final robot = new Robot()
-	static DEFAULT = Config.instance.speed
+	static Speed DEFAULT = Config.instance.speed
 	private static Automaton instance
 	private abortAfter = new TimeLimiter().&abortAfter
 

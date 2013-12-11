@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.athaydes.automaton.SwingUtil.collectNodes;
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAny;
+import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
+import static com.athaydes.automaton.selector.StringSelectors.matchingAny;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

@@ -68,7 +68,7 @@ JButton button = fxer.getAll( JButton.class ).get( 1 );
 Building complex selectors:
 
 ```java
-import static com.athaydes.automaton.selector.StringSwingerSelectors.matchingAll;
+import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
 
 swinger.clickOn( matchingAll( "type:MyDraggable", "text:Drag this item" ) );
 ```
