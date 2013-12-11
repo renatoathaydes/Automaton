@@ -97,10 +97,11 @@ Create a custom selector:
 
 ```java
 private Map<String, AutomatonSelector<Component>> createCustomSelectors() {
+    Map<String, AutomatonSelector<Component>> customSelectors = new LinkedHashMap<>();
+
     // always keep the `Automaton` built-in selectors!
     customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
 
-    Map<String, AutomatonSelector<Component>> customSelectors = new LinkedHashMap<>();
     customSelectors.put( "cust:", new SimpleSwingerSelector() {
         @Override
         public boolean matches( String selector, Component component ) {
