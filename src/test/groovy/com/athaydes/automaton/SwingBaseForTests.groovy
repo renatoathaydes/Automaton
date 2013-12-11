@@ -4,6 +4,7 @@ import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
 import com.athaydes.automaton.selector.SimpleSwingerSelector
 import groovy.swing.SwingBuilder
+import javafx.scene.layout.VBox
 import org.junit.After
 import org.junit.Test
 
@@ -479,7 +480,7 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 class SwingerFXer_SwingTest extends SwingDriverWithSelectorsTest {
 
 	{
-		withDriver = { SwingerFxer.getUserWith( jFrame, null ) }
+		withDriver = { SwingerFxer.getUserWith( jFrame, new VBox() ) }
 	}
 
 }

@@ -32,16 +32,17 @@ abstract class HasSelectors<K, A extends Automaton> extends Automaton<A> {
 		findOnePrefixed( ensurePrefixed( selector ) )
 	}
 
-	def <K> K getAt( Class<K> type ) {
-		findOnePrefixed( 'type:', type.simpleName ) as K
+	def <T> T getAt( Class<T> type ) {
+		findOnePrefixed( 'type:', type.simpleName ) as T
 	}
 
-	List<K> getAll( String selector ) {
-		findAllPrefixed ensurePrefixed( selector )
+	List<K> getAll( String selector, int limit = Integer.MAX_VALUE ) {
+		def (prefix, query) = ensurePrefixed( selector )
+		findAllPrefixed( prefix, query, limit )
 	}
 
-	def <T> List<T> getAll( Class<T> cls ) {
-		findAllPrefixed( 'type:', cls.simpleName ) as List<T>
+	def <T> List<? extends T> getAll( Class<T> cls, int limit = Integer.MAX_VALUE ) {
+		findAllPrefixed( 'type:', cls.simpleName, limit ) as List<T>
 	}
 
 }

@@ -29,7 +29,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		moveTo( component, speed ).click()
 	}
 
-	SwingAutomaton clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	SwingAutomaton clickOn( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		components.each { c -> clickOn( c, speed ).pause( pauseBetween ) }
 		this
 	}
@@ -38,7 +38,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		moveTo( component, speed ).doubleClick()
 	}
 
-	SwingAutomaton doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	SwingAutomaton doubleClickOn( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		components.each { c -> doubleClickOn( c, speed ).pause( pauseBetween ) }
 		this
 	}
@@ -47,7 +47,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 		moveTo( { centerOf( component ) }, speed )
 	}
 
-	SwingAutomaton moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	SwingAutomaton moveTo( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		components.each { c -> moveTo( c, speed ).pause( pauseBetween ) }
 		this
 	}
@@ -117,8 +117,8 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		else throw new RuntimeException( "Could not locate ${selector}" )
 	}
 
-	List<Component> getAll( ComplexSelector selector ) {
-		doGetAt( selector )
+	List<Component> getAll( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+		doGetAt( selector, limit )
 	}
 
 	Swinger clickOn( Component component, Speed speed = DEFAULT ) {
@@ -126,7 +126,7 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		this
 	}
 
-	Swinger clickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	Swinger clickOn( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		automaton.clickOn( components, pauseBetween, speed )
 		this
 	}
@@ -145,7 +145,7 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		this
 	}
 
-	Swinger doubleClickOn( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	Swinger doubleClickOn( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		automaton.doubleClickOn( components, pauseBetween, speed )
 		this
 	}
@@ -160,7 +160,7 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		this
 	}
 
-	Swinger moveTo( Collection<Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
+	Swinger moveTo( Collection<? extends Component> components, long pauseBetween = 100, Speed speed = DEFAULT ) {
 		automaton.moveTo( components, pauseBetween, speed )
 		this
 	}
@@ -176,6 +176,14 @@ class Swinger extends HasSelectors<Component, Swinger> {
 	}
 
 	SwingerDragOn drag( String selector ) {
+		drag( this[ selector ] )
+	}
+
+	SwingerDragOn drag( Class<? extends Component> selector ) {
+		drag( this[ selector ] )
+	}
+
+	SwingerDragOn drag( ComplexSelector selector ) {
 		drag( this[ selector ] )
 	}
 
@@ -224,9 +232,17 @@ class SwingerDragOn extends SwingDragOn<Swinger> {
 	}
 
 	Swinger onto( String selector, Speed speed = Automaton.DEFAULT ) {
-		def prefix_selector = automaton.ensurePrefixed selector
-		onto( automaton.findOnePrefixed( prefix_selector ), speed )
+		onto( automaton[ selector ], speed )
 	}
+
+	Swinger onto( Class<? extends Component> selector, Speed speed = Automaton.DEFAULT ) {
+		onto( automaton[ selector ], speed )
+	}
+
+	Swinger onto( ComplexSelector selector, Speed speed = Automaton.DEFAULT ) {
+		onto( automaton[ selector ], speed )
+	}
+
 }
 
 

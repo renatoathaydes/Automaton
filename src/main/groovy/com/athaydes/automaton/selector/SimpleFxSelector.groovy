@@ -86,3 +86,40 @@ abstract class SimpleFxSelector extends FxSelectorBase {
 	}
 
 }
+
+abstract class CompositeFxSelector extends SimpleFxSelector {
+
+	final List<MapEntry> selectors_queries
+
+	CompositeFxSelector( List<MapEntry> selectors_queries ) {
+		this.selectors_queries = selectors_queries
+	}
+
+}
+
+class IntersectFxSelector extends CompositeFxSelector {
+
+	IntersectFxSelector( List<MapEntry> selectors_queries ) {
+		super( selectors_queries )
+	}
+
+	@Override
+	boolean matches( String query, Node node ) {
+		getSelectors_queries().every { it.key.matches( it.value, node ) }
+	}
+
+}
+
+class UnionFxSelector extends CompositeFxSelector {
+
+	UnionFxSelector( List<MapEntry> selectors_queries ) {
+		super( selectors_queries )
+	}
+
+	@Override
+	boolean matches( String query, Node node ) {
+		getSelectors_queries().any { it.key.matches( it.value, node ) }
+	}
+
+}
+

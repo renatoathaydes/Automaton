@@ -1,8 +1,6 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.selector.AutomatonSelector
-import com.athaydes.automaton.selector.FxSelectors
-import com.athaydes.automaton.selector.JavaFXSelector
+import com.athaydes.automaton.selector.*
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
@@ -198,6 +196,16 @@ class FXer extends HasSelectors<Node, FXer> {
 		this
 	}
 
+	Node getAt( ComplexSelector selector ) {
+		def res = doGetAt( selector, 1 )
+		if ( res ) res.first()
+		else throw new RuntimeException( "Could not locate ${selector}" )
+	}
+
+	List<Node> getAll( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+		doGetAt( selector, limit )
+	}
+
 	FXer clickOn( Node node, Speed speed = DEFAULT ) {
 		delegate.clickOn( node, speed )
 		this
@@ -218,6 +226,11 @@ class FXer extends HasSelectors<Node, FXer> {
 		this
 	}
 
+	FXer clickOn( ComplexSelector selector, Speed speed = DEFAULT ) {
+		delegate.clickOn( this[ selector ], speed )
+		this
+	}
+
 	FXer doubleClickOn( Node node, Speed speed = DEFAULT ) {
 		moveTo( node, speed ).doubleClick()
 	}
@@ -233,6 +246,11 @@ class FXer extends HasSelectors<Node, FXer> {
 
 	FXer doubleClickOn( Class<? extends Node> cls, Speed speed = DEFAULT ) {
 		delegate.doubleClickOn( this[ cls ], speed )
+		this
+	}
+
+	FXer doubleClickOn( ComplexSelector selector, Speed speed = DEFAULT ) {
+		delegate.doubleClickOn( this[ selector ], speed )
 		this
 	}
 
@@ -256,12 +274,29 @@ class FXer extends HasSelectors<Node, FXer> {
 		this
 	}
 
+	FXer moveTo( ComplexSelector selector, Speed speed = DEFAULT ) {
+		delegate.moveTo( this[ selector ], speed )
+		this
+	}
+
 	FXDragOn<FXer> drag( Node node ) {
 		def target = centerOf node
 		new FXerDragOn( this, target.x, target.y )
 	}
 
 	FXDragOn<FXer> drag( String selector ) {
+		doDrag( selector )
+	}
+
+	FXDragOn<FXer> drag( Class<? extends Node> selector ) {
+		doDrag( selector )
+	}
+
+	FXDragOn<FXer> drag( ComplexSelector selector ) {
+		doDrag( selector )
+	}
+
+	private FXerDragOn doDrag( selector ) {
 		def target = centerOf this[ selector ]
 		new FXerDragOn( this, target.x, target.y )
 	}
@@ -274,6 +309,29 @@ class FXer extends HasSelectors<Node, FXer> {
 
 	Point centerOf( Node node ) {
 		delegate.centerOf( node )
+	}
+
+	protected List<Node> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+		def prefixes_queries = selector.queries.collect { ensurePrefixed( it ) }
+		def toMapEntries = { String prefix, String query ->
+			new MapEntry( selectors[ prefix ], query )
+		}
+
+		def selectors_queries = prefixes_queries.collect( toMapEntries )
+
+		def fxSelector = entries2FxSelector( selector.matchType, selectors_queries )
+		fxSelector.apply( null, null, root, limit )
+	}
+
+	private CompositeFxSelector entries2FxSelector( MatchType type, List<MapEntry> selectors_queries ) {
+		switch ( type ) {
+			case MatchType.ANY:
+				return new UnionFxSelector( selectors_queries )
+			case MatchType.ALL:
+				return new IntersectFxSelector( selectors_queries )
+			default:
+				throw new RuntimeException( "Forgot to implement selector of type ${type}" )
+		}
 	}
 
 }
@@ -298,7 +356,15 @@ class FXerDragOn extends FXDragOn<FXer> {
 	}
 
 	FXer onto( String selector, Speed speed = Automaton.DEFAULT ) {
-		def node = automaton[ selector ]
-		onto( node, speed )
+		onto( automaton[ selector ], speed )
 	}
+
+	FXer onto( Class<? extends Node> selector, Speed speed = Automaton.DEFAULT ) {
+		onto( automaton[ selector ], speed )
+	}
+
+	FXer onto( ComplexSelector selector, Speed speed = Automaton.DEFAULT ) {
+		onto( automaton[ selector ], speed )
+	}
+
 }

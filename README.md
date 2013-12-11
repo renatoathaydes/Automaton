@@ -188,6 +188,14 @@ VBox vbox = fxer.getAt( VBox.class );
 VBox vbox = fxer.getAll( VBox.class ).get( 1 );
 ```
 
+Building complex selectors:
+
+```java
+import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
+
+swinger.clickOn( matchingAll( "type:MyDraggable", "text:Drag this item" ) );
+```
+
 Making assertions with `Automaton`'s Hamcrest matchers:
 
 ```java
@@ -255,18 +263,25 @@ assertThat( swfx.getAt( "#left-color-picker" ), hasValue( swingJavaFx.getTextLef
 
 The above is a based on the [SwingJavaFXSampleAppTestInJava](https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java) sample class in this project.
 
-//TODO the following behaviour may be confusing but is currently being improved
-
 Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.
 String selectors work like this:
 
-* if the selector starts with a `.` or `#`, the lookup is made in the JavaFX app.
-* in all other cases, the lookup re-directed to the Swinger (which can use built-in and custom selectors).
+* if the selector can be inferred to be specific to JavaFX or Swing (eg. you use a sub-class of `Node` as a selector,
+  which must be a JavaFX type), then `Automaton` will look only into the hierarchy of the appropriate framework.
+* otherwise, the `Automaton` will look into the JavaFX application hierarchy first.
+* if not found in JavaFX, `Automaton` searches the Swing components.
 
-Pretty simple!
+If you want to ensure `Automaton` only looks in either JavaFX or Swing, you can do it like this:
 
-If you want to lookup a JavaFX Node, you'll use a css selector (starting with `.` = by css class, `#` by ID).
-To lookup a Swing Component, just use the `Swinger` selector syntax (see `Swinger` section).
+```java
+// use the Swinger directly
+swfx.getSwinger().getAt( "swing-component" );
+
+// use the FXer directly
+swfx.getFxer().getAt( "#javafx-node" );
+```
+
+Complex selectors work seamlessly between JavaFX and Swing.
 
 ## Platform-independent tests
 

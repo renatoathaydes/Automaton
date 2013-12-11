@@ -24,6 +24,7 @@ import javafx.stage.Stage
 import org.junit.Before
 import org.junit.Test
 
+import javax.swing.*
 import java.awt.*
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
@@ -448,7 +449,7 @@ class FXerTest extends FxDriverWithSelectorsTest {
 class SwingerFXerFXTest extends FxDriverWithSelectorsTest {
 
 	{
-		withDriver = { SwingerFxer.getUserWith( null, FXApp.scene.root ) }
+		withDriver = { SwingerFxer.getUserWith( new JButton(), FXApp.scene.root ) }
 	}
 
 }
