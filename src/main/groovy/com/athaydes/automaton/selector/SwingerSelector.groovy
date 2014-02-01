@@ -59,7 +59,7 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
 				}
 			return stop
 		}
-		println( "Navigating everything, asked to stop ${stop}, and component is ${component}" )
+
 		if ( !stop ) {
 			return visitSubWindows( callMethodIfExists( component, 'getOwnedWindows' ), visitor )
 		}
