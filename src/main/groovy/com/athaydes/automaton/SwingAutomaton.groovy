@@ -65,7 +65,7 @@ class SwingAutomaton extends Automaton<SwingAutomaton> {
 			center.y += component.height / 2
 			return center
 		} catch ( IllegalComponentStateException ignore ) {
-			throw new RuntimeException( "Component not showing on screen: " + component )
+			throw new GuiItemNotFound( "Component not showing on screen: " + component )
 		}
 	}
 
@@ -105,7 +105,7 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		if ( Window.windows && Window.windows.any( isJFrame ) ) {
 			getUserWith( Window.windows.find( isJFrame ) )
 		} else {
-			throw new RuntimeException( 'Impossible to get any Swing window which is a JFrame' )
+			throw new GuiItemNotFound( 'Impossible to get any Swing window which is a JFrame' )
 		}
 	}
 
@@ -114,7 +114,7 @@ class Swinger extends HasSelectors<Component, Swinger> {
 	Component getAt( ComplexSelector selector ) {
 		def res = doGetAt( selector, 1 )
 		if ( res ) res.first()
-		else throw new RuntimeException( "Could not locate ${selector}" )
+		else throw new GuiItemNotFound( "Could not locate ${selector}" )
 	}
 
 	List<Component> getAll( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {

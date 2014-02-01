@@ -199,7 +199,7 @@ class FXer extends HasSelectors<Node, FXer> {
 	Node getAt( ComplexSelector selector ) {
 		def res = doGetAt( selector, 1 )
 		if ( res ) res.first()
-		else throw new RuntimeException( "Could not locate ${selector}" )
+		else throw new GuiItemNotFound( "Could not locate ${selector}" )
 	}
 
 	List<Node> getAll( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
