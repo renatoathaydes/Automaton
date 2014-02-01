@@ -16,6 +16,7 @@ import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
+import static com.athaydes.automaton.mixins.TimeAware.condition
 import static com.google.code.tempusfugit.temporal.Duration.seconds
 import static com.google.code.tempusfugit.temporal.Timeout.timeout
 import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
@@ -334,6 +335,30 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 		assert jTable.tableHeader.columnModel.getColumn( 0 ).headerValue == 'Col 2'
 		assert jTable.tableHeader.columnModel.getColumn( 1 ).headerValue == 'Col 1'
+	}
+
+	@Test
+	void testMoveTo_JDialog() {
+		def clicksList = [ ]
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+					location: [ 150, 50 ] as Point, show: true ) {
+				label( text: 'This is the main JFrame' )
+
+				dialog( title: 'JDialog Title', size: [ 200, 150 ] as Dimension,
+						location: [ 200, 100 ] as Point, show: true ) {
+					button( text: 'JDialog Button',
+							actionPerformed: { e -> clicksList << e } )
+				}
+			}
+
+		}
+
+		waitForJFrameToShowUp()
+
+		withDriver().moveTo( 180, 80 ).moveTo( 'text:JDialog Button' ).click()
+
+		waitOrTimeout( condition { clicksList.size() == 1 }, timeout( seconds( 2 ) ) )
 	}
 
 	@Test

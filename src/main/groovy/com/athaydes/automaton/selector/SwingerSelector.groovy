@@ -29,8 +29,8 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
 
 	abstract List<Component> apply( String prefix, String selector, Component component, int limit )
 
-	protected void navigateEveryThing( Component component, Closure visitor ) {
-		navigateBreadthFirst( component ) { Component comp ->
+	protected boolean navigateEveryThing( Component component, Closure visitor ) {
+		def stop = navigateBreadthFirst( component ) { Component comp ->
 			def stop = visitor( comp )
 
 			if ( !stop )
@@ -59,6 +59,21 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
 				}
 			return stop
 		}
+		println( "Navigating everything, asked to stop ${stop}, and component is ${component}" )
+		if ( !stop ) {
+			return visitSubWindows( callMethodIfExists( component, 'getOwnedWindows' ), visitor )
+		}
+		return stop
+	}
+
+	protected boolean visitSubWindows( Window[] subWindows, Closure visitor ) {
+		for ( w in subWindows ) {
+			if ( w instanceof Component ) {
+				def stop = navigateEveryThing( w, visitor )
+				if ( stop ) return stop
+			}
+		}
+		return false
 	}
 
 }

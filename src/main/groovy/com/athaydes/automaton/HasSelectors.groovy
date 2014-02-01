@@ -20,7 +20,7 @@ abstract class HasSelectors<K, A extends Automaton> extends Automaton<A> {
 	protected K findOnePrefixed( String prefix, String query ) {
 		def target = findAllPrefixed( prefix, query, 1 )
 		if ( target ) target.first() else
-			throw new RuntimeException( "Could not locate prefix=$prefix, selector=$query" )
+			throw new GuiItemNotFound( "Could not locate prefix=$prefix, query=$query" )
 	}
 
 	protected List<K> findAllPrefixed( String prefix, String query, int limit = Integer.MAX_VALUE ) {
