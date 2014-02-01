@@ -18,29 +18,42 @@ class Config {
 
 	static final DEFAULT_SPEED = FAST
 
-	Speed getSpeed( ) {
-		def customSpeed = null
+	private Config() {
+		reload()
+	}
+
+	void reload() {
+		props.clear()
 		try {
 			def configFile = resourceLoader.configFile
 			if ( configFile?.exists() ) {
-				customSpeed = loadSpeedFrom configFile
+				props.load( configFile.newInputStream() )
+			} else {
+				log.info( "No Automaton config file found, using defaults" )
 			}
 		} catch ( e ) {
-			log.warn "Unable to read Automaton config file", e
+			log.warn( "Unable to load configuration properties", e )
 		}
-		customSpeed ?: DEFAULT_SPEED
 	}
 
-	private Speed loadSpeedFrom( File configFile ) {
-		String configSpeed = null
+	void setResourceLoader( resourceLoader ) {
+		this.resourceLoader = resourceLoader
+		reload()
+	}
+
+	Speed getSpeed() {
+		getPropertyValue( 'automaton.speed', DEFAULT_SPEED ) { configValue ->
+			if ( configValue ) configValue.toString().toUpperCase() as Speed
+		} as Speed
+	}
+
+	private getPropertyValue( String key, defaultValue, Closure getValidated ) {
 		try {
-			props.load( configFile.newInputStream() )
-			configSpeed = props.getProperty( 'automaton.speed' ).toUpperCase()
-			log.info "Config speed loaded from ${configFile.absolutePath}: $configSpeed"
-			return configSpeed ? configSpeed as Speed : null
-		} catch ( e ) {
-			e.printStackTrace()
-			log.warn( "Parameter automaton.speed value '${configSpeed}' not valid", e )
+			def propValue = getValidated( props.getProperty( key ) )
+			propValue ?: defaultValue
+		} catch ( ignore ) {
+			log.warn( "Property ${key} invalid, will use default value" )
+			defaultValue
 		}
 	}
 
@@ -50,10 +63,11 @@ class RealResourceLoader {
 
 	static final CUSTOM_CONFIG_FILE_LOCATION = "/automaton-config.properties"
 
-	File getConfigFile( ) {
+	File getConfigFile() {
 		def resource = this.class.getResource( CUSTOM_CONFIG_FILE_LOCATION )
 		if ( resource )
 			new File( resource.toURI() )
+		null
 	}
 
 }
