@@ -10,10 +10,7 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.CheckBox
-import javafx.scene.control.Label
-import javafx.scene.control.TextArea
+import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -22,6 +19,7 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.Stage
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 import javax.swing.*
@@ -33,6 +31,7 @@ import static com.athaydes.automaton.Speed.VERY_FAST
 import static com.google.code.tempusfugit.temporal.Duration.seconds
 import static com.google.code.tempusfugit.temporal.Timeout.timeout
 import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
+import static javafx.collections.FXCollections.observableArrayList
 
 /**
  *
@@ -209,6 +208,28 @@ class FXBaseForTests implements HasMixins {
 		assert textArea.text == 'I can type here'
 	}
 
+	void comboBoxItemCanBePicked( Closure selectOla ) {
+		def future = new LinkedBlockingDeque( 1 )
+		def box = new ComboBox(
+				id: 'combo',
+				items: observableArrayList( 'hej', 'hi', 'ola' ) )
+
+		Platform.runLater {
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.add box
+			FXApp.scene.root = hbox
+			future << true
+		}
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 500
+
+		selectOla( box )
+
+		waitOrTimeout condition { box.selectionModel.selectedIndex == 2 },
+				timeout( seconds( 4 ) )
+	}
+
 }
 
 abstract class SimpleFxDriverTest extends FXBaseForTests {
@@ -273,6 +294,13 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 	@Test
 	void testType() {
 		testType withDriver
+	}
+
+	@Test
+	void comboBoxItemCanBePicked() {
+		comboBoxItemCanBePicked { ComboBox box ->
+			Platform.runLater( { box.selectionModel.select( 2 ) } )
+		}
 	}
 
 	@Test
@@ -354,6 +382,14 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	@Test
 	void testDoubleClickOn_Class() {
 		testDoubleClickOn { withDriver().doubleClickOn( Button ) }
+	}
+
+	@Test
+	@Ignore( "Will fail because of JavaFX buggy ComboBox, also related to problem with com.athaydes.automaton.FXAutomaton.getScenePosition" )
+	void comboBoxItemCanBePicked_ByText() {
+		comboBoxItemCanBePicked { ComboBox box ->
+			withDriver().clickOn( box ).pause( 1000 ).clickOn( 'text:ola' )
+		}
 	}
 
 	def testGetAt( Closure doGetAt ) {
