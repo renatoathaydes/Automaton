@@ -16,12 +16,12 @@ class SwingUtil {
 	protected static FakeComponent tableCell2FakeComponent( JTable table, data, int row, int col ) {
 		new FakeComponent( data, {
 			row < 0 ?
-				table.tableHeader.locationOnScreen :
-				table.locationOnScreen
+					table.tableHeader.locationOnScreen :
+					table.locationOnScreen
 		}, {
 			row < 0 ?
-				table.tableHeader.getHeaderRect( col ) :
-				table.getCellRect( row, col, true )
+					table.tableHeader.getHeaderRect( col ) :
+					table.getCellRect( row, col, true )
 		} )
 	}
 
@@ -182,6 +182,14 @@ class SwingUtil {
 	}
 
 	/**
+	 * @return the bounds of the default screen
+	 */
+	static Rectangle defaultScreenBounds() {
+		GraphicsEnvironment ge = GraphicsEnvironment.localGraphicsEnvironment
+		ge.defaultScreenDevice.defaultConfiguration.bounds
+	}
+
+	/**
 	 * A fake Component which can be located by any SwingAutomaton.
 	 * The TreeNode wrapped by this component can be accessed via the <code>getRealObject</code>.
 	 */
@@ -199,9 +207,9 @@ class SwingUtil {
 			this.getItemBounds = getItemBounds
 		}
 
-		def getRealObject( ) { realObject }
+		def getRealObject() { realObject }
 
-		Point getLocationOnScreen( ) {
+		Point getLocationOnScreen() {
 			def parentLocation = parentLocationOnScreen()
 			def bounds = getItemBounds()
 			new Point(
@@ -209,11 +217,11 @@ class SwingUtil {
 					( bounds.location.y + parentLocation.y ) as int )
 		}
 
-		int getWidth( ) { getItemBounds().width.intValue() }
+		int getWidth() { getItemBounds().width.intValue() }
 
-		int getHeight( ) { getItemBounds().height.intValue() }
+		int getHeight() { getItemBounds().height.intValue() }
 
-		String getText( ) { realObject as String }
+		String getText() { realObject as String }
 
 		def methodMissing( String name, def args ) {
 			realObject."name"( args )

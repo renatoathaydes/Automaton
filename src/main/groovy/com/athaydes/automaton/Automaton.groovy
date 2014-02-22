@@ -20,17 +20,20 @@ class Automaton<T extends Automaton> {
 	static Speed DEFAULT = Config.instance.speed
 	private static Automaton instance
 	private abortAfter = new TimeLimiter().&abortAfter
+	final Interaction interaction
 
 	/**
 	 * Get the singleton instance of Automaton, which is lazily created.
 	 * @return Automaton singleton instance
 	 */
-	static synchronized Automaton<Automaton> getUser( ) {
+	static synchronized Automaton<Automaton> getUser() {
 		if ( !instance ) instance = new Automaton<Automaton>()
 		instance
 	}
 
-	protected Automaton( ) {}
+	protected Automaton() {
+		this.interaction = Interaction.instance
+	}
 
 	T moveTo( Number x, Number y, Speed speed = DEFAULT ) {
 		moveTo( new Point( x.intValue(), y.intValue() ), speed )
@@ -58,6 +61,7 @@ class Automaton<T extends Automaton> {
 	}
 
 	protected T move( currPos, target, Speed speed ) {
+		interaction.await "Move mouse to $target"
 		abortAfter( {
 			while ( currPos.x != target.x || currPos.y != target.y ) {
 				robot.mouseMove delta( currPos.x, target.x ), delta( currPos.y, target.y )
@@ -85,19 +89,24 @@ class Automaton<T extends Automaton> {
 	}
 
 	T click( ) {
-		robot.mousePress Mouse.LEFT
-		robot.mouseRelease Mouse.LEFT
-		this as T
+		interaction.await "Click"
+		doClick Mouse.LEFT
 	}
 
 	T rightClick( ) {
-		robot.mousePress Mouse.RIGHT
-		robot.mouseRelease Mouse.RIGHT
-		this as T
+		interaction.await "Right-click"
+		doClick Mouse.RIGHT
 	}
 
 	T doubleClick( ) {
-		click().pause( 50 ).click()
+		interaction.await "Double-click"
+		doClick( Mouse.LEFT ).pause( 50 ).doClick( Mouse.LEFT )
+	}
+
+	private T doClick( button ) {
+		robot.mousePress button
+		robot.mouseRelease button
+		this as T
 	}
 
 	T pause( long millis ) {
@@ -111,6 +120,8 @@ class Automaton<T extends Automaton> {
 	}
 
 	T pressSimultaneously( int ... keyCodes ) {
+		def keysText = keyCodes.collect{ KeyEvent.getKeyText( it ) }
+		interaction.await "Press simultaneously $keysText"
 		try {
 			keyCodes.each { robot.keyPress it }
 		} finally {
@@ -123,6 +134,7 @@ class Automaton<T extends Automaton> {
 	}
 
 	T type( String text, Speed speed = DEFAULT ) {
+		interaction.await "Type $text"
 		text.each { c ->
 			def rc = robotCode( c )
 			typeCode rc.shift, rc.code, speed
