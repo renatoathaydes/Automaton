@@ -1,4 +1,4 @@
-package com.athaydes.automaton
+package com.athaydes.internal
 
 import com.athaydes.internal.Config
 

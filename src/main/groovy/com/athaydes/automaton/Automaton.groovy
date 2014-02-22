@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.internal.Config
+import com.athaydes.internal.Interaction
 import com.athaydes.internal.Mouse
 import com.athaydes.internal.TimeLimiter
 
