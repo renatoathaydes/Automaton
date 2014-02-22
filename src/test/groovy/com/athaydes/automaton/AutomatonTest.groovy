@@ -29,12 +29,12 @@ class AutomatonTest implements HasSwingCode {
 	JFrame jFrame
 
 	@After
-	void cleanup( ) {
+	void cleanup() {
 		jFrame?.dispose()
 	}
 
 	@Test
-	void testMoveToXY( ) {
+	void testMoveToXY() {
 		beforeTimeRelyingTest()
 
 		Automaton.user.moveTo 50, 50, VERY_FAST
@@ -80,7 +80,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testMoveToPoint( ) {
+	void testMoveToPoint() {
 		beforeTimeRelyingTest()
 
 		Automaton.user.moveTo new Point( 60, 60 ), VERY_FAST
@@ -88,7 +88,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testMoveToPointWhenPointMoves( ) {
+	void testMoveToPointWhenPointMoves() {
 		beforeTimeRelyingTest()
 
 		def target = new Point( 200, 150 )
@@ -103,7 +103,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testMoveToClosure( ) {
+	void testMoveToClosure() {
 		beforeTimeRelyingTest()
 
 		def target = new Point( 200, 150 )
@@ -128,7 +128,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testMoveBy( ) {
+	void testMoveBy() {
 		beforeTimeRelyingTest()
 
 		Automaton.user.moveTo 50, 50, VERY_FAST
@@ -173,7 +173,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testDragBy( ) {
+	void testDragBy() {
 		beforeTimeRelyingTest()
 
 		new SwingBuilder().edt {
@@ -235,7 +235,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testDragFromTo( ) {
+	void testDragFromTo() {
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
 					size: [ 300, 30 ] as Dimension, show: true )
@@ -256,7 +256,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testClick( ) {
+	void testClick() {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JButton btn
 		new SwingBuilder().edt {
@@ -282,7 +282,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testDoubleClick( ) {
+	void testDoubleClick() {
 		def future = new LinkedBlockingDeque( 2 )
 		JButton btn
 		new SwingBuilder().edt {
@@ -305,7 +305,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testRightClick( ) {
+	void testRightClick() {
 		def future = new LinkedBlockingDeque<MouseEvent>( 3 )
 		JTextArea jta
 		new SwingBuilder().edt {
@@ -331,7 +331,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testPause( ) {
+	void testPause() {
 		beforeTimeRelyingTest()
 		def user = Automaton.user
 		def t = runWithTimer {
@@ -341,7 +341,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testType( ) {
+	void testType() {
 		JTextArea jta
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
@@ -363,7 +363,7 @@ class AutomatonTest implements HasSwingCode {
 	}
 
 	@Test
-	void testPressSimultaneously( ) {
+	void testPressSimultaneously() {
 		JTextArea jta
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
@@ -379,6 +379,29 @@ class AutomatonTest implements HasSwingCode {
 		assert jta.text == 'aA'
 	}
 
+	@Test
+	void pressSimulaneouslyShouldTriggerClickEventWhenMnemonic() {
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				menuBar() {
+					menu( name: 'menu-button', text: "File", mnemonic: 'F' ) {
+						menuItem( name: 'item-exit', text: "Exit", mnemonic: 'X',
+								actionPerformed: { jFrame.dispose() } )
+					}
+				}
+			}
+		}
+
+		waitForJFrameToShowUp()
+
+		Automaton.user
+				.pressSimultaneously( VK_ALT, VK_F )
+				.pressSimultaneously( VK_X )
+
+		waitOrTimeout( condition { ( !jFrame.visible ) }, timeout( seconds( 3 ) ) )
+
+	}
+
 	@Override
-	JFrame getJFrame( ) { jFrame }
+	JFrame getJFrame() { jFrame }
 }
