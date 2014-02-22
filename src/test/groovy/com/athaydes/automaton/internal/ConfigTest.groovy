@@ -55,6 +55,38 @@ class ConfigTest {
 		assert config.speed == SLOW
 	}
 
+	@Test
+	void "Provides default InteractiveMode if no config file exists"() {
+		config.resourceLoader = [ getConfigFile: { new File( 'DOES_NOT_EXIST' ) } ] as RealResourceLoader
+		assert !config.interactiveMode
+	}
+
+	@Test
+	void "Provides default InteractiveMode if config file specifies invalid value"() {
+		def tempFile = configFileWith( "automaton.speed=SLOW\nautomaton.interactive=WHAT" )
+
+		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		assert !config.interactiveMode
+	}
+
+	@Test
+	void "Provides InteractiveMode set by config file if valid and true"( ) {
+		def tempFile = configFileWith( "automaton.interactive = true" )
+
+		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+
+		assert config.interactiveMode
+	}
+
+	@Test
+	void "Provides InteractiveMode set by config file if valid and false"( ) {
+		def tempFile = configFileWith( "automaton.interactive = false" )
+
+		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+
+		assert !config.interactiveMode
+	}
+
 	private File configFileWith( String text ) {
 		def tempFile = File.createTempFile( 'temp-config', '.properties' )
 		tempFile.write( text )

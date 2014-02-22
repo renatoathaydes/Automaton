@@ -47,6 +47,12 @@ class Config {
 		} as Speed
 	}
 
+	boolean isInteractiveMode() {
+		getPropertyValue( 'automaton.interactive', false ) { String configValue ->
+			if ( configValue && configValue.toLowerCase() == 'true' ) configValue
+		} as boolean
+	}
+
 	private getPropertyValue( String key, defaultValue, Closure getValidated ) {
 		try {
 			def propValue = getValidated( props.getProperty( key ) )
