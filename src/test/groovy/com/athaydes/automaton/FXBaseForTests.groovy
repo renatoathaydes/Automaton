@@ -10,7 +10,11 @@ import javafx.event.EventHandler
 import javafx.geometry.Insets
 import javafx.scene.Node
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
+import javafx.scene.control.ComboBox
+import javafx.scene.control.Label
+import javafx.scene.control.TextArea
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -19,11 +23,11 @@ import javafx.scene.paint.Color
 import javafx.scene.shape.Rectangle
 import javafx.stage.Stage
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 import javax.swing.*
-import java.awt.*
+import java.awt.Point
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
@@ -385,10 +389,40 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	}
 
 	@Test
-	@Ignore( "Will fail because of JavaFX buggy ComboBox, also related to problem with com.athaydes.automaton.FXAutomaton.getScenePosition" )
-	void comboBoxItemCanBePicked_ByText() {
-		comboBoxItemCanBePicked { ComboBox box ->
-			withDriver().clickOn( box ).pause( 1000 ).clickOn( 'text:ola' )
+	void popupNodeCanBeFound_ByText() {
+		def sceneReady = new CountDownLatch( 1 )
+		def popupButtonPressed = new CountDownLatch( 1 )
+
+		def dialog = null
+		final b1 = new Button( id: 'b1', text: 'Click me' )
+		final b2 = new Button( id: 'b2', text: 'PopupButton' )
+		b2.onAction = { event -> popupButtonPressed.countDown() } as EventHandler
+
+		Platform.runLater {
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.add b1
+
+			FXApp.scene.root = hbox
+			dialog = new Stage()
+			dialog.initOwner( null )
+			final dialogVbox = new VBox( 20 )
+			dialogVbox.children << b2
+
+			Scene dialogScene = new Scene( dialogVbox, 200, 150 )
+			dialog.scene = dialogScene
+			b1.onAction = { event -> dialog.show() } as EventHandler
+			sceneReady.countDown()
+		}
+
+		try {
+			assert sceneReady.await( 4, TimeUnit.SECONDS )
+			sleep 250
+
+			withDriver().clickOn( b1 ).pause( 1500 ).clickOn( '#b2' )
+
+			assert popupButtonPressed.await( 2, TimeUnit.SECONDS )
+		} finally {
+			FXApp.doInFXThreadBlocking { dialog.close() }
 		}
 	}
 
