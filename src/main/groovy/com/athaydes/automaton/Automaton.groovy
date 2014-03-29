@@ -1,5 +1,7 @@
 package com.athaydes.automaton
 
+import com.athaydes.automaton.cli.AutomatonDemo
+import com.athaydes.automaton.cli.AutomatonScriptRunner
 import com.athaydes.internal.Config
 import com.athaydes.internal.Interaction
 import com.athaydes.internal.Mouse
@@ -89,17 +91,17 @@ class Automaton<T extends Automaton> {
 		new DragOn( this, x, y )
 	}
 
-	T click( ) {
+	T click() {
 		interaction.await "Click"
 		doClick Mouse.LEFT
 	}
 
-	T rightClick( ) {
+	T rightClick() {
 		interaction.await "Right-click"
 		doClick Mouse.RIGHT
 	}
 
-	T doubleClick( ) {
+	T doubleClick() {
 		interaction.await "Double-click"
 		doClick( Mouse.LEFT ).pause( 50 ).doClick( Mouse.LEFT )
 	}
@@ -121,7 +123,7 @@ class Automaton<T extends Automaton> {
 	}
 
 	T pressSimultaneously( int ... keyCodes ) {
-		def keysText = keyCodes.collect{ KeyEvent.getKeyText( it ) }
+		def keysText = keyCodes.collect { KeyEvent.getKeyText( it ) }
 		interaction.await "Press simultaneously $keysText"
 		try {
 			keyCodes.each { robot.keyPress it }
@@ -129,7 +131,8 @@ class Automaton<T extends Automaton> {
 			robot.delay 50
 			try {
 				keyCodes.each { robot.keyRelease it }
-			} catch ( ignored ) {}
+			} catch ( ignored ) {
+			}
 		}
 		this as T
 	}
@@ -152,6 +155,35 @@ class Automaton<T extends Automaton> {
 		} finally {
 			if ( shift ) robot.keyRelease KeyEvent.VK_SHIFT
 		}
+	}
+
+	private static final void usage() {
+		println '''Automaton usage:
+		| - You must provide one of the following options to run Automaton:
+		|    -demo - Shows a demo of Automaton with a built-in UI and a simple Automaton script
+		|    -script <file> - runs your Automaton script'''.stripMargin()
+	}
+
+	static void main( String[] args ) {
+		if ( !args ) {
+			usage()
+			return
+		}
+		switch ( args[ 0 ] ) {
+			case '-demo': demo( args.size() > 1 ? args[ 1 ] : null )
+				break
+			case '-script': if ( args.size() > 1 ) runScript( args[ 1 ] ) else usage()
+				break
+			default: usage()
+		}
+	}
+
+	static void runScript( String fileName ) {
+		AutomatonScriptRunner.instance.runScript( fileName )
+	}
+
+	static void demo( String option ) {
+		AutomatonDemo.instance.runDemo( option )
 	}
 
 }

@@ -212,9 +212,13 @@ class SwingUtil {
 		Point getLocationOnScreen() {
 			def parentLocation = parentLocationOnScreen()
 			def bounds = getItemBounds()
-			new Point(
-					( bounds.location.x + parentLocation.x ) as int,
-					( bounds.location.y + parentLocation.y ) as int )
+			try {
+				new Point(
+						( bounds.location.x + parentLocation.x ) as int,
+						( bounds.location.y + parentLocation.y ) as int )
+			} catch ( e ) {
+				throw new GuiItemNotFound( "Component likely not visible on screen: $realObject", e )
+			}
 		}
 
 		int getWidth() { getItemBounds().width.intValue() }

@@ -9,4 +9,8 @@ class GuiItemNotFound extends RuntimeException {
 		super( message )
 	}
 
+	GuiItemNotFound( String message, Throwable cause ) {
+		super( message, cause )
+	}
+
 }
