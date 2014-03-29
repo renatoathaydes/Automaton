@@ -29,6 +29,7 @@ import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
 abstract class SwingBaseForTests implements HasSwingCode {
 
 	JFrame jFrame
+	final Point defaultLocation = [ 250, 50 ] as Point
 
 	@After
 	void cleanup() {
@@ -38,7 +39,8 @@ abstract class SwingBaseForTests implements HasSwingCode {
 	void testMoveTo( Closure doMove ) {
 		JButton btn = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: defaultLocation, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button' )
 			}
 		}
@@ -63,7 +65,8 @@ abstract class SwingBaseForTests implements HasSwingCode {
 		JMenuItem itemExit = null
 
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension,
+					location: defaultLocation, show: true ) {
 				menuBar() {
 					mainMenu = menu( name: 'menu-button', text: "File", mnemonic: 'F' ) {
 						itemExit = menuItem( name: 'item-exit', text: "Exit", mnemonic: 'X',
@@ -85,7 +88,8 @@ abstract class SwingBaseForTests implements HasSwingCode {
 		def future = new LinkedBlockingDeque<MouseEvent>( 2 )
 		JButton btn = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 50, 100 ] as Dimension, show: true ) {
+			jFrame = frame( title: 'Frame', size: [ 50, 100 ] as Dimension,
+					location: defaultLocation, show: true ) {
 				btn = button( text: 'Click Me', name: 'the-button',
 						mouseClicked: { MouseEvent e -> future.add e } )
 			}
@@ -106,7 +110,7 @@ abstract class SwingBaseForTests implements HasSwingCode {
 		def e1 = null
 		def e2 = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
+			jFrame = frame( title: 'Frame', location: defaultLocation,
 					size: [ 190, 200 ] as Dimension, show: true ) {
 				panel( layout: null ) {
 					e1 = editorPane( location: [ 20, 50 ] as Point,
@@ -199,7 +203,8 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testGetAt_Selector() {
 		def btn = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
+			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension,
+					location: defaultLocation, show: false ) {
 				btn = button( text: 'Click Me' )
 			}
 		}
@@ -212,7 +217,8 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	void testGetAt_Class() {
 		def btn = null
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension, show: false ) {
+			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension,
+					location: defaultLocation, show: false ) {
 				btn = button( text: 'Click Me' )
 			}
 		}
@@ -241,7 +247,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		JTree mTree = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 200, 200 ] as Dimension,
-					location: [ 150, 50 ] as Point, show: true ) {
+					location: defaultLocation, show: true ) {
 				splitPane( name: 'pane1' ) {
 					splitPane( orientation: JSplitPane.VERTICAL_SPLIT, dividerLocation: 50 ) {
 						button( text: 'Click Me', name: 'the-button' )
@@ -271,7 +277,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		JTable jTable = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
-					location: [ 150, 50 ] as Point, show: true ) {
+					location: defaultLocation, show: true ) {
 				scrollPane {
 					jTable = table {
 						tableModel( list: tModel ) {
@@ -313,7 +319,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		JTable jTable = null
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
-					location: [ 150, 50 ] as Point, show: true ) {
+					location: defaultLocation, show: true ) {
 				vbox {
 					label( text: 'There is a table below me' )
 					scrollPane {
@@ -342,7 +348,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		def clicksList = [ ]
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
-					location: [ 150, 50 ] as Point, show: true ) {
+					location: defaultLocation, show: true ) {
 				label( text: 'This is the main JFrame' )
 
 				dialog( title: 'JDialog Title', size: [ 200, 150 ] as Dimension,
