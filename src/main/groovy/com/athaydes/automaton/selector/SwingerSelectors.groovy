@@ -64,8 +64,7 @@ class SwingerSelectors {
 		new SimpleSwingerSelector() {
 			@Override
 			boolean matches( String selector, Component component ) {
-				final isQualified = selector.contains( '.' )
-				component.class."${isQualified ? 'name' : 'simpleName'}" == selector
+				SelectorHelper.instance.doesClassMatch( component.class, selector )
 			}
 
 			@Override

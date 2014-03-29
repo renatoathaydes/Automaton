@@ -104,7 +104,7 @@ class Automaton<T extends Automaton> {
 		doClick( Mouse.LEFT ).pause( 50 ).doClick( Mouse.LEFT )
 	}
 
-	private T doClick( button ) {
+	protected T doClick( button ) {
 		robot.mousePress button
 		robot.mouseRelease button
 		this as T

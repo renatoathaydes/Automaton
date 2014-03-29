@@ -10,6 +10,12 @@ class FxSelectors {
 
 	static AutomatonSelector<Node> byText() { TextFxSelector.instance }
 
+	static AutomatonSelector<Node> byId() { IdFxSelector.instance }
+
+	static AutomatonSelector<Node> byStyleClass() { StyleClassFxSelector.instance }
+
+	static AutomatonSelector<Node> byType() { TypeFxSelector.instance }
+
 }
 
 @Singleton
@@ -19,6 +25,46 @@ class TextFxSelector extends SimpleFxSelector {
 	boolean matches( String selector, Node node ) {
 		def text = SwingUtil.callMethodIfExists( node, 'getText' )
 		text != null && text == selector
+	}
+
+	@Override
+	boolean followPopups() { true }
+
+}
+
+@Singleton
+class IdFxSelector extends SimpleFxSelector {
+
+	@Override
+	boolean matches( String selector, Node node ) {
+		node.id ? node.id == selector : false
+	}
+
+	@Override
+	boolean followPopups() { true }
+
+}
+
+@Singleton
+class StyleClassFxSelector extends SimpleFxSelector {
+
+	@Override
+	boolean matches( String selector, Node node ) {
+		selector in node.styleClass
+	}
+
+	@Override
+	boolean followPopups() { true }
+
+}
+
+
+@Singleton
+class TypeFxSelector extends SimpleFxSelector {
+
+	@Override
+	boolean matches( String selector, Node node ) {
+		SelectorHelper.instance.doesClassMatch( node.class, selector )
 	}
 
 	@Override

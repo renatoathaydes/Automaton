@@ -82,7 +82,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 		def absX = windowPos.x + scenePos.x + boundsInScene.minX
 		def absY = windowPos.y + scenePos.y + boundsInScene.minY
 		[ ( absX + boundsInScene.width / 2 ).intValue(),
-				( absY + boundsInScene.height / 2 ).intValue() ] as Point
+		  ( absY + boundsInScene.height / 2 ).intValue() ] as Point
 	}
 
 	static Point getWindowPosition( Node node ) {
@@ -168,9 +168,9 @@ class FXer extends HasSelectors<Node, FXer> {
 
 	static final Map<String, AutomatonSelector<Node>> DEFAULT_SELECTORS =
 			[
-					'#': JavaFXSelector.instance,
-					'.': JavaFXSelector.instance,
-					'type:': JavaFXSelector.instance,
+					'#'    : FxSelectors.byId(),
+					'.'    : FxSelectors.byStyleClass(),
+					'type:': FxSelectors.byType(),
 					'text:': FxSelectors.byText()
 			].asImmutable()
 

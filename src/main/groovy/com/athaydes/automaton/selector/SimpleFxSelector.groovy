@@ -1,7 +1,6 @@
 package com.athaydes.automaton.selector
 
 import javafx.scene.Node
-import javafx.stage.PopupWindow
 import javafx.stage.Window
 
 import static com.athaydes.automaton.SwingUtil.callMethodIfExists
@@ -20,7 +19,7 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 
 	@Override
 	List<Node> call( Object... args ) {
-		apply( * toExpectedTypes( args ) )
+		apply( *toExpectedTypes( args ) )
 	}
 
 	protected static toExpectedTypes( Object... args ) {
@@ -50,15 +49,9 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 		return false
 	}
 
-	private List<PopupWindow> getAllPopups() {
-		def res = [ ]
+	private List<Window> getAllPopups() {
 		def windows = Window.impl_getWindows()
-
-		while ( windows.hasNext() ) {
-			Window window = windows.next();
-			if ( window instanceof PopupWindow ) res << window
-		}
-		return res
+		windows.toList()
 	}
 
 	private subItemsOf( node ) {
