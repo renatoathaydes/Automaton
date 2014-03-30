@@ -32,6 +32,7 @@ class AutomatonDemo {
 	void swingDemo() {
 		JTree theTree
 		JLabel statusLabel
+		JTextArea outputLabel
 		JButton runButton
 
 		new SwingBuilder().edt {
@@ -57,18 +58,23 @@ class AutomatonDemo {
 							def scriptPane = null
 							label( name: 'script-label', text: 'Enter an Automaton script:',
 									toolTipText: 'My name is script-label' )
-							scrollPane( name: 'pane1-2a', constraints: "top" ) {
+							scrollPane( name: 'pane1-2a', constraints: "top", minimumSize: [ -1, 200 ] as Dimension ) {
 								scriptPane = textPane( name: 'text-area', editable: true, text: initialScript(),
-										toolTipText: 'My name is text-area', font: new Font( 'monospaced', Font.PLAIN, 12 ) )
+										toolTipText: 'My name is text-area',
+										font: new Font( 'monospaced', Font.PLAIN, 12 ) )
 							}
 							runButton = button( name: 'run-button', text: 'Run Automaton script',
 									toolTipText: 'My name is run-button',
 									actionPerformed: {
 										runButton.setEnabled( false )
-										runScript( scriptPane.text ) {
+										runScript( scriptPane.text, outputLabel ) {
 											runButton.setEnabled( true )
 										}
 									} )
+							scrollPane {
+								outputLabel = textArea( name: 'output-label', editable: false,
+										toolTipText: 'My name is output-label' )
+							}
 						}
 
 					}
@@ -97,9 +103,10 @@ class AutomatonDemo {
 		}
 	}
 
-	void runScript( String text, Closure onCompletion ) {
+	void runScript( String text, def output, Closure onCompletion ) {
+		def writer = [ write: { s -> output.text += s } ]
 		Thread.start {
-			AutomatonScriptRunner.instance.runScript( text )
+			AutomatonScriptRunner.instance.runScript( text, writer )
 			onCompletion.run()
 		}
 	}
