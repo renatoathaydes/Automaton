@@ -53,6 +53,7 @@ task uberjar( type: Jar, dependsOn: [ ':compileJava', ':compileGroovy' ] ) {
 				"Implementation-Title": "Automaton",
 				"Implementation-Version": version,
 				"Main-Class": 'com.athaydes.automaton.Automaton',
-				"Built-On": new java.util.Date() )
+				"Built-On": new java.util.Date(),
+				"Premain-Class": 'com.athaydes.automaton.cli.AutomatonJavaAgent' )
 	}
 }
