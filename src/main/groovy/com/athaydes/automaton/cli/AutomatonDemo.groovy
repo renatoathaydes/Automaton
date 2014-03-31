@@ -32,7 +32,7 @@ class AutomatonDemo {
 	void swingDemo() {
 		JTree theTree
 		JLabel statusLabel
-		JTextArea outputLabel
+		JTextArea outputTextArea
 		JButton runButton
 
 		new SwingBuilder().edt {
@@ -55,7 +55,7 @@ class AutomatonDemo {
 								font: new Font( 'arial', Font.ITALIC | Font.BOLD, 14 ),
 								toolTipText: 'My name is status-label' )
 						vbox() {
-							def scriptPane = null
+							JTextPane scriptPane = null
 							label( name: 'script-label', text: 'Enter an Automaton script:',
 									toolTipText: 'My name is script-label' )
 							scrollPane( name: 'pane1-2a', constraints: "top", minimumSize: [ -1, 200 ] as Dimension ) {
@@ -63,16 +63,23 @@ class AutomatonDemo {
 										toolTipText: 'My name is text-area',
 										font: new Font( 'monospaced', Font.PLAIN, 12 ) )
 							}
-							runButton = button( name: 'run-button', text: 'Run Automaton script',
-									toolTipText: 'My name is run-button',
-									actionPerformed: {
-										runButton.setEnabled( false )
-										runScript( scriptPane.text, outputLabel ) {
-											runButton.setEnabled( true )
-										}
-									} )
+							hbox {
+								runButton = button( name: 'run-button', text: 'Run Automaton script',
+										toolTipText: 'My name is run-button',
+										actionPerformed: {
+											runButton.setEnabled( false )
+											runScript( scriptPane.text, outputTextArea ) {
+												runButton.setEnabled( true )
+											}
+										} )
+								button( name: 'clear-output', text: 'Clear output',
+										toolTipText: 'My name is clear-output',
+										actionPerformed: {
+											outputTextArea.text = ''
+										} )
+							}
 							scrollPane {
-								outputLabel = textArea( name: 'output-label', editable: false,
+								outputTextArea = textArea( name: 'output-label', editable: false,
 										toolTipText: 'My name is output-label' )
 							}
 						}
@@ -103,8 +110,8 @@ class AutomatonDemo {
 		}
 	}
 
-	void runScript( String text, def output, Closure onCompletion ) {
-		def writer = [ write: { s -> output.text += s } ]
+	void runScript( String text, JTextArea output, Closure onCompletion ) {
+		def writer = [ write: { s -> output.append( s as String ) } ]
 		Thread.start {
 			AutomatonScriptRunner.instance.runScript( text, writer )
 			onCompletion.run()

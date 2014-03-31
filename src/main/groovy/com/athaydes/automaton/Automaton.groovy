@@ -166,8 +166,7 @@ class Automaton<T extends Automaton> {
 
 	static void main( String[] args ) {
 		if ( !args ) {
-			usage()
-			return
+			args = [ '-demo' ]
 		}
 		switch ( args[ 0 ] ) {
 			case '-demo': demo( args.size() > 1 ? args[ 1 ] : null )
