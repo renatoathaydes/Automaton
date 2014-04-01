@@ -5,300 +5,88 @@
 
 Automaton is a framework which makes it easy to test Java GUIs developed with Swing, JavaFX 2, or both.
 
-It is written in Groovy but the examples shown in this page are in Java (because most users are expected
-to be using Java).
+If you need to thoroughly test a Swing/JavaFX UI or simply automate a UI task, Automaton can help you.
 
-## Requirements
+You can choose how you use Automaton:
 
-To use *Automaton*, you need to clone it from Git and build it with [Gradle](http://www.gradle.org) (or your compilation tool of choice)
-in your local machine.
-When you build, make sure to either skip the tests or prepare to leave your machine under Automaton's control for a couple of minutes
-as it runs all the tests (100% test coverage is a goal in this project, so there's a lot of tests).
+  * write simple, easy-to-read Groovy scripts such as this one ([more information](docs/running-scripts.md)):
 
-If I get a request, I can just email you the jar or even try to get it on the Maven Central.
-
-Please let me know if you would have interest! My email is renato@athaydes.com
-
-To see this project dependencies, check the build.gradle file in the root folder.
-
-# Getting Started
-
-## Swing Applications
-
-Starting:
-```java
-// your code to start up an app
-myApp.start();
-
-// get a Swing-driver, or Swinger
-Swinger swinger = Swinger.forSwingWindow();
+```groovy
+clickOn 'text:Some Button'
+doubleClickOn 'username-input'
+type 'my-username'
+clickOn 'text:Login'
 ```
 
-Emulating user's actions in the GUI:
+  * use your favourite Java/Groovy testing framework, such as JUnit:
+
 ```java
-swinger.clickOn( "text-input-1" )
+@Before
+public void setup() {
+  // your code to start up an app
+  myApp.start();
+
+  // get a Swing-driver, or Swinger
+  swinger = Swinger.forSwingWindow();
+}
+
+@Test
+public void testFeature() {
+  swinger.clickOn( "text-input-1" )
        .type( "Hello Automaton!" )
        .drag( "text:Drag this item" )
        .onto( matchingAll( "type:DropBoxImpl", "text:Drop here!" ) );
 
-// get the tree nodes for the given tree path and open them
-JTree myTree = swinger.getAt( JTree.class );
-List<Component> nodesToOpen = SwingUtil.collectNodes( myTree,
-                 "Project 1", "Test Suite A", "Test Case 1" );
-swinger.doubleClickOn( nodesToOpen ); // open the Tree Nodes
-```
-
-Built-in Swing selectors:
-
-  * `name:` select by name (the default, so no prefix is required).
-    * Example: `swinger.clickOn( "name:my-component" );`
-  * `text:` select by text (works for anything that has a label, `JTable`'s cells and `JTree`'s nodes.
-    * Example: `swinger.clickOn( "text:My Component" );`
-  * `type:` select by type. Use the class's simple or qualified name.
-    * Example: `swinger.clickOn( "type:JButton" );`
-
-You can also select a Component by type, type-safely, as follows:
-
-```java
-JButton button = fxer.getAt( JButton.class );
-// or to get the second button (index starts from 0)
-JButton button = fxer.getAll( JButton.class ).get( 1 );
-```
-
-Building complex selectors:
-
-```java
-import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
-
-swinger.clickOn( matchingAll( "type:MyDraggable", "text:Drag this item" ) );
-```
-
-Making assertions with `Automaton`'s Hamcrest matchers (using simple JUnit assertions):
-```java
-import static org.junit.Assert.assertThat;
-import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
-import static com.athaydes.automaton.assertion.AutomatonMatcher.visible;
-
-assertThat( swinger.getAt( "text-input-1" ), hasText( "Hello Automaton!" ) );
-
-for ( Component node : nodesToOpen ) {
-    assertThat( node, is( visible() ) );
+  assertThat( swinger.getAt( "some-label" ), hasText( "One element is here" ) );
 }
 ```
 
-Creating your own selectors:
+For details on how to use Automaton, see the [documentation pages](docs/).
 
-```java
-new SimpleSwingerSelector() {
-    @Override
-    public boolean matches( String selector, Component component ) {
-        // return true if the given component matches the selector
-        return false;
-    }
-};
+## Installing Automaton
+
+Download the latest zip file from the [releases](releases/) directory.
+
+The zip contains the Automaton jar which you need to add to your application classpath.
+
+## Building from source
+
+You can build Automaton from source by cloning this repository and then using [Gradle](http://www.gradle.org) to build it.
+
+Once you have Gradle installed, simply type
+
 ```
-See the [Swing Advanced Usage](docs/swing-advanced.md) page for details.
-
-### Comparison with FEST-Swing
-Here's a code snippet copied from the FEST-Swing main page:
-```java
-dialog.comboBox("domain").select("Users");
-dialog.textBox("username").enterText("alex.ruiz");
-dialog.button("ok").click();
-dialog.optionPane().requireErrorMessage()
-                   .requireMessage("Please enter your password");
-```
-And here's how you would achieve the same thing with Automaton:
-```java
-swinger.clickOn( "domain" )
-       .clickOn( "text:Users" )
-       .clickOn( "username" )
-       .type( "automaton" )
-       .clickOn( "ok" ).pause( 250 );
-
-assertThat( swinger.getAt( "message-area" ), hasText( "Please enter your password" ) );
+gradle uberjar
 ```
 
-With Automaton, when you write a test, you describe the actions a user would have taken within your application using a fluent API which reads as close to English as possible.
+This will create a "fat" jar which includes all Automaton's dependencies and hence can be run independently.
 
-This is why it's so easy to write tests with Automaton!
+To create a simple jar (you'll have to provide Automaton's runtime dependencies in your class path (see the [build.gradle](build.gradle) file),
+type
 
-With Fest, this is not the case. The code does not read anything like how a person would describe the actions the tester wants to have tested.
-
-Sometimes, you just don't care about what type of control is used to implement the interface, so Automaton lets you decide whether or not you want to specify that. Omitting this information makes your tests more resilient to implementation changes (if perhaps less robust if you don't use unique names or are not careful restricting the search space during tests - see the [Swing Advanced Usage](docs/swing-advanced.md) page for details).
-
-### More Swing information
-
-For `Swinger` quick-reference, go to the [Swinger cheat-sheet](docs/swing-cheat-sheet.md).
-
-The Automaton can be easily extended with the use of custom selectors. See the [Swing Advanced Usage](docs/swing-advanced.md) page for details.
-
-
-## JavaFX applications
-
-Starting:
-
-You can simply let the `Automaton` start your app:
-
-```java
-FXApp.startApp( new MyApp() );
-FXer fxer = FXer.getUserWith( FXApp.getScene().getRoot() );
+```
+gradle jar
 ```
 
-Or you can launch it using your own launcher, then create a FXer istance from any node at any time:
+To also install the jar in your Maven local repository, type
 
-```java
-FXer fxer = FXer.getUserWith( node );
+```
+gradle install
 ```
 
-To just test a Node and its internals (eg. your custom components unit test), you can do this:
+You can email me directly if you have any issue: renato@athaydes.com
 
-```java
-final Stage stage = FXApp.initialize();
-final CustomNode customNode = new CustomNode();
-FXApp.doInFXThreadBlocking( new Runnable() {
-  public void run() {
-    stage.getScene().setRoot( customNode );
-  }
-} );
-FXer fxer = FXer.getUserWith( customNode );
+## Running the Automaton demo
+
+Automaton comes with a demo application which you can use to learn how to write Automaton scripts.
+
+To run the demo, run the following command (using the actual name of your Automaton jar):
+
+```
+java -jar Automaton-1.x-all-deps.jar
 ```
 
-Emulating user's actions in the GUI:
-```java
-fxer.clickOn( TextField.class )
-    .type( "Automaton" )
-    .clickOn( "#login-button" ).waitForFxEvents();
-```
-
-Built-in JavaFX selectors:
-
-  * `#` select by ID (the default, so no prefix is required).
-    * Example: `fxer.clickOn( "#my-node" );`
-  * `.` select by css class.
-    * Example: `fxer.clickOn( ".invalid" );`
-  * `text:` select by text (works for anything that has a label).
-    * Example: `fxer.clickOn( "text:My Node" );`
-
-You can also select a Node by type, type-safely, as follows:
-
-```java
-VBox vbox = fxer.getAt( VBox.class );
-// or to get the second VBox (index starts from 0)
-VBox vbox = fxer.getAll( VBox.class ).get( 1 );
-```
-
-Building complex selectors:
-
-```java
-import static com.athaydes.automaton.selector.StringSelectors.matchingAll;
-
-swinger.clickOn( matchingAll( "type:MyDraggable", "text:Drag this item" ) );
-```
-
-Making assertions with `Automaton`'s Hamcrest matchers:
-
-```java
-assertThat( fxer.getAt( "#message-area" ), hasText( "Please enter your password" ) );
-```
-
-Creating your own selectors (the example below adds a selector which can find nodes
-whose style String contains a certain sub-string):
-
-```java
-Map<String, AutomatonSelector<Node>> customSelectors = new HashMap<>();
-
-customSelectors.put( "$", new SimpleFxSelector() {
-  @Override
-  public boolean followPopups() {
-    return false;
-  }
-
-  @Override
-  public boolean matches( String selector, Node node ) {
-    return node.getStyle().contains( selector );
-  }
-} );
-customSelectors.putAll( FXer.getDEFAULT_SELECTORS() );
-
-fxer.setSelectors( customSelectors );
-
-Node blueNode = fxer.getAt( "$blue" );
-```
-
-
-## Mixed Swing/JavaFX applications
-
-If you have a big Swing application but want to still enjoy the capabilities of JavaFX (beautiful widgets,
-free effects, the web-view and many others), I hope you know [you can embed JavaFX into Swing quite easily!](http://docs.oracle.com/javafx/2/swing/swing-fx-interoperability.htm#CHDIEEJE).
-
-You can check the [mixed Swing/JavaFX sample interface](https://github.com/renatoathaydes/Automaton/blob/master/src/test/groovy/com/athaydes/automaton/samples/SwingJavaFXSampleAppTest.groovy)
-I've created myself for testing the *Automaton*, written in Groovy.
-
-But you're probably interested in knowing how you'll be able to test such a mixed application!
-Easily, with the `SwingerFXer` *Automaton* driver:
-
-```java
-String swingTextAreaText = "Hello, I am Swing...";
-String fxInputText = "Hello, JavaFX...";
-
-SwingerFxer swfx = SwingerFxer.getUserWith( swingFrame, fxNode );
-
-swfx.doubleClickOn( "text:colors" )
-    .clickOn( "text-area" )
-    .type( swingTextAreaText )
-    .clickOn( "#left-color-picker" ).waitForFxEvents()
-    .moveBy( 60, 40 ).click().waitForFxEvents()
-    .clickOn( "#fx-input" )
-    .type( fxInputText );
-```
-
-Assertions work for both Swing and JavaFX seamlessly.
-
-```java
-assertThat( swfx.getAt( "text-area" ), hasText( swingTextAreaText ) );
-assertThat( swfx.getAt( "#fx-input" ), hasText( fxInputText ) );
-assertThat( swfx.getAt( "#left-color-picker" ), hasValue( swingJavaFx.getTextLeftColor() ) );
-```
-
-The above is a based on the [SwingJavaFXSampleAppTestInJava](https://github.com/renatoathaydes/Automaton/blob/master/src/test/java/com/athaydes/automaton/samples/SwingJavaFXSampleAppTestInJava.java) sample class in this project.
-
-Notice the the `SwingerFxer` is a composite of `Swinger` and `FXer` and therefore contains all their methods.
-String selectors work like this:
-
-* if the selector can be inferred to be specific to JavaFX or Swing (eg. you use a sub-class of `Node` as a selector,
-  which must be a JavaFX type), then `Automaton` will look only into the hierarchy of the appropriate framework.
-* otherwise, the `Automaton` will look into the JavaFX application hierarchy first.
-* if not found in JavaFX, `Automaton` searches the Swing components.
-
-If you want to ensure `Automaton` only looks in either JavaFX or Swing, you can do it like this:
-
-```java
-// use the Swinger directly
-swfx.getSwinger().getAt( "swing-component" );
-
-// use the FXer directly
-swfx.getFxer().getAt( "#javafx-node" );
-```
-
-Complex selectors work seamlessly between JavaFX and Swing.
-
-## Platform-independent tests
-
-You can test or automate anything that a user can interact with in a computer using *Automaton*.
-This is the simplest possible usage, but also the most limited:
-
-```java
-Automaton.getUser().moveTo( 0, 0 ).moveBy( 50, 100 ).click()
-         .moveBy( 30, 0 ).rightClick().moveBy( 30, 50 )
-         .click().dragBy( 50, 100, Speed.SLOW )
-         .pause( 1000 ).type( "Automaton" ).type( KeyEvent.VK_ENTER );
-```
-
-All other drivers sub-class the Automaton, so they will all inherit its methods.
-
-
-# Providing custom Configuration
+## Providing custom Configuration
 
 The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
 
