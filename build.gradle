@@ -7,7 +7,7 @@ apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapsho
 defaultTasks 'clean', 'jar', 'test'
 
 group = 'com.athaydes'
-version = "0.1-SNAPSHOT"
+version = "1.0.0"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
 def groovyVersion = '2.1.5'
