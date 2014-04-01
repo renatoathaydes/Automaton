@@ -10,7 +10,7 @@ group = 'com.athaydes'
 version = "0.1-SNAPSHOT"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
-groovyVersion = '2.1.5'
+def groovyVersion = '2.1.5'
 
 repositories {
 	mavenLocal()
@@ -41,7 +41,23 @@ test {
 
 jfxJar.enabled = false
 
+def manifestAttributes = [
+		"Implementation-Title"  : "Automaton",
+		"Implementation-Version": version,
+		"Description"           : description,
+		"Main-Class"            : 'com.athaydes.automaton.Automaton',
+		"Built-On"              : new java.util.Date(),
+		"Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
+]
+
+jar {
+	manifest {
+		attributes( manifestAttributes )
+	}
+}
+
 task uberjar( type: Jar, dependsOn: [ ':compileJava', ':compileGroovy' ] ) {
+	classifier = 'all-deps'
 	from files( sourceSets.main.output.classesDir )
 	from files( sourceSets.main.output.resourcesDir )
 	from configurations.runtime.asFileTree.files
@@ -49,11 +65,6 @@ task uberjar( type: Jar, dependsOn: [ ':compileJava', ':compileGroovy' ] ) {
 			.collect { zipTree( it ) }
 
 	manifest {
-		attributes(
-				"Implementation-Title": "Automaton",
-				"Implementation-Version": version,
-				"Main-Class": 'com.athaydes.automaton.Automaton',
-				"Built-On": new java.util.Date(),
-				"Premain-Class": 'com.athaydes.automaton.cli.AutomatonJavaAgent' )
+		attributes( manifestAttributes )
 	}
 }
