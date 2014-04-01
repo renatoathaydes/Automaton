@@ -74,7 +74,7 @@ new SimpleSwingerSelector() {
     }
 };
 ```
-See the [Swing Advanced Usage](docs/swing-advanced.md) page for details.
+See the [Swing Advanced Usage](swing-advanced.md) page for details.
 
 ### Comparison with FEST-Swing
 Here's a code snippet copied from the FEST-Swing main page:
@@ -102,11 +102,11 @@ This is why it's so easy to write tests with Automaton!
 
 With Fest, this is not the case. The code does not read anything like how a person would describe the actions the tester wants to have tested.
 
-Sometimes, you just don't care about what type of control is used to implement the interface, so Automaton lets you decide whether or not you want to specify that. Omitting this information makes your tests more resilient to implementation changes (if perhaps less robust if you don't use unique names or are not careful restricting the search space during tests - see the [Swing Advanced Usage](docs/swing-advanced.md) page for details).
+Sometimes, you just don't care about what type of control is used to implement the interface, so Automaton lets you decide whether or not you want to specify that. Omitting this information makes your tests more resilient to implementation changes (if perhaps less robust if you don't use unique names or are not careful restricting the search space during tests - see the [Swing Advanced Usage](swing-advanced.md) page for details).
 
 ### More Swing information
 
-For `Swinger` quick-reference, go to the [Swinger cheat-sheet](docs/swing-cheat-sheet.md).
+For `Swinger` quick-reference, go to the [Swinger cheat-sheet](swing-cheat-sheet.md).
 
-The Automaton can be easily extended with the use of custom selectors. See the [Swing Advanced Usage](docs/swing-advanced.md) page for details.
+The Automaton can be easily extended with the use of custom selectors. See the [Swing Advanced Usage](swing-advanced.md) page for details.
 
