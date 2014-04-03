@@ -86,7 +86,7 @@ To run the demo, run the following command (using the actual name of your Automa
 java -jar Automaton-1.x-all-deps.jar
 ```
 
-[[docs/images/automaton-1.0-demo.png]]
+![Automaton-Swing Demo App](docs/images/automaton-1.0-demo.png)
 
 ## Providing custom Configuration
 
