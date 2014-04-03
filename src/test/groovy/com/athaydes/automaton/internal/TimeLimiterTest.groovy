@@ -17,15 +17,15 @@ class TimeLimiterTest {
 	def timeLimiter = new TimeLimiter()
 
 	@Test( timeout = 2000L )
-	void completesImmediatelyIfTaskEndsQuickly( ) {
+	void completesImmediatelyIfTaskEndsQuickly() {
 		def startT = System.currentTimeMillis()
 		def result = timeLimiter.abortAfter( { true }, 5, TimeUnit.SECONDS )
 		assert System.currentTimeMillis() < startT + 1000
-		assert result
+		assert result == true
 	}
 
 	@Test( timeout = 2000L )
-	void abortsWithinTimeoutIfTaskTakesTooLong( ) {
+	void abortsWithinTimeoutIfTaskTakesTooLong() {
 		def startT = System.currentTimeMillis()
 		shouldFail( TimeoutException, {
 			timeLimiter.abortAfter( { sleep 5000 }, 500, TimeUnit.MILLISECONDS )
@@ -34,16 +34,16 @@ class TimeLimiterTest {
 	}
 
 	@Test( timeout = 2000L )
-	void abortsWithinTimeoutIfTaskGoesIntoInfiniteLoop( ) {
+	void abortsWithinTimeoutIfTaskGoesIntoInfiniteLoop() {
 		def startT = System.currentTimeMillis()
 		shouldFail( TimeoutException, {
-			timeLimiter.abortAfter( { while ( true ); }, 100, TimeUnit.MILLISECONDS )
+			timeLimiter.abortAfter( { 9000.times { sleep 10 } }, 100, TimeUnit.MILLISECONDS )
 		} )
 		assert System.currentTimeMillis() < startT + 1000
 	}
 
 	@Test( timeout = 2000L )
-	void waitsForTaskToCompleteWithinTimeout( ) {
+	void waitsForTaskToCompleteWithinTimeout() {
 		def startT = System.currentTimeMillis()
 		def result = timeLimiter.abortAfter( { sleep 500; 'Hi' }, 2, TimeUnit.SECONDS )
 		assert System.currentTimeMillis() > startT + 500
@@ -51,17 +51,28 @@ class TimeLimiterTest {
 	}
 
 	@Test( timeout = 2000L )
-	void exceptionThrownByClosureIsRethrown( ) {
+	void exceptionThrownByClosureIsRethrown() {
 		shouldFail( IllegalArgumentException, {
 			timeLimiter.abortAfter( { throw new IllegalArgumentException() }, 5, TimeUnit.SECONDS )
 		} )
 	}
 
 	@Test( timeout = 2000L )
-	void canRunAgainAfterTimeout( ) {
+	void canRunManyTasks() {
+		def result = timeLimiter.abortAfter( { true }, 5, TimeUnit.SECONDS )
+		assert result == true
+		result = timeLimiter.abortAfter( { false }, 5, TimeUnit.SECONDS )
+		assert result == false
+		result = timeLimiter.abortAfter( { true }, 5, TimeUnit.SECONDS )
+		assert result == true
+	}
+
+	@Test( /*timeout = 2000L*/ )
+	void canRunAgainAfterTimeout() {
 		shouldFail( TimeoutException, {
-			timeLimiter.abortAfter( { sleep 1000 }, 50, TimeUnit.MILLISECONDS )
+			timeLimiter.abortAfter( { Thread.sleep 1000 }, 50, TimeUnit.MILLISECONDS )
 		} )
+
 		def result = timeLimiter.abortAfter( { 'Hi' }, 500, TimeUnit.MILLISECONDS )
 		assert result == 'Hi'
 	}
