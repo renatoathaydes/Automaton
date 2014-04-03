@@ -86,6 +86,8 @@ To run the demo, run the following command (using the actual name of your Automa
 java -jar Automaton-1.x-all-deps.jar
 ```
 
+[[docs/images/automaton-1.0-demo.png]]
+
 ## Providing custom Configuration
 
 The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
