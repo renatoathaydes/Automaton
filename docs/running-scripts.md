@@ -1,14 +1,14 @@
 # Running Automaton Groovy scripts
 
-The easiest way to use Automaton is by creating [Groovy](http://groovy.codehaus.org/) scripts.
+The easiest way to use Automaton is by creating Automaton [Groovy](http://groovy.codehaus.org/) scripts (or AScript).
 
 It is really simple and does not require any modification to your Java applications!
 
-The following command shows how you would run your Automaton script, called `my-script.groovy`,
+The following command shows how you would run your AScript, called `myAScript.groovy`,
 to test an application `my-app.jar`:
 
 ```
-java -javaagent:Automaton-1.x-all-deps.jar=my-script.groovy -jar my-app.jar
+java -javaagent:Automaton-1.x-all-deps.jar=myAScript.groovy -jar my-app.jar
 ```
 
 This mechanism to run scripts is currently limited to Swing application, but soon there will be support for JavaFX applications as well.
@@ -34,7 +34,7 @@ You can also call any static methods from the following classes:
   * `com.athaydes.automaton.assertion.AutomatonMatcher`
   * `com.athaydes.automaton.SwingUtil`
 
-The following is a valid example of an Automaton script:
+The following is a valid example of an AScript:
 
 ```groovy
 doubleClickOn 'text:colors'
@@ -45,7 +45,7 @@ assertThat swinger[ 'status-label' ],
            hasText( 'You selected [colors, yellow]' )
 ```
 
-Scripts are written in Groovy, so you can use the Groovy syntax as required:
+AScripts are written in Groovy, so you can use the Groovy syntax as required:
 
 ```groovy
 5.times { index ->
@@ -55,3 +55,22 @@ Scripts are written in Groovy, so you can use the Groovy syntax as required:
     type "Hello $index"
 }
 ```
+
+## Code highlighting and assistance
+
+You can write your AScripts with code-completion and highlighting with [IntelliJ IDEA](https://www.jetbrains.com/idea/).
+
+To enable AScript support, all you have to do is add Automaton to your project's class-path. IntelliJ will then automatically
+recognize any file whose name matches `*AScript.groovy` as being an Automaton script. For example:
+
+ * LoginAScript.groovy
+ * SomeTestAScript.groovy
+ * AScript.groovy
+
+Writing AScripts in IntelliJ is a pleasure:
+
+![auto-completion in IntelliJ](images/code-completion.png)
+
+Notice that you won't be able to run the script as you would run a normal Groovy script in IntelliJ.
+
+I am currently trying to find a way to make it happen, though, so stay tuned.

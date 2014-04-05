@@ -1,0 +1,12 @@
+final ascriptPattern = /.*AScript.groovy$/
+
+def ctx = context( scope: scriptScope( name: ascriptPattern ) )
+
+contributor( ctx ) {
+	property name: 'swinger', type: 'com.athaydes.automaton.Swinger'
+	delegatesTo( findClass( "com.athaydes.automaton.Swinger" ) )
+	delegatesTo( findClass( "com.athaydes.automaton.SwingUtil" ) )
+	delegatesTo( findClass( "org.junit.Assert" ) )
+	delegatesTo( findClass( "com.athaydes.automaton.assertion.AutomatonMatcher" ) )
+	delegatesTo( findClass( "org.hamcrest.CoreMatchers" ) )
+}
