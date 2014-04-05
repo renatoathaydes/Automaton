@@ -50,7 +50,7 @@ Scripts are written in Groovy, so you can use the Groovy syntax as required:
 ```groovy
 5.times { index ->
   clickOn "input-$index"
-  moveBy -100, 10
+  moveBy( -100, 10 )
   if ( index < 4 )
     type "Hello $index"
 }
