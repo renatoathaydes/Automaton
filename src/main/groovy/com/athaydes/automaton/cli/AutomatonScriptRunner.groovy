@@ -15,62 +15,70 @@ import org.junit.Assert
 @Singleton
 class AutomatonScriptRunner {
 
-	void runFile( String fileName, def writer = null ) {
-		def file = new File( fileName )
-		if ( file.isFile() ) {
-			runScript( file.text, writer )
-		} else {
-			if ( file.isDirectory() ) println "Not a file: $fileName"
-			else println "Cannot find file $fileName"
-		}
-	}
+    void run( String fileName, def writer = null ) {
+        def file = new File( fileName )
+        if ( file.isFile() ) {
+            println "Running script $file.absolutePath"
+            runScript( file.text, writer )
+        } else {
+            if ( file.isDirectory() ) {
+                println "Looking for groovy scripts under $file.absolutePath"
+                def groovyFiles = file.listFiles()?.findAll {
+                    it.name.endsWith( '.groovy' )
+                }?.sort{ it.name }?.each { File groovyFile ->
+                    run( groovyFile.absolutePath, writer )
+                }
+                if (!groovyFiles) println "No groovy scripts found"
+            } else println "Cannot find file $fileName"
+        }
+    }
 
-	void runScript( String text, def writer = null ) {
-		def config = new CompilerConfiguration()
-		config.scriptBaseClass = AutomatonScriptBase.name
+    void runScript( String text, def writer = null ) {
+        def config = new CompilerConfiguration()
+        config.scriptBaseClass = AutomatonScriptBase.name
 
-		def imports = new ImportCustomizer().addStaticStars(
-				Assert.class.name,
-				AutomatonMatcher.class.name,
-				CoreMatchers.class.name,
-				SwingUtil.class.name )
-		config.addCompilationCustomizers( imports )
+        def imports = new ImportCustomizer().addStaticStars(
+                Assert.class.name,
+                AutomatonMatcher.class.name,
+                CoreMatchers.class.name,
+                SwingUtil.class.name )
+        config.addCompilationCustomizers( imports )
 
-		def sysoutInterceptor = null
-		def syserrInterceptor = null
-		if ( writer ) {
-			sysoutInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, false )
-			syserrInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, true )
-			sysoutInterceptor.start()
-			syserrInterceptor.start()
-		}
+        def sysoutInterceptor = null
+        def syserrInterceptor = null
+        if ( writer ) {
+            sysoutInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, false )
+            syserrInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, true )
+            sysoutInterceptor.start()
+            syserrInterceptor.start()
+        }
 
-		def shell = new GroovyShell( this.class.classLoader,
-				new Binding( swinger: AutomatonScriptBase.swinger ), config )
-		try {
-			shell.evaluate( text )
-		} catch ( e ) {
-			e.printStackTrace()
-		} finally {
-			sysoutInterceptor?.stop()
-			syserrInterceptor?.stop()
-		}
-	}
+        def shell = new GroovyShell( this.class.classLoader,
+                new Binding( swinger: AutomatonScriptBase.swinger ), config )
+        try {
+            shell.evaluate( text )
+        } catch ( e ) {
+            e.printStackTrace()
+        } finally {
+            sysoutInterceptor?.stop()
+            syserrInterceptor?.stop()
+        }
+    }
 
 
 }
 
 abstract class AutomatonScriptBase extends Script {
 
-	static swinger = Swinger.forSwingWindow()
+    static swinger = Swinger.forSwingWindow()
 
-	def methodMissing( String name, def args ) {
-		try {
-			swinger."$name"( *args )
-		} catch ( MissingMethodException e ) {
-			e.printStackTrace()
-		}
-	}
+    def methodMissing( String name, def args ) {
+        try {
+            swinger."$name"( *args )
+        } catch ( MissingMethodException e ) {
+            e.printStackTrace()
+        }
+    }
 
 }
 

@@ -10,18 +10,18 @@ class AutomatonJavaAgent {
 
 	static void premain( String agentArgs, Instrumentation instrumentation ) {
 		if ( agentArgs ) {
-			def scriptFile = new File( agentArgs )
-			if ( scriptFile.exists() ) {
+			def toRun = new File( agentArgs )
+			if ( toRun.exists() ) {
 				waitForWindows {
 					if ( Window.windows ) {
 						sleep 2_000
-						AutomatonScriptRunner.instance.runFile( scriptFile.absolutePath )
+						AutomatonScriptRunner.instance.run( toRun.absolutePath )
 					} else {
 						println "AutomatonJavaAgent: no Swing window detected"
 					}
 				}
 			} else {
-				println "AutomatonJavaAgent: will not start because file '$scriptFile' does not exist"
+				println "AutomatonJavaAgent: will not start because file '$toRun' does not exist"
 			}
 		}
 	}
