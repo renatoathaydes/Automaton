@@ -72,7 +72,7 @@ class RealResourceLoader {
 	File getConfigFile() {
 		def resource = this.class.getResource( CUSTOM_CONFIG_FILE_LOCATION )
 		if ( resource )
-			new File( resource.toURI() )
+			return new File( resource.toURI() )
 		null
 	}
 
