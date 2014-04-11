@@ -8,6 +8,7 @@ import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import org.codehaus.groovy.runtime.InvokerHelper
 
 import java.awt.*
 import java.util.List
@@ -111,7 +112,12 @@ class FXApp extends Application {
 		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )
 	}
 
-	synchronized static Stage initialize( String... args ) {
+    static Stage getStage() {
+        if ( stage ) stage
+        else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
+    }
+
+   	synchronized static Stage initialize( String... args ) {
 		if ( !stage ) {
 			log.debug 'Initializing FXApp'
 			Thread.start { launch FXApp, args }
@@ -124,6 +130,8 @@ class FXApp extends Application {
 			stage.scene = emptyScene()
 			ensureShowing( stage )
 		}
+        def interceptor = new ToFrontInterceptor(FXer.class,stage)
+        InvokerHelper.newInstance().getMetaRegistry().setMetaClass(FXer.class, interceptor)
 		log.debug "Stage now showing!"
 		FXAutomaton.getScenePosition( scene.root )
 		stage
