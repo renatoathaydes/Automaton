@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.automaton.selector.*
+import com.athaydes.internal.interceptor.ToFrontInterceptor
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
@@ -8,6 +9,7 @@ import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
+import org.codehaus.groovy.runtime.InvokerHelper
 
 import java.awt.*
 import java.util.List
@@ -111,6 +113,11 @@ class FXApp extends Application {
 		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )
 	}
 
+	static Stage getStage() {
+		if ( stage ) stage
+		else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
+	}
+
 	synchronized static Stage initialize( String... args ) {
 		if ( !stage ) {
 			log.debug 'Initializing FXApp'
@@ -119,6 +126,7 @@ class FXApp extends Application {
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			assert stage
 			stageFuture = null
+			initializeToFrontInterceptor()
 		}
 		doInFXThreadBlocking {
 			stage.scene = emptyScene()
@@ -127,6 +135,11 @@ class FXApp extends Application {
 		log.debug "Stage now showing!"
 		FXAutomaton.getScenePosition( scene.root )
 		stage
+	}
+
+	static void initializeToFrontInterceptor() {
+		def interceptor = new ToFrontInterceptor( FXAutomaton )
+		InvokerHelper.newInstance().metaRegistry.setMetaClass( FXAutomaton, interceptor )
 	}
 
 	private static void ensureShowing( Stage stage ) {
