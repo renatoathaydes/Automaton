@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.automaton.selector.*
+import com.athaydes.internal.interceptor.ToFrontInterceptor
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
@@ -112,12 +113,12 @@ class FXApp extends Application {
 		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )
 	}
 
-    static Stage getStage() {
-        if ( stage ) stage
-        else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
-    }
+	static Stage getStage() {
+		if ( stage ) stage
+		else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
+	}
 
-   	synchronized static Stage initialize( String... args ) {
+	synchronized static Stage initialize( String... args ) {
 		if ( !stage ) {
 			log.debug 'Initializing FXApp'
 			Thread.start { launch FXApp, args }
@@ -125,16 +126,20 @@ class FXApp extends Application {
 			stage = stageFuture.poll 10, TimeUnit.SECONDS
 			assert stage
 			stageFuture = null
+			initializeToFrontInterceptor()
 		}
 		doInFXThreadBlocking {
 			stage.scene = emptyScene()
 			ensureShowing( stage )
 		}
-        def interceptor = new ToFrontInterceptor(FXer.class,stage)
-        InvokerHelper.newInstance().getMetaRegistry().setMetaClass(FXer.class, interceptor)
 		log.debug "Stage now showing!"
 		FXAutomaton.getScenePosition( scene.root )
 		stage
+	}
+
+	static void initializeToFrontInterceptor() {
+		def interceptor = new ToFrontInterceptor( FXAutomaton )
+		InvokerHelper.newInstance().metaRegistry.setMetaClass( FXAutomaton, interceptor )
 	}
 
 	private static void ensureShowing( Stage stage ) {
