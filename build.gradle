@@ -10,6 +10,9 @@ group = 'com.athaydes'
 version = "1.0.1-SNAPSHOT"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
 def groovyVersion = '2.1.5'
 
 repositories {
