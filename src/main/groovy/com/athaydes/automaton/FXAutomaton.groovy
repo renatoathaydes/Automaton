@@ -108,6 +108,8 @@ class FXApp extends Application {
 	private static Stage stage
 	private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
+    static boolean hasInitialized() { FXApp.@stage != null }
+
 	static Scene getScene() {
 		if ( stage ) stage.scene
 		else throw new RuntimeException( "You must initialize FXApp before you can get the Scene" )

@@ -95,14 +95,23 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		new Swinger( selectors: DEFAULT_SELECTORS, root: component )
 	}
 
+	private static final isJFrame = { it instanceof JFrame }
+
+	/**
+	 * @return true if there exists a Swing window which is an instance of {@code JFrame},
+	 * false otherwise.
+	 */
+	static boolean swingWindowExists() {
+		Window.windows && Window.windows.any( isJFrame )
+	}
+
 	/**
 	 * @return Swinger whose root element is the first Window that can be found
 	 * by calling {@code java.awt.Window.getWindows ( )} which is an instance of
 	 * {@code JFrame}.
 	 */
 	static Swinger forSwingWindow() {
-		def isJFrame = { it instanceof JFrame }
-		if ( Window.windows && Window.windows.any( isJFrame ) ) {
+		if ( swingWindowExists() ) {
 			getUserWith( Window.windows.find( isJFrame ) )
 		} else {
 			throw new GuiItemNotFound( 'Impossible to get any Swing window which is a JFrame' )
