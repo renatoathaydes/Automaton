@@ -1,8 +1,6 @@
 package com.athaydes.automaton.cli.demo
 
 import com.athaydes.automaton.FXApp
-import com.athaydes.automaton.FXAutomaton
-import com.athaydes.automaton.FXer
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.event.EventHandler
@@ -67,7 +65,6 @@ class JavaFxDemoApp extends Application {
 		def rootItem = new TreeItem<String>( 'root' )
 		rootItem.children.addAll( colors, sports, food )
 
-		//TODO update status-label when clicking on tree items
 		def tree = new TreeView<String>( rootItem )
 		tree.id = 'box-tree'
 		tree.showRoot = false
@@ -77,6 +74,11 @@ class JavaFxDemoApp extends Application {
 		def statusLabel = new Label( text: 'You have not selected anything yet',
 				id: 'status-label',
 				style: '-fx-font: 14 Arial; -fx-font-weight: bold; -fx-font-style: italic;' )
+
+		tree.setOnMouseClicked( {
+			statusLabel.text = 'You selected ' +
+					selectedItem( tree.selectionModel.selectedItem ).toString()
+		} as EventHandler )
 
 		def rightBox = new VBox( spacing: 10 )
 
@@ -119,6 +121,15 @@ class JavaFxDemoApp extends Application {
 		stage.scene = scene
 		stage.show()
 		stage.centerOnScreen()
+	}
+
+	List selectedItem( TreeItem item ) {
+		ArrayList result = [ ]
+		while ( item && item.value != 'root' ) {
+			result += item.value
+			item = item.parent
+		}
+		result.reverse()
 	}
 
 	static String initialScript() {
