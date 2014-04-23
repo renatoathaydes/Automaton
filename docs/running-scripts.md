@@ -11,7 +11,9 @@ to test an application `my-app.jar`:
 java -javaagent:Automaton-1.x-all-deps.jar=myAScript.groovy -jar my-app.jar
 ```
 
-You can also run several scripts in sequence by placing them all in the same directory.
+You can also run several scripts in sequence by placing them all in the same directory and giving the location
+of that directory to Automaton, rather than just one script.
+
 For example, if you saved your scripts in a directory called `mydir`, you would run your scripts as follows:
 
 ```
@@ -21,23 +23,56 @@ java -javaagent:Automaton-1.x-all-deps.jar=mydir -jar my-app.jar
 Automaton will only run the files with the `.groovy` extension under the given directory.
 The scripts will be run in alphabetical order.
 
-This mechanism to run scripts is currently limited to Swing application, but soon there will be support for JavaFX applications as well.
+# Writing Automaton scripts (AScripts)
 
-Script code can call all `Swinger` methods directly, such as in:
+Writing an AScript is extremely easy, as the following example demonstrates:
 
 ```groovy
-clickOn 'text:A label'
+clickOn 'some-id'
+doubleClickOn 'text:Click here'
+assertThat swinger[ 'some-label' ], hasText( 'Expected text' )
 ```
 
-An instance of `Swinger` called `swinger` is available for the script as well, so you can use it as in this example:
+Automaton makes the appropriate driver for your application available automatically, depending on whether
+it can detect a Swing JFrame, JavaFX Stage or both.
+
+The driver you get could be one or more of the following:
+
+  * `swinger ` for Swing applications.
+  * `fxer` for JavaFX applications.
+  * `sfxer` for JavaFX/Swing mixed applications.
+
+In the above example, the script refers to `swinger`, which is the Swing driver.
+If your application were an JavaFX app, you could just use the `fxer` driver:
+
+```groovy
+// with the JavaFX driver - fxer
+assertThat fxer[ 'some-label' ], hasText( 'Expected text' )
+```
+
+If your application is a mixed Swing/JavaFX app, you could use the `sfxer` or any of the other drivers.
+
+This only matters when you need to use a driver directly, as in the example `assert`s above.
+Most of the time, however, you don't need to use a driver directly and can just call the common
+Automaton methods, such as `clickOn`, `doubleClickOn`, `rightClickOn`, `moveTo`, `drag`, `type`, etc.
+
+Another example of using a driver directly is when you want to get a reference to a GUI item using the Groovy
+syntax for dictionaries (which translates to the `getAt` method).
+
+For example, suppose you want to find a JTree in your Swing app. You could do one of these:
 
 ```groovy
 import javax.swing.JLabel
 
 JLabel firstLabel = swinger[ JLabel ]
+// or alternatively
+firstLabel = getAt( JLabel )
 ```
 
-You can also call any static methods from the following classes:
+The first option can be more efficient because you are effectively telling Automaton that you're looking for an item which
+is in the Swing tree, so it won't have to try the JavaFX Nodes as well.
+
+From an AScript, you can also call any static methods from the following classes:
 
   * `org.junit.Assert`
   * `org.hamcrest.CoreMatchers`
@@ -55,7 +90,7 @@ assertThat swinger[ 'status-label' ],
            hasText( 'You selected [colors, yellow]' )
 ```
 
-AScripts are written in Groovy, so you can use the Groovy syntax as required:
+AScripts are written in Groovy, so you can do anything that any Groovy code can:
 
 ```groovy
 5.times { index ->
