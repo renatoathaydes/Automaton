@@ -2,7 +2,9 @@ package com.athaydes.automaton.internal
 
 import com.athaydes.automaton.SwingAutomaton
 import groovy.swing.SwingBuilder
-import org.junit.After
+import org.junit.AfterClass
+import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 import javax.swing.*
@@ -14,16 +16,11 @@ import java.awt.*
  */
 class RobotTypingUtilTest {
 
-	JFrame jFrame
+	static JFrame jFrame
+	static JTextArea jta
 
-	@After
-	void cleanup() {
-		jFrame?.dispose()
-	}
-
-	@Test
-	void testRobotCode() {
-		JTextArea jta
+	@BeforeClass
+	static void setup() {
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				jta = textArea()
@@ -33,22 +30,48 @@ class RobotTypingUtilTest {
 		sleep 500
 		assert jta != null
 		assert jta.text == ''
+	}
 
-		def text = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
-		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
-		assert jta.text == text
+	@Before
+	void start() {
 		jta.text = ''
+	}
 
-		text = 'abcdefghijklmnopqrstuvxzwy'
-		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
-		assert jta.text == text
-		jta.text = ''
+	@AfterClass
+	static void cleanup() {
+		jFrame?.dispose()
+		jta = null
+		jFrame = null
+	}
 
-		text = '1234567890 ,./+*/'
+	@Test
+	void testDigits() {
+		def text = '1234567890'
 		SwingAutomaton.user.moveTo( jta ).click()
 				.type( text ).pause( 100 )
 		assert jta.text == text
-		jta.text = ''
+	}
+
+	@Test
+	void testSpecialChars() {
+		def text = ' ,./+-*/\\;:"\'<>?[]{}|!@#$%^&*()_='
+		SwingAutomaton.user.moveTo( jta ).click()
+				.type( text ).pause( 100 )
+		assert jta.text == text
+	}
+
+	@Test
+	void testLowerCaseLetters() {
+		def text = 'abcdefghijklmnopqrstuvxzwy'
+		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
+		assert jta.text == text
+	}
+
+	@Test
+	void testUpperCaseLetters() {
+		def text = 'ABCDEFGHIJKLMNOPQRSTUVXZWY'
+		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
+		assert jta.text == text
 	}
 
 }
