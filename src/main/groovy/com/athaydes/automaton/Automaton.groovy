@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.internal.RobotTypingUtil.robotCode
+import static com.sun.glass.ui.Application.GetApplication
 
 /**
  *
@@ -19,12 +20,12 @@ import static com.athaydes.internal.RobotTypingUtil.robotCode
  */
 class Automaton<T extends Automaton> {
 
-	protected final robot = new Robot()
-	static Speed DEFAULT = Config.instance.speed
-	private static Automaton instance
-	private abortAfter = new TimeLimiter().&abortAfter
-	final Interaction interaction
+    def robot = isMac() ? GetApplication().createRobot() : new Robot()
 
+    static Speed DEFAULT = Config.instance.speed
+    private static Automaton instance
+    private abortAfter = new TimeLimiter().&abortAfter
+    final Interaction interaction
 	/**
 	 * Get the singleton instance of Automaton, which is lazily created.
 	 * @return Automaton singleton instance
@@ -33,6 +34,10 @@ class Automaton<T extends Automaton> {
 		if ( !instance ) instance = new Automaton<Automaton>()
 		instance
 	}
+
+    private static isMac() {
+        System.getProperty( "os.name" )?.toLowerCase()?.contains( "mac" )
+    }
 
 	protected Automaton() {
 		this.interaction = Interaction.instance
