@@ -122,6 +122,7 @@ class FXApp extends Application {
     synchronized static Stage initialize( String... args ) {
         if ( !stage ) {
             log.debug 'Initializing FXApp'
+            if ( Automaton.isMac() ) System.setProperty( "javafx.macosx.embedded", "true" )
             Thread.start { launch FXApp, args }
             sleep 500
             stage = stageFuture.poll 10, TimeUnit.SECONDS
