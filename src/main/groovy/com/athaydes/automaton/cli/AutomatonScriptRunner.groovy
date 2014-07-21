@@ -1,5 +1,7 @@
 package com.athaydes.automaton.cli
 
+import com.athaydes.automaton.FXApp
+import com.athaydes.automaton.FXer
 import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.assertion.AutomatonMatcher
@@ -25,10 +27,10 @@ class AutomatonScriptRunner {
                 println "Looking for groovy scripts under $file.absolutePath"
                 def groovyFiles = file.listFiles()?.findAll {
                     it.name.endsWith( '.groovy' )
-                }?.sort{ it.name }?.each { File groovyFile ->
+                }?.sort { it.name }?.each { File groovyFile ->
                     run( groovyFile.absolutePath, writer )
                 }
-                if (!groovyFiles) println "No groovy scripts found"
+                if ( !groovyFiles ) println "No groovy scripts found"
             } else println "Cannot find file $fileName"
         }
     }
@@ -54,7 +56,8 @@ class AutomatonScriptRunner {
         }
 
         def shell = new GroovyShell( this.class.classLoader,
-                new Binding( swinger: AutomatonScriptBase.swinger ), config )
+                new Binding( swinger: FXApp.initialized ? null : Swinger.forSwingWindow(),
+                        fxer: FXApp.initialized ? FXer.getUserWith( FXApp.scene.root ) : null ), config )
         try {
             shell.evaluate( text )
         } catch ( e ) {
@@ -70,11 +73,9 @@ class AutomatonScriptRunner {
 
 abstract class AutomatonScriptBase extends Script {
 
-    static swinger = Swinger.forSwingWindow()
-
     def methodMissing( String name, def args ) {
         try {
-            swinger."$name"( *args )
+            (swinger ?: fxer)."$name"( *args )
         } catch ( MissingMethodException e ) {
             e.printStackTrace()
         }

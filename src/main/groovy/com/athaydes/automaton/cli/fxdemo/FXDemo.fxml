@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.athaydes.automaton.cli.fxdemo.FXDemo">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <VBox prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
+            <children>
+                <TextArea id="status-label" fx:id="selectionStatus" editable="false" prefHeight="109.0" prefWidth="600.0"
+                        style="-fx-font: 18 arial; -fx-font-weight: bold"  />
+                <Label alignment="CENTER" prefHeight="17.0" prefWidth="158.0" style="-fx-size: 16; -fx-font-weight: bold" text="Enter an Automaton script:">
+
+                </Label>
+                <TextArea fx:id="scriptText" prefHeight="200.0" prefWidth="200.0" style="-fx-font: 14 monospaced;" />
+                <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                    <children>
+                        <Button fx:id="runButton" mnemonicParsing="false" onAction="#runScript" text="Run Automaton script" />
+                        <Button mnemonicParsing="false" onAction="#clearOutput" text="Clear output" />
+                    </children>
+                </HBox>
+                <TextArea fx:id="logOutput" editable="false" prefHeight="200.0" prefWidth="200.0" />
+            </children>
+        </VBox>
+    </center>
+    <left>
+        <TreeView fx:id="treeView" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
+    </left>
+</BorderPane>

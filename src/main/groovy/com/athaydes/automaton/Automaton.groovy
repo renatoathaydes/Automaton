@@ -35,7 +35,7 @@ class Automaton<T extends Automaton> {
 		instance
 	}
 
-    private static isMac() {
+    static isMac() {
         System.getProperty( "os.name" )?.toLowerCase()?.contains( "mac" )
     }
 

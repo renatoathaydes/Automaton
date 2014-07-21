@@ -88,6 +88,15 @@ java -jar Automaton-1.x-all-deps.jar
 
 ![Automaton-Swing Demo App](docs/images/automaton-1.0-demo.png)
 
+If you prefer JavaFX, run the JavaFX demo with:
+
+```
+java -jar Automaton-1.x-all-deps.jar -demo javafx
+```
+
+![Automaton-JavaFX Demo App](docs/images/automaton-1.1-fx-demo.png)
+
+
 ## Providing custom Configuration
 
 The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
