@@ -1,5 +1,14 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:0.5"
+    }
+}
+
 apply plugin: 'groovy'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'idea'
 apply plugin: 'application'
 apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapshot/javafx.plugin'
@@ -70,7 +79,7 @@ jar {
 	}
 }
 
-task uberjar( type: Jar, dependsOn: [ ':compileJava', ':compileGroovy' ] ) {
+task uberjar( type: Jar, dependsOn: classes ) {
 	classifier = 'all-deps'
 	from files( sourceSets.main.output.classesDir )
 	from files( sourceSets.main.output.resourcesDir )
@@ -82,3 +91,41 @@ task uberjar( type: Jar, dependsOn: [ ':compileJava', ':compileGroovy' ] ) {
 		attributes( manifestAttributes )
 	}
 }
+
+task sourcesJar( type: Jar, dependsOn: classes ) {
+    from sourceSets.main.allSource
+    classifier "sources"
+    extension "jar"
+}
+
+/* Publishing config */
+
+publishing {
+    publications {
+        mavenJava( MavenPublication ) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = project.hasProperty( "bintrayUserName" ) ? bintrayUserName : null
+    key = project.hasProperty( "bintrayApiKey" ) ? bintrayApiKey : null
+    publications = [ "mavenJava" ]
+    publish = true
+    pkg {
+        repo = 'maven'
+        name = 'automaton'
+        licenses = [ 'Apache-2.0' ]
+        desc = 'Automaton: easy tests for Swing and JavaFX applications'
+        websiteUrl = 'https://github.com/renatoathaydes/Automaton'
+        issueTrackerUrl = 'https://github.com/renatoathaydes/Automaton/issues'
+        labels = [ 'groovy', 'swing', 'javafx', 'testing', 'automation' ]
+        publicDownloadNumbers = true
+    }
+}
+
+bintrayUpload.dependsOn build, sourcesJar
