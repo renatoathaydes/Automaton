@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 /**
  * @author Renato
  */
-@Singleton( lazy = true )
+@Singleton( lazy = true, strict = false )
 public class Interaction {
 
 	final impl

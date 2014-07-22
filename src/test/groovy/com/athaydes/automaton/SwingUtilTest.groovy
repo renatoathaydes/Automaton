@@ -262,7 +262,7 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		def parentAbsLocation = new Point( 20, 30 )
 
 		when:
-		Component component = new SwingUtil.FakeComponent( swingObject, { parentAbsLocation }, { bounds } )
+		Component component = new FakeComponent( swingObject, { parentAbsLocation }, { bounds } )
 
 		then:
 		component.getRealObject() == swingObject

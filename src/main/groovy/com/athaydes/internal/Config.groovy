@@ -9,7 +9,7 @@ import static com.athaydes.automaton.Speed.FAST
  *
  * User: Renato
  */
-@Singleton
+@Singleton(strict = false)
 @Slf4j
 class Config {
 

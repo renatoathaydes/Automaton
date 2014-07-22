@@ -13,11 +13,22 @@ description = 'Automaton is a tool for easily automating GUI tests in JavaFX and
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
-def groovyVersion = '2.1.5'
+def groovyVersion = '2.3.3'
 
 repositories {
 	mavenLocal()
 	mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            include '**/*.fxml'
+        }
+        resources {
+            srcDir 'src/resources'
+        }
+    }
 }
 
 dependencies {

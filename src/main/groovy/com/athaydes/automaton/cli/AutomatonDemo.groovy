@@ -148,7 +148,9 @@ class DemoFXApp extends Application {
     @Override
     void start( Stage stage ) throws Exception {
         stage.title = 'JavaFX Automaton Demo'
-        BorderPane pane = FXMLLoader.load( FXDemo.class.getResource( "FXDemo.fxml" ) )
+        def fxml = FXDemo.getResource( "/fxml/FXDemo.fxml" )
+        assert fxml, 'Could not locate the FXDemo.fxml resource'
+        BorderPane pane = FXMLLoader.load( fxml )
         def scene = new Scene( pane, 600, 500 )
         stage.scene = scene
         stage.centerOnScreen()

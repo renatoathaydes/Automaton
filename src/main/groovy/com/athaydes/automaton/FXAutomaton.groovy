@@ -106,7 +106,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 class FXApp extends Application {
 
     private static Stage stage
-    static volatile boolean initialized = false
+    private static volatile boolean initialized = false
     private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
     static Scene getScene() {
@@ -123,7 +123,7 @@ class FXApp extends Application {
         if ( !stage ) {
             log.debug 'Initializing FXApp'
             if ( Automaton.isMac() ) System.setProperty( "javafx.macosx.embedded", "true" )
-            Thread.start { launch FXApp, args }
+            Thread.start { Application.launch FXApp, args }
             sleep 500
             stage = stageFuture.poll 10, TimeUnit.SECONDS
             assert stage

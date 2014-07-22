@@ -189,47 +189,47 @@ class SwingUtil {
 		ge.defaultScreenDevice.defaultConfiguration.bounds
 	}
 
-	/**
-	 * A fake Component which can be located by any SwingAutomaton.
-	 * The TreeNode wrapped by this component can be accessed via the <code>getRealObject</code>.
-	 */
-	static class FakeComponent extends Component {
+}
 
-		final realObject
-		final Closure<Point> parentLocationOnScreen
-		final Closure<Rectangle> getItemBounds
+/**
+ * A fake Component which can be located by any SwingAutomaton.
+ * The TreeNode wrapped by this component can be accessed via the <code>getRealObject</code>.
+ */
+class FakeComponent extends Component {
 
-		protected FakeComponent( realObject,
-		                         Closure<Point> parentLocationOnScreen,
-		                         Closure<Rectangle> getItemBounds ) {
-			this.realObject = realObject
-			this.parentLocationOnScreen = parentLocationOnScreen
-			this.getItemBounds = getItemBounds
-		}
+    final realObject
+    final Closure<Point> parentLocationOnScreen
+    final Closure<Rectangle> getItemBounds
 
-		def getRealObject() { realObject }
+    protected FakeComponent( realObject,
+                             Closure<Point> parentLocationOnScreen,
+                             Closure<Rectangle> getItemBounds ) {
+        this.realObject = realObject
+        this.parentLocationOnScreen = parentLocationOnScreen
+        this.getItemBounds = getItemBounds
+    }
 
-		Point getLocationOnScreen() {
-			def parentLocation = parentLocationOnScreen()
-			def bounds = getItemBounds()
-			try {
-				new Point(
-						( bounds.location.x + parentLocation.x ) as int,
-						( bounds.location.y + parentLocation.y ) as int )
-			} catch ( e ) {
-				throw new GuiItemNotFound( "Component likely not visible on screen: $realObject", e )
-			}
-		}
+    def getRealObject() { realObject }
 
-		int getWidth() { getItemBounds().width.intValue() }
+    Point getLocationOnScreen() {
+        def parentLocation = parentLocationOnScreen()
+        def bounds = getItemBounds()
+        try {
+            new Point(
+                    ( bounds.location.x + parentLocation.x ) as int,
+                    ( bounds.location.y + parentLocation.y ) as int )
+        } catch ( e ) {
+            throw new GuiItemNotFound( "Component likely not visible on screen: $realObject", e )
+        }
+    }
 
-		int getHeight() { getItemBounds().height.intValue() }
+    int getWidth() { getItemBounds().width.intValue() }
 
-		String getText() { realObject as String }
+    int getHeight() { getItemBounds().height.intValue() }
 
-		def methodMissing( String name, def args ) {
-			realObject."name"( args )
-		}
-	}
+    String getText() { realObject as String }
 
+    def methodMissing( String name, def args ) {
+        realObject."name"( args )
+    }
 }
