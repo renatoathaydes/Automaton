@@ -31,7 +31,7 @@ class FXDemo extends BorderPane {
 
     @FXML
     void initialize() {
-        def asTreeItem = { new TreeItem<String>( it ) }
+        def asTreeItem = { new TreeItem<String>( it as String ) }
         def colors = asTreeItem( 'colors' )
         colors.children.addAll( [ 'blue', 'violet', 'red', 'yellow' ].collect( asTreeItem ) )
         def sports = asTreeItem( 'sports' )

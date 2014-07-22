@@ -20,18 +20,34 @@
         <VBox prefHeight="200.0" prefWidth="300.0" BorderPane.alignment="CENTER">
             <children>
                 <TextArea id="status-label" fx:id="selectionStatus" editable="false" prefHeight="109.0" prefWidth="600.0"
-                        style="-fx-font: 18 arial; -fx-font-weight: bold"  />
+                        style="-fx-font: 18 arial; -fx-font-weight: bold">
+                    <tooltip>
+                        <Tooltip text="My ID is status-label" />
+                    </tooltip>
+                </TextArea>
                 <Label alignment="CENTER" prefHeight="17.0" prefWidth="158.0" style="-fx-size: 16; -fx-font-weight: bold" text="Enter an Automaton script:">
 
                 </Label>
-                <TextArea fx:id="scriptText" prefHeight="200.0" prefWidth="200.0" style="-fx-font: 14 monospaced;" />
+                <TextArea fx:id="scriptText" id="script-text" prefHeight="200.0" prefWidth="200.0" style="-fx-font: 14 monospaced;">
+                    <tooltip>
+                        <Tooltip text="My ID is script-text" />
+                    </tooltip>
+                </TextArea>
                 <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
                     <children>
                         <Button fx:id="runButton" mnemonicParsing="false" onAction="#runScript" text="Run Automaton script" />
-                        <Button mnemonicParsing="false" onAction="#clearOutput" text="Clear output" />
+                        <Button mnemonicParsing="false" id="clear-output" onAction="#clearOutput" text="Clear output">
+                            <tooltip>
+                                <Tooltip text="My ID is clear-output" />
+                            </tooltip>
+                        </Button>
                     </children>
                 </HBox>
-                <TextArea fx:id="logOutput" editable="false" prefHeight="200.0" prefWidth="200.0" />
+                <TextArea id="log-output" fx:id="logOutput" editable="false" prefHeight="200.0" prefWidth="200.0">
+                    <tooltip>
+                        <Tooltip text="My ID is log-output" />
+                    </tooltip>
+                </TextArea>
             </children>
         </VBox>
     </center>

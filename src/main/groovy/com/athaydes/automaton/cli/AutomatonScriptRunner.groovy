@@ -49,8 +49,8 @@ class AutomatonScriptRunner {
         def sysoutInterceptor = null
         def syserrInterceptor = null
         if ( writer ) {
-            sysoutInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, false )
-            syserrInterceptor = new SystemOutputInterceptor( { String s -> writer.write( s ); false }, true )
+            sysoutInterceptor = new SystemOutputInterceptor( { s -> writeSafely( writer, s ) }, false )
+            syserrInterceptor = new SystemOutputInterceptor( { s -> writeSafely( writer, s ) }, true )
             sysoutInterceptor.start()
             syserrInterceptor.start()
         }
@@ -68,6 +68,16 @@ class AutomatonScriptRunner {
         }
     }
 
+    boolean writeSafely( writer, s ) {
+        try {
+            writer.write( s ?: '' )
+            sleep 2 // necessary for JavaFX Thread not to freeze when an Exception is being written
+        } catch ( e ) {
+            e.printStackTrace(  )
+        }
+        return false
+    }
+
 
 }
 
@@ -75,7 +85,7 @@ abstract class AutomatonScriptBase extends Script {
 
     def methodMissing( String name, def args ) {
         try {
-            (swinger ?: fxer)."$name"( *args )
+            ( swinger ?: fxer )."$name"( *args )
         } catch ( MissingMethodException e ) {
             e.printStackTrace()
         }
