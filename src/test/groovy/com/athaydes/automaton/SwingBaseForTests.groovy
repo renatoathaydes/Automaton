@@ -441,6 +441,24 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		} )
 	}
 
+    @Test
+    void shouldBeAbleToEnterUrls() {
+        JTextArea jta
+        new SwingBuilder().edt {
+            jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+                jta = textArea(name: 'jta')
+            }
+        }
+
+        waitForJFrameToShowUp()
+        assert jta != null
+        assert jta.text == ''
+
+        withDriver()['jta'].text = 'http://localhost:8099'
+
+        assert jta.text == 'http://localhost:8099'
+    }
+
 }
 
 class SwingAutomatonTest extends SimpleSwingDriverTest {

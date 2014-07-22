@@ -27,10 +27,21 @@ So if you try to enter an URL in a text field, for example, it may not work depe
 Automaton.user.type( 'http://localhost:8080/examples' ).type( VK_ENTER )
 ```
 
-**The above should work on English keyboards**, but it is not guaranteed to work with other layouts.
+The above should work on English keyboards, but it is not likely to work with any other layouts.
 
-A work-around is to use the Java class [``KeyEvent``](http://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html), which Automaton supports:
- 
+**The preferred method, however, is to find the field you want to edit and then set the text on it directly:**
+
+```groovy
+// in Groovy
+swinger['text-field-name'].text = 'http://localhost:8080/example'
+
+// in Java - unsafe casting, you must know the type of the component
+TextField field = (TextField) swinger.getAt("text-field-name");
+field.setText("http://localhost:8080/example");
+```
+
+Another work-around is to use the Java class [``KeyEvent``](http://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html), which Automaton supports:
+
 ```groovy
 import static java.awt.event.KeyEvent.*
 

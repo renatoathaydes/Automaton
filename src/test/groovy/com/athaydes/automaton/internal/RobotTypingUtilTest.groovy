@@ -53,14 +53,6 @@ class RobotTypingUtilTest {
 	}
 
 	@Test
-	void testSpecialChars() {
-		def text = ' ,./+-*/\\;:"\'<>?[]{}|!@#$%^&*()_='
-		SwingAutomaton.user.moveTo( jta ).click()
-				.type( text ).pause( 100 )
-		assert jta.text == text
-	}
-
-	@Test
 	void testLowerCaseLetters() {
 		def text = 'abcdefghijklmnopqrstuvxzwy'
 		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
@@ -73,5 +65,13 @@ class RobotTypingUtilTest {
 		SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
 		assert jta.text == text
 	}
+
+    @Test
+    void testSimpleSymbols() {
+        def text = '+-.,'
+        SwingAutomaton.user.moveTo( jta ).click().type( text ).pause( 100 )
+        assert jta.text == text
+    }
+
 
 }

@@ -377,29 +377,6 @@ class AutomatonTest implements HasSwingCode {
 
 		Automaton.user.type( 'a' ).pressSimultaneously( VK_SHIFT, VK_A ).pause( 100 )
 		assert jta.text == 'aA'
-
-		Automaton.user.pressSimultaneously( VK_SHIFT, VK_COLON ).pause( 100 )
-		assert jta.text == 'aA:'
-	}
-
-	@Test
-	void shouldBeAbleToTypeUrls() {
-		JTextArea jta
-		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
-				jta = textArea()
-			}
-		}
-
-		waitForJFrameToShowUp()
-		assert jta != null
-		assert jta.text == ''
-
-		Automaton.user.type('http').pressSimultaneously( VK_SHIFT, VK_COLON )
-				.type( '//localhost' ).pressSimultaneously( VK_SHIFT, VK_COLON )
-				.type( '8099' ).pause( 100 )
-
-		assert jta.text == 'http://localhost:8099'
 	}
 
 	@Test
