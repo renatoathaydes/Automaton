@@ -53,10 +53,11 @@ The zip contains the Automaton jar which you need to add to your application cla
 
 You can build Automaton from source by cloning this repository and then using [Gradle](http://www.gradle.org) to build it.
 
-Once you have Gradle installed, simply type
+You only need to have Git installed. Then, you can type:
 
 ```
-gradle uberjar
+git clone git@github.com:renatoathaydes/Automaton.git
+gradlew uberjar
 ```
 
 This will create a "fat" jar which includes all Automaton's dependencies and hence can be run independently.
@@ -65,13 +66,13 @@ To create a simple jar (you'll have to provide Automaton's runtime dependencies 
 type
 
 ```
-gradle jar
+gradlew jar
 ```
 
 To also install the jar in your Maven local repository, type
 
 ```
-gradle install
+gradlew publishToMavenLocal
 ```
 
 You can email me directly if you have any issue: renato@athaydes.com
