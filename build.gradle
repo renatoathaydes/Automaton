@@ -30,7 +30,9 @@ repositories {
 }
 
 dependencies {
-	compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+	compile "org.codehaus.groovy:groovy:${groovyVersion}"
+    compile "org.codehaus.groovy:groovy-swing:${groovyVersion}"
+    compile "org.codehaus.groovy:groovy-console:${groovyVersion}"
 	compile "org.slf4j:slf4j-api:1.7.5"
 	compile "org.hamcrest:hamcrest-library:1.3"
 	compile "junit:junit:4.11"
