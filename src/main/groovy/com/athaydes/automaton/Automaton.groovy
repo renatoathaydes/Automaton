@@ -148,22 +148,7 @@ class Automaton<T extends Automaton> {
      * This method should only be used to type English letters and numbers. Any special characters and symbols will
      * almost certainly fail due to the local system keyboard affecting the behaviour of this method.
      * <p/>
-     * To enter special characters, simply use one of the selector driver methods to get the text field and then set
-     * the text directly on it.
-     * <p/>
-     * Example:
-     * <p/>
-     * <code>
-     *     // in Groovy<br/>
-     *     swinger['text-field-name'].text = 'http://localhost:8080/example'<br/>
-     *
-     *     <p/>
-     *     // in Java - unsafe casting, you must know the type of the component<br/>
-     *     TextField field = (TextField) swinger.getAt("text-field-name");
-     *     field.setText("http://localhost:8080/example");
-     * </code>
-     *
-     * See section <a href="https://github.com/renatoathaydes/Automaton/blob/master/docs/no-platform.md">Typing unicode characters</a>
+     * To enter special characters, use one of the UI-specific driver methods, such as <code>enterText</code>.
      *
      * @param text to type
      * @param speed how fast to type

@@ -24,21 +24,14 @@ difficult to support typing unicode characters correctly.
 So if you try to enter an URL in a text field, for example, it may not work depending on your keyboard layout:
 
 ```groovy
+import static java.awt.event.KeyEvent.*
+
 Automaton.user.type( 'http://localhost:8080/examples' ).type( VK_ENTER )
 ```
 
 The above should work on English keyboards, but it is not likely to work with any other layouts.
 
-**The preferred method, however, is to find the field you want to edit and then set the text on it directly:**
-
-```groovy
-// in Groovy
-swinger['text-field-name'].text = 'http://localhost:8080/example'
-
-// in Java - unsafe casting, you must know the type of the component
-TextField field = (TextField) swinger.getAt("text-field-name");
-field.setText("http://localhost:8080/example");
-```
+**The preferred method to enter special characters is to use one of the UI-specific driver methods, such as ``enterText``.**
 
 Another work-around is to use the Java class [``KeyEvent``](http://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html), which Automaton supports:
 

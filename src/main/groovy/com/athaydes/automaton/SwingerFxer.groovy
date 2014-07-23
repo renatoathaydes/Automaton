@@ -180,6 +180,15 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 		this
 	}
 
+    SwingerFxer enterText( String text ) {
+        swinger.enterText( text )
+        this
+    }
+
+    Component getFocusedComponent() {
+        swinger.focusedComponent
+    }
+
 	SwingerFXerDragOn drag( Node node ) {
 		def target = centerOf node
 		new SwingerFXerDragOn( this, target.x, target.y )

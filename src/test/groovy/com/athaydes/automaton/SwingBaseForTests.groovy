@@ -442,21 +442,29 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 	}
 
     @Test
-    void shouldBeAbleToEnterUrls() {
-        JTextArea jta
+    void shouldBeAbleToEnterText() {
+        JTextField tf1
+        JTextField tf2
         new SwingBuilder().edt {
             jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
-                jta = textArea(name: 'jta')
+                hbox {
+                    tf1 = textField(name: 'tf1')
+                    tf2 = textField(name: 'tf2')
+                }
             }
         }
 
         waitForJFrameToShowUp()
-        assert jta != null
-        assert jta.text == ''
+        final exampleUrl = 'http://localhost:8099'
+        final email = 'my@email.com'
 
-        withDriver()['jta'].text = 'http://localhost:8099'
+        withDriver().clickOn( 'tf1' )
+                .enterText( exampleUrl )
+                .type( KeyEvent.VK_TAB )
+                .enterText( email )
 
-        assert jta.text == 'http://localhost:8099'
+        assert tf1.text == exampleUrl
+        assert tf2.text == email
     }
 
 }

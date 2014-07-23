@@ -170,6 +170,25 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		this
 	}
 
+    /**
+     * Enters the given text into the currently selected component.
+     * @param text
+     * @return this
+     */
+    Swinger enterText( String text ) {
+        def focusOwner = getFocusedComponent()
+        if (focusOwner) {
+            try {
+                getFocusedComponent()?.text = text
+            } catch( e ) {
+                throw new RuntimeException('Cannot enter text on the currently focused Component')
+            }
+        } else {
+            throw new GuiItemNotFound('Could not find the currently focused Component')
+        }
+        this
+    }
+
 	SwingerDragOn drag( Component component ) {
 		def center = SwingAutomaton.centerOf( component )
 		new SwingerDragOn( this, center.x, center.y )
@@ -187,7 +206,21 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		drag( this[ selector ] )
 	}
 
-	protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+    Component getFocusedComponent() {
+        if ( root instanceof JFrame ) {
+            return ( root as JFrame ).getFocusOwner()
+        }
+        def owner = null
+        SwingUtil.navigateBreadthFirst( root ) { JComponent c ->
+            if( SwingUtil.callMethodIfExists( c, 'isFocusOwner' ) ) {
+                owner = c
+                return true
+            }
+        }
+        owner
+    }
+
+    protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
 		def prefixes_queries = selector.queries.collect { ensurePrefixed( it ) }
 		def toMapEntries = { String prefix, String query ->
 			new MapEntry( selectors[ prefix ], query )
