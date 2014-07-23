@@ -106,7 +106,7 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 class FXApp extends Application {
 
     private static Stage stage
-    private static volatile boolean initialized = false
+    static volatile boolean initialized = false
     private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
     static Scene getScene() {

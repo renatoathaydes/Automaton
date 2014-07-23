@@ -21,15 +21,16 @@ java -javaagent:Automaton-1.x-all-deps.jar=mydir -jar my-app.jar
 Automaton will only run the files with the `.groovy` extension under the given directory.
 The scripts will be run in alphabetical order.
 
-This mechanism to run scripts is currently limited to Swing application, but soon there will be support for JavaFX applications as well.
+> This mechanism to run scripts supports both Swing and JavaFX application.
 
-Script code can call all `Swinger` methods directly, such as in:
+Script code can call all `SwingerFXer` methods directly, such as in:
 
 ```groovy
 clickOn 'text:A label'
 ```
 
-An instance of `Swinger` called `swinger` is available for the script as well, so you can use it as in this example:
+An instance of `Swinger` called `swinger` or its counterpart `fxer` of type `FXer` is available for the script as well,
+so you can use (one of them, depending on whether you have a JavaFX or Swing application) as in this example:
 
 ```groovy
 import javax.swing.JLabel

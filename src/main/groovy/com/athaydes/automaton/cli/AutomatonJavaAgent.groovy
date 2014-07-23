@@ -1,5 +1,7 @@
 package com.athaydes.automaton.cli
 
+import com.athaydes.automaton.FXApp
+
 import java.awt.*
 import java.lang.instrument.Instrumentation
 
@@ -13,11 +15,11 @@ class AutomatonJavaAgent {
 			def toRun = new File( agentArgs )
 			if ( toRun.exists() ) {
 				waitForWindows {
-					if ( Window.windows ) {
+					if ( Window.windows || FXApp.initialized ) {
 						sleep 2_000
 						AutomatonScriptRunner.instance.run( toRun.absolutePath )
 					} else {
-						println "AutomatonJavaAgent: no Swing window detected"
+						println "AutomatonJavaAgent: no Swing or JavaFX window detected"
 					}
 				}
 			} else {
@@ -33,7 +35,7 @@ class AutomatonJavaAgent {
 		def cycles = 0
 
 		Thread.start {
-			while ( !Window.windows && cycles < MAX_CYCLES ) {
+			while ( (!Window.windows && !FXApp.initialized) && cycles < MAX_CYCLES ) {
 				sleep CYCLE
 				cycles++
 			}

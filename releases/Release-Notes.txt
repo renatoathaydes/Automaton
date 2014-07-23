@@ -2,12 +2,13 @@ Release 1.1
 ===========
 
 * Fixed bug #9 - Automaton's TimerLimiter Thread did not die after test ended
-* Fixed bug where custom config file was not being properly located
+* Fixed bug #15 - custom config file was not being properly located
 * Improvement #11 - Added IntelliJ IDE support for AScripts code-completion
 * Added support for running several AScripts, in sequence, located in a given directory
 * Improvement #16 - the JavaFX Stage is brought to front before any action if necessary
 * Added new method (enterText) to improve support for entering unicode characters in text fields
 * Improvement #19 - Preliminary JavaFX-drivers support for Mac OS X
 * #21 - Created Automaton JavaFX Demo to mirror the Swing Demo
+* #22 - Added support for running JavaFX AScripts
 * Upgraded Groovy version to 2.3.3
 * Automaton is now published on Bintray's JCenter, making it easier to add it as a Maven/Gradle/Ivy dependency
