@@ -7,6 +7,7 @@ Release 1.1
 * Added support for running several AScripts, in sequence, located in a given directory
 * Improvement #16 - the JavaFX Stage is brought to front before any action if necessary
 * Added new method (enterText) to improve support for entering unicode characters in text fields
+* Added new property (initialized) to FXApp to allow JavaFX tests to know when the application has started up
 * Improvement #19 - Preliminary JavaFX-drivers support for Mac OS X
 * #21 - Created Automaton JavaFX Demo to mirror the Swing Demo
 * #22 - Added support for running JavaFX AScripts
