@@ -12,3 +12,5 @@ build/
 .project
 .classpath
 .gradle
+
+!gradle-wrapper.jar
