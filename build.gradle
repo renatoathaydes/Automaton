@@ -29,17 +29,6 @@ repositories {
 	mavenCentral()
 }
 
-sourceSets {
-    main {
-        java {
-            include '**/*.fxml'
-        }
-        resources {
-            srcDir 'src/resources'
-        }
-    }
-}
-
 dependencies {
 	compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
 	compile "org.slf4j:slf4j-api:1.7.5"
