@@ -176,20 +176,24 @@ class Swinger extends HasSelectors<Component, Swinger> {
      * @return this
      */
     Swinger enterText( String text ) {
-        def focusOwner = getFocusedComponent()
-        if (focusOwner) {
-            try {
-                getFocusedComponent()?.text = text
-            } catch( e ) {
-                throw new RuntimeException('Cannot enter text on the currently focused Component')
+        sleep 350 // Swing needs time to change focus!
+        SwingUtilities.invokeAndWait {
+            def focusOwner = getFocusedComponent()
+            if ( focusOwner ) {
+                try {
+                    focusOwner.text = text
+                } catch ( e ) {
+                    throw new RuntimeException( 'Cannot enter text on the currently focused Component' )
+                }
+
+            } else {
+                throw new GuiItemNotFound( 'Could not find the currently focused Component' )
             }
-        } else {
-            throw new GuiItemNotFound('Could not find the currently focused Component')
         }
         this
     }
 
-	SwingerDragOn drag( Component component ) {
+    SwingerDragOn drag( Component component ) {
 		def center = SwingAutomaton.centerOf( component )
 		new SwingerDragOn( this, center.x, center.y )
 	}

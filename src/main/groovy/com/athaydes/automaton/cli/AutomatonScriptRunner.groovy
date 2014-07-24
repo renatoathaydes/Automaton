@@ -61,7 +61,7 @@ class AutomatonScriptRunner {
         try {
             shell.evaluate( text )
         } catch ( e ) {
-            e.printStackTrace()
+            System.err.println( e )
         } finally {
             sysoutInterceptor?.stop()
             syserrInterceptor?.stop()
@@ -71,9 +71,8 @@ class AutomatonScriptRunner {
     boolean writeSafely( writer, s ) {
         try {
             writer.write( s ?: '' )
-            sleep 2 // necessary for JavaFX Thread not to freeze when an Exception is being written
         } catch ( e ) {
-            e.printStackTrace(  )
+            System.err.println( e )
         }
         return false
     }

@@ -25,7 +25,7 @@
                         <Tooltip text="My ID is status-label" />
                     </tooltip>
                 </TextArea>
-                <Label alignment="CENTER" prefHeight="17.0" prefWidth="158.0" style="-fx-size: 16; -fx-font-weight: bold" text="Enter an Automaton script:">
+                <Label alignment="CENTER" prefHeight="17.0" prefWidth="250.0" style="-fx-size: 16; -fx-font-weight: bold" text="Enter an Automaton script:">
 
                 </Label>
                 <TextArea fx:id="scriptText" id="script-text" prefHeight="200.0" prefWidth="200.0" style="-fx-font: 14 monospaced;">

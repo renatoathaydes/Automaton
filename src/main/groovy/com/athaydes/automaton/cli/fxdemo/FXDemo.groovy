@@ -82,6 +82,7 @@ class FXDemo extends BorderPane {
 		|doubleClickOn 'text:colors'
 		|pause 500
 		|clickOn 'text:yellow'
+		|waitForFxEvents()
 		|
 		|assertThat fxer[ 'status-label' ],
 		|           hasText( 'You selected [colors, yellow]' )
