@@ -43,21 +43,42 @@ public void testFeature() {
 
 For details on how to use Automaton, see the [documentation pages](docs/).
 
-## Installing Automaton
+## Downloading Automaton
 
-Download the latest zip file from the [releases](releases/) directory.
+Automaton is available at [Bintray's JCenter](http://jcenter.bintray.com/), a Maven repo.
+Therefore, you can let Ivy/Maven/Gradle manage a dependency on Automaton for you.
+Just enable the JCenter repo and use the following coordinates:
 
-The zip contains the Automaton jar which you need to add to your application classpath.
+#### Maven
+
+```xml
+<dependency>
+  <groupId>com.athaydes.automaton</groupId>
+  <artifactId>Automaton</artifactId>
+  <version>1.1.0</version>
+</dependency>
+```
+
+#### Gradle
+
+```groovy
+  compile "com.athaydes.automaton:Automaton:1.1.0"
+```
+
+### Downloading the zip manually
+
+You may download the a zip file from the [releases](releases/) directory.
+
 
 ## Building from source
 
 You can build Automaton from source by cloning this repository and then using [Gradle](http://www.gradle.org) to build it.
 
-You only need to have Git installed. Then, you can type:
+You only need to have Git installed. Type the following:
 
 ```
 git clone git@github.com:renatoathaydes/Automaton.git
-gradlew uberjar
+./gradlew uberjar
 ```
 
 This will create a "fat" jar which includes all Automaton's dependencies and hence can be run independently.
@@ -100,7 +121,8 @@ java -jar Automaton-1.x-all-deps.jar -demo javafx
 
 ## Providing custom Configuration
 
-The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file which will be used if found.
+The `Automaton` does not require any external configuration, but it allows the user to provide a configuration file
+to customize its behavior if desired.
 
 To provide custom configuration, simply add a file called `/automaton-config.properties` to the classpath.
 
