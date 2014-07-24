@@ -7,6 +7,7 @@ import javafx.application.Application
 import javafx.application.Platform
 import javafx.scene.Node
 import javafx.scene.Scene
+import javafx.scene.control.TextInputControl
 import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.codehaus.groovy.runtime.InvokerHelper
@@ -15,6 +16,8 @@ import java.awt.*
 import java.util.List
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
+
+import static com.athaydes.automaton.selector.StringSelectors.matchingAny
 
 /**
  *
@@ -295,6 +298,27 @@ class FXer extends HasSelectors<Node, FXer> {
         this
     }
 
+    /**
+     * Enters the given text into the currently selected node.
+     * @param text
+     * @return this
+     */
+    FXer enterText( String text ) {
+        waitForFxEvents()
+        sleep 350
+        Platform.runLater {
+            def focusOwner = getFocusedTextInputControl()
+            if ( focusOwner ) {
+                focusOwner.text = text
+            } else {
+                throw new GuiItemNotFound( focusOwner ?
+                        'Currently focused Node does not seem to be a text Node' :
+                        'Could not find the currently focused Node' )
+            }
+        }
+        this
+    }
+
     FXDragOn<FXer> drag( Node node ) {
         def target = centerOf node
         new FXerDragOn( this, target.x, target.y )
@@ -325,6 +349,17 @@ class FXer extends HasSelectors<Node, FXer> {
 
     Point centerOf( Node node ) {
         delegate.centerOf( node )
+    }
+
+    /**
+     * @return the focused TextInputControl if any, null otherwise.
+     */
+    TextInputControl getFocusedTextInputControl() {
+        def matches = getAll matchingAny( 'type:TextArea', 'type:TextField', 'type:PasswordField' )
+        for (match in matches) {
+            if (match.focused) return match
+        }
+        null
     }
 
     protected List<Node> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {

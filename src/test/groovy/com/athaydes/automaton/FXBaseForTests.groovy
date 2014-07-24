@@ -15,6 +15,7 @@ import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
 import javafx.scene.control.TextArea
+import javafx.scene.control.TextField
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -498,6 +499,39 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 		assert withDriver().getAll( Label ) as Set == [ labelA, labelB ] as Set
 		assert withDriver().getAll( CheckBox ) as Set == [ checkBoxC ] as Set
 	}
+
+    @Test
+    void testEnterText() {
+        final textAreaText = 'hello'
+        final tf1Text = 'renato@#athaydes.com//hi$'
+        final tf2Text = '#@$%^&*()__-='
+
+        def future = new LinkedBlockingDeque( 1 )
+        def textArea = new TextArea( maxWidth: 200, maxHeight: 150 )
+        def tf1 = new TextField( id: 'tf1' )
+        def tf2 = new TextField( id: 'tf2' )
+
+        Platform.runLater {
+            def hbox = new HBox( padding: [ 40 ] as Insets )
+            hbox.children.addAll textArea, tf1, tf2
+            FXApp.scene.root = hbox
+            future << true
+        }
+
+        assert future.poll( 4, TimeUnit.SECONDS )
+        sleep 250
+
+        withDriver().clickOn( 'tf1' ).enterText( tf1Text )
+                .clickOn( textArea ).enterText( textAreaText )
+                .clickOn( 'tf2' ).enterText( tf2Text )
+
+        withDriver().waitForFxEvents()
+
+        assert tf1.text == tf1Text
+        assert tf2.text == tf2Text
+        assert textArea.text == textAreaText
+
+    }
 
 }
 

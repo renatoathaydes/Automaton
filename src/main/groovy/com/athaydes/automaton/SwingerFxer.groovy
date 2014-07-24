@@ -181,7 +181,22 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 	}
 
     SwingerFxer enterText( String text ) {
-        swinger.enterText( text )
+        def error = null
+        if ( swinger.focusedComponent ) {
+            try {
+                swinger.enterText( text )
+                return this // if worked
+            } catch ( e ) {
+                // didn't work, try with javafx
+                error = e
+            }
+        }
+        try {
+            fxer.enterText( text )
+        } catch ( e ) {
+            // both failed, give up
+            throw new RuntimeException( "Both Swing and JavaFX failed to enter text. Possible causes: ${error} || ${e}" )
+        }
         this
     }
 
