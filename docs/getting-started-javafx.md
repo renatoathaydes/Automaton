@@ -43,6 +43,8 @@ Built-in JavaFX selectors:
     * Example: `fxer.clickOn( ".invalid" );`
   * `text:` select by text (works for anything that has a label).
     * Example: `fxer.clickOn( "text:My Node" );`
+  * `type:` select by type. Use the class's simple or qualified name.
+    * Example: `fxer.clickOn( "type:TextArea" );`
 
 You can also select a Node by type, type-safely, as follows:
 
