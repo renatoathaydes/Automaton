@@ -237,7 +237,7 @@ class AutomatonTest implements HasSwingCode {
 	@Test
 	void testDragFromTo() {
 		new SwingBuilder().edt {
-			jFrame = frame( title: 'Frame', location: [ 250, 50 ] as Point,
+			jFrame = frame( title: 'Frame', locationRelativeTo: null,
 					size: [ 300, 30 ] as Dimension, show: true )
 		}
 		waitForJFrameToShowUp()
