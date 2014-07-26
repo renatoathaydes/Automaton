@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent
 import java.util.concurrent.TimeUnit
 
 import static com.athaydes.internal.RobotTypingUtil.robotCode
-import static com.sun.glass.ui.Application.GetApplication
 
 /**
  *
@@ -20,7 +19,7 @@ import static com.sun.glass.ui.Application.GetApplication
  */
 class Automaton<T extends Automaton> {
 
-    def robot = isMac() ? GetApplication().createRobot() : new Robot()
+    def robot = new Robot()
 
     static Speed DEFAULT = Config.instance.speed
     private static Automaton instance

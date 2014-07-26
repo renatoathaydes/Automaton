@@ -28,16 +28,19 @@ class Config {
 
 	void reload() {
 		props.clear()
+        def configStream = resourceLoader.config
 		try {
-			def configFile = resourceLoader.configFile
-			if ( configFile?.exists() ) {
-				props.load( configFile.newInputStream() )
+			if ( configStream ) {
+                log.debug 'Will use custom config file'
+			    props.load( configStream )
 			} else {
 				log.info( "No Automaton config file found, using defaults" )
 			}
 		} catch ( e ) {
 			log.warn( "Unable to load configuration properties", e )
-		}
+		} finally {
+            configStream?.close()
+        }
 	}
 
 	void setResourceLoader( resourceLoader ) {
@@ -82,14 +85,17 @@ class Config {
 
 }
 
+@Slf4j
 class RealResourceLoader {
 
 	static final CUSTOM_CONFIG_FILE_LOCATION = "/automaton-config.properties"
 
-	File getConfigFile() {
-		def resource = this.class.getResource( CUSTOM_CONFIG_FILE_LOCATION )
-		if ( resource )
-			return new File( resource.toURI() )
+	InputStream getConfig() {
+        def resource = this.class.getResource( CUSTOM_CONFIG_FILE_LOCATION )
+        if ( resource ) {
+            log.info( "Located custom config at ${resource.toURI()}" )
+            return resource.newInputStream()
+        }
 		null
 	}
 

@@ -130,8 +130,8 @@ The config file contains the following properties:
 
 ```properties
 # Set the DEFAULT speed to be used by the Automaton when no speed is passed in a method call
-# Options are the values of enum: com.athaydes.automaton.Speed
-automaton.speed=VERY_FAST
+# Options are SLOW, MEDIUM, FAST, VERY_FAST
+automaton.speed = FAST
 
 # Interactive mode - set to 'true' for step-by-step execution, requiring the user to
 # press any key to proceed. Also useful for debugging.

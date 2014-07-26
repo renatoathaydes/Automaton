@@ -16,7 +16,7 @@ class ConfigTest {
 
 	@Test
 	void "Provides default SPEED if no config file exists"( ) {
-		config.resourceLoader = [ getConfigFile: { new File( 'DOES_NOT_EXIST' ) } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { null } ] as RealResourceLoader
 		assert config.speed == Config.DEFAULT_SPEED
 	}
 
@@ -24,7 +24,7 @@ class ConfigTest {
 	void "Provides default SPEED if config file specifies invalid speed"( ) {
 		def tempFile = configFileWith( "automaton.speed=INVALID" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
 		assert config.speed == Config.DEFAULT_SPEED
 	}
@@ -33,14 +33,14 @@ class ConfigTest {
 	void "Provides default SPEED if config file does not specify a speed"( ) {
 		def tempFile = configFileWith( "automaton.something=else\na.prop=hi" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
 		assert config.speed == Config.DEFAULT_SPEED
 	}
 
 	@Test
 	void "Provides default SPEED if config file cannot be read by any reason"( ) {
-		config.resourceLoader = [ getConfigFile: { throw new Exception() } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { throw new Exception() } ] as RealResourceLoader
 
 		assert config.speed == Config.DEFAULT_SPEED
 	}
@@ -49,7 +49,7 @@ class ConfigTest {
 	void "Provides SPEED set by config file if valid"( ) {
 		def tempFile = configFileWith( "automaton.speed=${SLOW.name()}" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
 		assert config.speed != null
 		assert config.speed == SLOW
@@ -57,7 +57,7 @@ class ConfigTest {
 
 	@Test
 	void "Provides default InteractiveMode if no config file exists"() {
-		config.resourceLoader = [ getConfigFile: { new File( 'DOES_NOT_EXIST' ) } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { new File( 'DOES_NOT_EXIST' ) } ] as RealResourceLoader
 		assert !config.interactiveMode
 	}
 
@@ -65,7 +65,7 @@ class ConfigTest {
 	void "Provides default InteractiveMode if config file specifies invalid value"() {
 		def tempFile = configFileWith( "automaton.speed=SLOW\nautomaton.interactive=WHAT" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 		assert !config.interactiveMode
 	}
 
@@ -73,7 +73,7 @@ class ConfigTest {
 	void "Provides InteractiveMode set by config file if valid and true"( ) {
 		def tempFile = configFileWith( "automaton.interactive = true" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
 		assert config.interactiveMode
 	}
@@ -82,7 +82,7 @@ class ConfigTest {
 	void "Provides InteractiveMode set by config file if valid and false"( ) {
 		def tempFile = configFileWith( "automaton.interactive = false" )
 
-		config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+		config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
 		assert !config.interactiveMode
 	}
@@ -91,7 +91,7 @@ class ConfigTest {
     void "Provides default value for automaton_javafx_disableBringStageToFront if config file does not specify anything"() {
         def tempFile = configFileWith( '' )
 
-        config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+        config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
         assert !config.disableBringStageToFront
     }
@@ -100,7 +100,7 @@ class ConfigTest {
     void "Provides automaton_javafx_disableBringStageToFront set by config if valid and set to true"() {
         def tempFile = configFileWith( 'automaton.javafx.disableBringStageToFront = true' )
 
-        config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+        config.resourceLoader = [ getConfig: { tempFile.newInputStream() } ] as RealResourceLoader
 
         assert config.disableBringStageToFront
     }
