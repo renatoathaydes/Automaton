@@ -87,6 +87,24 @@ class ConfigTest {
 		assert !config.interactiveMode
 	}
 
+    @Test
+    void "Provides default value for automaton_javafx_disableBringStageToFront if config file does not specify anything"() {
+        def tempFile = configFileWith( '' )
+
+        config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+
+        assert !config.disableBringStageToFront
+    }
+
+    @Test
+    void "Provides automaton_javafx_disableBringStageToFront set by config if valid and set to true"() {
+        def tempFile = configFileWith( 'automaton.javafx.disableBringStageToFront = true' )
+
+        config.resourceLoader = [ getConfigFile: { tempFile } ] as RealResourceLoader
+
+        assert config.disableBringStageToFront
+    }
+
 	private File configFileWith( String text ) {
 		def tempFile = File.createTempFile( 'temp-config', '.properties' )
 		tempFile.write( text )

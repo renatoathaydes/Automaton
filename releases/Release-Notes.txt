@@ -5,7 +5,8 @@ Release 1.1
 * Fixed bug #15 - custom config file was not being properly located
 * Improvement #11 - Added IntelliJ IDEA support for AScripts code-completion
 * Added support for running several AScripts, in sequence, located in a given directory
-* Improvement #16 - the JavaFX Stage is brought to front before any action if necessary
+* Improvement #16 - the JavaFX Stage is brought to front before any action if necessary.
+  This feature can be disabled by setting the config property `automaton.javafx.disableBringStageToFront` to true
 * Added new method (enterText) to improve support for entering unicode characters in text fields
 * Added new methods (getFocusedComponent) for Swing drivers, (getFocusedTextInputControl) for JavaFX drivers
 * Added new property (initialized) to FXApp to allow JavaFX tests to know when the application has started up

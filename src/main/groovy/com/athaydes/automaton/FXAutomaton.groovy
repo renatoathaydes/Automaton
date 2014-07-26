@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.automaton.selector.*
+import com.athaydes.internal.Config
 import com.athaydes.internal.interceptor.ToFrontInterceptor
 import groovy.util.logging.Slf4j
 import javafx.application.Application
@@ -131,7 +132,9 @@ class FXApp extends Application {
             stage = stageFuture.poll 10, TimeUnit.SECONDS
             assert stage
             stageFuture = null
-            initializeToFrontInterceptor()
+            if (!Config.instance.disableBringStageToFront) {
+                initializeToFrontInterceptor()
+            }
             initialized = true
         }
         doInFXThreadBlocking {

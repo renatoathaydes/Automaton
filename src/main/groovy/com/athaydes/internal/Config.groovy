@@ -18,7 +18,11 @@ class Config {
 
 	static final DEFAULT_SPEED = FAST
 
-	private Config() {
+    static final booleanValidator = { String configValue ->
+        if ( configValue && isBoolean( configValue ) ) toBoolean( configValue )
+    }
+
+    private Config() {
 		reload()
 	}
 
@@ -48,20 +52,33 @@ class Config {
 	}
 
 	boolean isInteractiveMode() {
-		getPropertyValue( 'automaton.interactive', false ) { String configValue ->
-			if ( configValue && configValue.toLowerCase() == 'true' ) configValue
-		} as boolean
+		getPropertyValue( 'automaton.interactive', false, booleanValidator ) as boolean
 	}
+
+    boolean isDisableBringStageToFront() {
+        getPropertyValue( 'automaton.javafx.disableBringStageToFront', false, booleanValidator ) as boolean
+    }
 
 	private getPropertyValue( String key, defaultValue, Closure getValidated ) {
 		try {
 			def propValue = getValidated( props.getProperty( key ) )
-			propValue ?: defaultValue
+			propValue == null ? defaultValue : propValue
 		} catch ( ignore ) {
 			log.warn( "Property ${key} invalid, will use default value" )
 			defaultValue
 		}
 	}
+
+    private static boolean isBoolean( String value ) {
+        value.trim().toLowerCase() in ['true', 'false']
+    }
+
+    private static boolean toBoolean( String configValue ) {
+        switch(configValue.trim().toLowerCase()) {
+            case 'true': return true
+            default: return false
+        }
+    }
 
 }
 

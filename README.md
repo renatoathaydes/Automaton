@@ -136,6 +136,10 @@ automaton.speed=VERY_FAST
 # Interactive mode - set to 'true' for step-by-step execution, requiring the user to
 # press any key to proceed. Also useful for debugging.
 automaton.interactive = false
+
+# JavaFX Disable bring stage to front - set to 'true' to stop Automaton from bringing the Stage to front when
+# necessary to reach a Node when the Stage is hidden.
+automaton.javafx.disableBringStageToFront = false
 ```
 
 ## Other useful things
