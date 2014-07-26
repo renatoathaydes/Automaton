@@ -10,6 +10,8 @@ Release 1.1
 * Added new method (enterText) to improve support for entering unicode characters in text fields
 * Added new methods (getFocusedComponent) for Swing drivers, (getFocusedTextInputControl) for JavaFX drivers
 * Added new property (initialized) to FXApp to allow JavaFX tests to know when the application has started up
+* Added new method (initializeIfStageExists) to FXApp which allows test code to find and access an existing Stage.
+  For example: FXApp.initializeIfStageExists(); Stage stage = FXApp.getStage();
 * Improvement #19 - Preliminary JavaFX-drivers support for Mac OS X
 * #21 - Created Automaton JavaFX Demo to mirror the Swing Demo
 * #22 - Added support for running JavaFX and JavaFX/Swing mixed-applications AScripts
