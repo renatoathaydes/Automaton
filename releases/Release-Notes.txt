@@ -12,6 +12,8 @@ Release 1.1
 * Added new property (initialized) to FXApp to allow JavaFX tests to know when the application has started up
 * Improvement #19 - Preliminary JavaFX-drivers support for Mac OS X
 * #21 - Created Automaton JavaFX Demo to mirror the Swing Demo
-* #22 - Added support for running JavaFX AScripts
-* Upgraded Groovy version to 2.3.3
+* #22 - Added support for running JavaFX and JavaFX/Swing mixed-applications AScripts
+* AScripts now can give the required Speed to any call without having to import the Speed class.
+  For example to move very fast to a button, the click on it: clickOn 'the-button', VERY_FAST
+* Upgraded Groovy version to 2.3.3 - this is expected to allow Automaton to run on both Java 7 and Java 8
 * Automaton is now published on Bintray's JCenter, making it easier to add it as a Maven/Gradle/Ivy dependency

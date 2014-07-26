@@ -52,12 +52,13 @@ JLabel firstLabel = sfxer[ JLabel ]
 TextField field = sfxer[ TextField.class ]
 ```
 
-You can also call any static methods from the following classes:
+You can also call any static methods or constants from the following classes:
 
   * `org.junit.Assert`
   * `org.hamcrest.CoreMatchers`
   * `com.athaydes.automaton.assertion.AutomatonMatcher`
   * `com.athaydes.automaton.SwingUtil`
+  * `com.athaydes.automaton.Speed`
 
 The following is a valid example of an AScript:
 

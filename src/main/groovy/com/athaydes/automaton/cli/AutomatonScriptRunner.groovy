@@ -3,6 +3,7 @@ package com.athaydes.automaton.cli
 import com.athaydes.automaton.FXApp
 import com.athaydes.automaton.FXer
 import com.athaydes.automaton.GuiItemNotFound
+import com.athaydes.automaton.Speed
 import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
 import com.athaydes.automaton.SwingerFxer
@@ -45,7 +46,8 @@ class AutomatonScriptRunner {
                 Assert.class.name,
                 AutomatonMatcher.class.name,
                 CoreMatchers.class.name,
-                SwingUtil.class.name )
+                SwingUtil.class.name,
+                Speed.class.name )
         config.addCompilationCustomizers( imports )
 
         def sysoutInterceptor = null
@@ -60,7 +62,7 @@ class AutomatonScriptRunner {
         def shell = new GroovyShell( this.class.classLoader, BindingProviderBridge.instance.provideBinding(), config )
         try {
             shell.evaluate( text )
-        } catch ( e ) {
+        } catch ( Exception | AssertionError e ) {
             System.err.println( e )
         } finally {
             sysoutInterceptor?.stop()
