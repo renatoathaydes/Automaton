@@ -1,6 +1,10 @@
 ## JavaFX applications
 
-Starting:
+### Starting:
+
+Automaton has several options you can choose from to start running tests on your app:
+
+#### Let Automaton start your app
 
 You can simply let the `Automaton` start your app:
 
@@ -8,6 +12,8 @@ You can simply let the `Automaton` start your app:
 FXApp.startApp( new MyApp() );
 FXer fxer = FXer.getUserWith( FXApp.getScene().getRoot() );
 ```
+
+#### Launch your app then give Automaton a Node
 
 Or you can launch it using your own launcher, then create a FXer istance from any node at any time:
 
@@ -27,6 +33,29 @@ FXApp.doInFXThreadBlocking( new Runnable() {
 } );
 FXer fxer = FXer.getUserWith( customNode );
 ```
+
+#### Let Automaton find your Stage
+
+This option allows you to run tests on an application even if you cannot change the way it is started and cannot
+directly get a reference to any Node.
+
+The only requirement is that the Automaton tests run in the same Java Virtual Machine as your application.
+
+```java
+FXApp.initializeIfStageExists();
+if (FXApp.isInitialized()) {
+  FXer fxer = FXer.getUserWith( FXApp.getScene().getRoot() );
+  // start testing!
+  
+} else {
+  throw new RuntimeException( "Could not find a JavaFX Stage" );
+}
+```
+
+If you decide to use this option, you might also want to have a look at running your tests as [AScripts](running-scripts.md)
+rather than Java tests.
+
+### Testing with Automaton
 
 Emulating user's actions in the GUI:
 ```java

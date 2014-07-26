@@ -3,6 +3,7 @@ package com.athaydes.automaton
 import com.athaydes.automaton.selector.*
 import com.athaydes.internal.Config
 import com.athaydes.internal.interceptor.ToFrontInterceptor
+import com.sun.javafx.robot.impl.FXRobotHelper
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
@@ -110,7 +111,6 @@ class FXAutomaton extends Automaton<FXAutomaton> {
 class FXApp extends Application {
 
     private static Stage stage
-    static volatile boolean initialized = false
     private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
 
     static Scene getScene() {
@@ -124,7 +124,7 @@ class FXApp extends Application {
     }
 
     synchronized static Stage initialize( String... args ) {
-        if ( !stage ) {
+        if ( !stage && allJavaFXStages.empty ) {
             log.debug 'Initializing FXApp'
             if ( Automaton.isMac() ) System.setProperty( "javafx.macosx.embedded", "true" )
             Thread.start { Application.launch FXApp, args }
@@ -135,15 +135,38 @@ class FXApp extends Application {
             if (!Config.instance.disableBringStageToFront) {
                 initializeToFrontInterceptor()
             }
-            initialized = true
+            doInFXThreadBlocking {
+                stage.scene = emptyScene()
+            }
+        } else {
+            initializeIfStageExists()
         }
-        doInFXThreadBlocking {
-            stage.scene = emptyScene()
+
+        if ( stage ) {
             ensureShowing( stage )
+            log.debug "Stage now showing!"
+            FXAutomaton.getScenePosition( scene.root )
         }
-        log.debug "Stage now showing!"
-        FXAutomaton.getScenePosition( scene.root )
         stage
+    }
+
+    static void initializeIfStageExists() {
+        isInitialized()
+    }
+
+    static synchronized boolean isInitialized() {
+        def stageExists = !allJavaFXStages.empty
+        if ( stageExists && stage == null ) stage = allJavaFXStages.first()
+        stageExists
+    }
+
+    static Collection<Stage> getAllJavaFXStages() {
+        try {
+            FXRobotHelper.stages
+        } catch ( NullPointerException npe ) {
+            // no Stage has been initialized, JavaFX code throws a nasty NPE
+            []
+        }
     }
 
     static void initializeToFrontInterceptor() {

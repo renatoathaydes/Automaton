@@ -122,7 +122,7 @@ class SwingJavaFXBindingProvider {
 
     Binding provideBinding() {
         def swinger = attemptToGetSwinger()
-        def fxer = FXApp.initialized ? FXer.getUserWith( FXApp.scene.root ) : null
+        def fxer = attemptToGetFXer()
         def sfxer = ( swinger && fxer ) ? SwingerFxer.getUserWith( swinger.root, fxer.root ) : null
         if ( !swinger && !fxer ) {
             throw new RuntimeException( 'Could not find any Swing window or JavaFX Stage - cannot run AScript' )
@@ -136,6 +136,11 @@ class SwingJavaFXBindingProvider {
         } catch ( GuiItemNotFound e ) {
             return null
         }
+    }
+
+    FXer attemptToGetFXer() {
+        FXApp.initializeIfStageExists()
+        FXApp.initialized ? FXer.getUserWith( FXApp.scene.root ) : null
     }
 
 }
