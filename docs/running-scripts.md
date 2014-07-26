@@ -32,8 +32,7 @@ clickOn 'text:A label'
 An instance of `Swinger` called `swinger` and its counterpart `fxer` of type `FXer` are available for the script as well,
 so you can use (one of them or both, depending on whether you have a JavaFX or Swing application) them if required.
 
-If you application has both Swing and JavaFX code (and is initialized through `FXApp.initialize`) an instance of
-`SwingerFXer` can also be accessed with the name `sfxer`.
+If your application has both Swing and JavaFX code, an instance of `SwingerFXer` can also be accessed with the name `sfxer`.
 
 For example:
 
