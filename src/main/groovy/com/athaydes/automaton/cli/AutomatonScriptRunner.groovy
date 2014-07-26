@@ -2,8 +2,10 @@ package com.athaydes.automaton.cli
 
 import com.athaydes.automaton.FXApp
 import com.athaydes.automaton.FXer
+import com.athaydes.automaton.GuiItemNotFound
 import com.athaydes.automaton.SwingUtil
 import com.athaydes.automaton.Swinger
+import com.athaydes.automaton.SwingerFxer
 import com.athaydes.automaton.assertion.AutomatonMatcher
 import groovy.ui.SystemOutputInterceptor
 import org.codehaus.groovy.control.CompilerConfiguration
@@ -55,9 +57,7 @@ class AutomatonScriptRunner {
             syserrInterceptor.start()
         }
 
-        def shell = new GroovyShell( this.class.classLoader,
-                new Binding( swinger: FXApp.initialized ? null : Swinger.forSwingWindow(),
-                        fxer: FXApp.initialized ? FXer.getUserWith( FXApp.scene.root ) : null ), config )
+        def shell = new GroovyShell( this.class.classLoader, BindingProviderBridge.instance.provideBinding(), config )
         try {
             shell.evaluate( text )
         } catch ( e ) {
@@ -84,7 +84,7 @@ abstract class AutomatonScriptBase extends Script {
 
     def methodMissing( String name, def args ) {
         try {
-            ( swinger ?: fxer )."$name"( *args )
+            ( sfxer ?: ( swinger ?: fxer ) )."$name"( *args )
         } catch ( MissingMethodException e ) {
             e.printStackTrace()
         }
@@ -92,3 +92,56 @@ abstract class AutomatonScriptBase extends Script {
 
 }
 
+/**
+ * A bridge to avoid trying to load JavaFX classes if the system does not have JavaFX at runtime
+ */
+@Singleton
+class BindingProviderBridge {
+
+    Binding provideBinding() {
+        Class.forName( javaFXPresent() ?
+                'com.athaydes.automaton.cli.SwingJavaFXBindingProvider' :
+                'com.athaydes.automaton.cli.SwingOnlyBindingProvider' )
+                .newInstance().provideBinding()
+    }
+
+    private boolean javaFXPresent() {
+        try {
+            Class.forName( 'javafx.application.Application' )
+            true
+        } catch ( ClassNotFoundException e ) {
+            false
+        }
+    }
+
+}
+
+class SwingJavaFXBindingProvider {
+
+    Binding provideBinding() {
+        def swinger = attemptToGetSwinger()
+        def fxer = FXApp.initialized ? FXer.getUserWith( FXApp.scene.root ) : null
+        def sfxer = ( swinger && fxer ) ? SwingerFxer.getUserWith( swinger.root, fxer.root ) : null
+        if ( !swinger && !fxer ) {
+            throw new RuntimeException( 'Could not find any Swing window or JavaFX Stage - cannot run AScript' )
+        }
+        new Binding( swinger: swinger, fxer: fxer, sfxer: sfxer )
+    }
+
+    Swinger attemptToGetSwinger() {
+        try {
+            return Swinger.forSwingWindow()
+        } catch ( GuiItemNotFound e ) {
+            return null
+        }
+    }
+
+}
+
+class SwingOnlyBindingProvider {
+
+    Binding provideBinding() {
+        new Binding( swinger: Swinger.forSwingWindow(), fxer: null, sfxer: null )
+    }
+
+}

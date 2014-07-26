@@ -29,13 +29,27 @@ Script code can call all `SwingerFXer` methods directly, such as in:
 clickOn 'text:A label'
 ```
 
-An instance of `Swinger` called `swinger` or its counterpart `fxer` of type `FXer` is available for the script as well,
-so you can use (one of them, depending on whether you have a JavaFX or Swing application) as in this example:
+An instance of `Swinger` called `swinger` and its counterpart `fxer` of type `FXer` are available for the script as well,
+so you can use (one of them or both, depending on whether you have a JavaFX or Swing application) them if required.
+
+If you application has both Swing and JavaFX code (and is initialized through `FXApp.initialize`) an instance of
+`SwingerFXer` can also be accessed with the name `sfxer`.
+
+For example:
 
 ```groovy
 import javax.swing.JLabel
+import javafx.scene.control.TextField
 
+// if using Swing
 JLabel firstLabel = swinger[ JLabel ]
+
+// if using JavaFX
+TextField field = fxer[ TextField ]
+
+// if using both Swing and JavaFX
+JLabel firstLabel = sfxer[ JLabel ]
+TextField field = sfxer[ TextField.class ]
 ```
 
 You can also call any static methods from the following classes:
