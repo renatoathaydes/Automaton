@@ -80,6 +80,14 @@ There are 2 main jars available:
 
 [Click here](http://jcenter.bintray.com/com/athaydes/automaton/Automaton/) to go to JCenter.
 
+### System requirements
+
+The latest version of Automaton requires **Java 7 (minimum update 55)** or newer. It will work fine with Java 8, at
+least before update 11.
+
+If you need to make Automaton run with an older update of Java 7, there shouldn't be any problem if you compile
+it yourself using the adequate JDK, please see below how you can build it from source.
+
 ## Building from source
 
 You can build Automaton from source by cloning this repository and then using [Gradle](http://www.gradle.org) to build it.
