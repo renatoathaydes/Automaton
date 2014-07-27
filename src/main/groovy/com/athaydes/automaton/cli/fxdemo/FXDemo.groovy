@@ -64,8 +64,8 @@ class FXDemo extends BorderPane {
     void runScript() {
         runButton.disabled = true
         AutomatonDemo.runScript( scriptText.text,
-                [ write: { s -> logOutput.appendText( s.toString() ) } ] ) {
-            runButton.disabled = false
+                [ write: { s -> Platform.runLater { logOutput.appendText( s.toString() ) } } ] ) {
+            Platform.runLater { runButton.disabled = false }
         }
     }
 

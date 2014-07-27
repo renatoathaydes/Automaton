@@ -76,8 +76,12 @@ class AutomatonDemo {
                                         actionPerformed: {
                                             runButton.setEnabled( false )
                                             runScript( scriptPane.text,
-                                                    [ write: { s -> outputTextArea.append( s as String ) } ] ) {
-                                                runButton.setEnabled( true )
+                                                    [ write: { s ->
+                                                        SwingUtilities.invokeLater {
+                                                            outputTextArea.append( s as String )
+                                                        }
+                                                    } ] ) {
+                                                SwingUtilities.invokeLater { runButton.setEnabled( true ) }
                                             }
                                         } )
                                 button( name: 'clear-output', text: 'Clear output',
@@ -118,7 +122,7 @@ class AutomatonDemo {
         }
     }
 
-    static void runScript( String text, def writer, Closure onCompletion ) {
+    static void runScript( String text, def writer, Runnable onCompletion ) {
         Thread.start {
             try {
                 AutomatonScriptRunner.instance.runScript( text, writer )

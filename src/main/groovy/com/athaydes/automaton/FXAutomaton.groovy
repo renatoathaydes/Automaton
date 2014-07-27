@@ -175,8 +175,10 @@ class FXApp extends Application {
     }
 
     private static void ensureShowing( Stage stage ) {
-        stage.show()
-        stage.toFront()
+        doInFXThreadBlocking {
+            stage.show()
+            stage.toFront()
+        }
     }
 
     static doInFXThreadBlocking( Runnable toRun ) {
