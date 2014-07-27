@@ -28,8 +28,9 @@ class Config {
 
 	void reload() {
 		props.clear()
-        def configStream = resourceLoader.config
+        def configStream
 		try {
+            configStream = resourceLoader.config
 			if ( configStream ) {
                 log.debug 'Will use custom config file'
 			    props.load( configStream )
