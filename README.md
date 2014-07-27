@@ -73,11 +73,12 @@ You may download the Automaton jar directly from Bintray's JCenter if you wish.
 
 There are 2 main jars available:
 
-* `Automaton-version.jar` contains only the Automaton code without any dependency included.
+* `Automaton-{version}.jar` contains only the Automaton code without any dependency included.
    This is only appropriate if you are using a dependency manager such as Maven or Gradle.
-* `Automaton-version-all-deps.jar` includes not only the Automaton code, but also all its dependencies.
+* `Automaton-{version}-all-deps.jar` includes not only the Automaton code, but also all its dependencies.
    This is appropriate if you want to quickly run tests without depending on any build or dependency tools.
 
+[Click here](http://jcenter.bintray.com/com/athaydes/automaton/Automaton/) to go to JCenter.
 
 ## Building from source
 
