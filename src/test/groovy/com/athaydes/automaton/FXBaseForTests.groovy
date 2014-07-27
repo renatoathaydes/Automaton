@@ -67,7 +67,7 @@ class FXBaseForTests implements HasMixins {
 		}
 
 		assert blockUntilTestSceneSetup.poll( 4, TimeUnit.SECONDS )
-		sleep 250
+		sleep 500
 
 		if ( optionalDoMoveTo )
 			optionalDoMoveTo( rect )
@@ -131,7 +131,7 @@ class FXBaseForTests implements HasMixins {
 		}
 
 		assert future.poll( 4, TimeUnit.SECONDS )
-		sleep 250
+		sleep 500
 
 		doClickOn( buttonToClick )
 
@@ -154,7 +154,7 @@ class FXBaseForTests implements HasMixins {
 		}
 
 		assert future.poll( 4, TimeUnit.SECONDS )
-		sleep 250
+		sleep 500
 
 		doDoubleClickOn( buttonToClick )
 
@@ -185,7 +185,7 @@ class FXBaseForTests implements HasMixins {
 		}
 
 		assert blockUntilTestSceneSetup.poll( 4, TimeUnit.SECONDS )
-		sleep 250
+		sleep 500
 
 		doDrag( rect, target )
 
@@ -326,7 +326,7 @@ abstract class SimpleFxDriverTest extends FXBaseForTests {
 					}
 				}
 				root.children.setAll new Rectangle( 30, 40, Color.BLUEVIOLET )
-				stage.scene = new Scene( root, 35, 50 )
+				stage.scene = new Scene( root, 350, 500 )
 				future << true
 			}
 		}
