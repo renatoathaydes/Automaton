@@ -25,8 +25,9 @@ targetCompatibility = 1.7
 def groovyVersion = '2.3.3'
 
 repositories {
-	mavenLocal()
-	mavenCentral()
+    mavenLocal()
+    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -41,6 +42,7 @@ dependencies {
 	runtime "log4j:log4j:1.2.14"
 	testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 	testCompile "cglib:cglib-nodep:2.2.2"
+    testCompile "com.athaydes:spock-reports:1.1"
 }
 
 compileTestJava.enabled = false
