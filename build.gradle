@@ -16,7 +16,7 @@ apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapsho
 defaultTasks 'clean', 'jar', 'test'
 
 group = 'com.athaydes.automaton'
-version = "1.1.0"
+version = "1.2.0.myriad"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
 sourceCompatibility = 1.7

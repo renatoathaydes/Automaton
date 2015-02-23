@@ -56,6 +56,13 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
 							stop = visitor( itemComp )
 						}
 						break
+                    case JTabbedPane:
+                        def jtab = comp as JTabbedPane
+                        for ( index in 0..<jtab.tabCount ) {
+                            def tabComp = tabbedPane2FakeComponent( jtab, index )
+                            stop = visitor( tabComp )
+                        }
+                        break
 				}
 			return stop
 		}

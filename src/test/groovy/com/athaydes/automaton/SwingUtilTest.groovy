@@ -271,4 +271,22 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		component.height == 8
 	}
 
+    def testFakeComponentForTabbedPane( ) {
+        given:
+        def tabIndex = 3
+        def tabbedPane = Mock(JTabbedPane)
+        tabbedPane.locationOnScreen >> new Point ( 20, 30 )
+        tabbedPane.getBoundsAt( tabIndex ) >> new Rectangle( 1, 2, 3, 4 )
+        tabbedPane.getTitleAt( tabIndex ) >> 'TABBEDPANE'
+
+        when:
+        Component component = SwingUtil.tabbedPane2FakeComponent(tabbedPane, tabIndex)
+
+        then:
+        component.text == 'TABBEDPANE'
+        component.locationOnScreen == new Point( 21, 32 )
+        component.width == 3
+        component.height == 4
+    }
+
 }
