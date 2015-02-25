@@ -42,7 +42,15 @@ class SwingUtil {
 				{ tree.getPathBounds( new TreePath( pathOf( node ) ) ) } )
 	}
 
-	/**
+    protected static Component tabbedPane2FakeComponent( JTabbedPane tabbedPane, int index ) {
+        new FakeComponent(
+                tabbedPane.getTitleAt( index ),
+                { tabbedPane.locationOnScreen },
+                { tabbedPane.getBoundsAt( index ) }
+        )
+    }
+
+    /**
 	 * Navigates the tree under the given root, calling the given action for each Component.
 	 * To stop navigating, action may return true
 	 * @param root of tree to be navigated
