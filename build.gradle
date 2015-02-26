@@ -30,13 +30,25 @@ repositories {
     mavenCentral()
 }
 
+//////// hack to make groovy a provided dependency ////////
+configurations {
+    provided
+}
+
+sourceSets {
+    main {
+        compileClasspath += configurations.provided
+    }
+}
+////////////////////////////////////////////////////////////
+
 def groovyDeps = [ "org.codehaus.groovy:groovy:${groovyVersion}",
                    "org.codehaus.groovy:groovy-swing:${groovyVersion}",
                    "org.codehaus.groovy:groovy-console:${groovyVersion}",
                    "org.codehaus.groovy:groovy-test:${groovyVersion}" ]
 
 dependencies {
-    groovyDeps.each { providedCompile it }
+    groovyDeps.each { provided it }
     compile "org.slf4j:slf4j-api:1.7.5"
     compile "org.hamcrest:hamcrest-library:1.3"
     compile "junit:junit:4.11"
@@ -83,9 +95,9 @@ task uberjar( type: Jar, dependsOn: classes ) {
     classifier = 'all-deps'
     from files( sourceSets.main.output.classesDir )
     from files( sourceSets.main.output.resourcesDir )
-    from configurations.runtime.asFileTree.files
+    from((configurations.runtime.asFileTree.files + configurations.provided.asFileTree.files)
             .findAll { !it.name.endsWith( 'jfxrt.jar' ) }
-            .collect { zipTree( it ) }
+            .collect { zipTree( it ) })
 
     manifest {
         attributes( manifestAttributes )
