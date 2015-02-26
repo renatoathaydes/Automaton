@@ -1,4 +1,10 @@
-Release 1.1
+Release 1.2.1 (Feb 25, 2015)
+===========
+
+* Added support for Swing JTabbedPane text selector
+* Removed Groovy from user classpath - Groovy dependency added by user is required now
+
+Release 1.1.0 (July 27, 2014)
 ===========
 
 * Fixed bug #9 - Automaton's TimerLimiter Thread did not die after test ended

@@ -50,20 +50,31 @@ Automaton is available at [Bintray's JCenter](http://jcenter.bintray.com/), a Ma
 Therefore, you can let Ivy/Maven/Gradle manage a dependency on Automaton for you.
 Just enable the JCenter repo and use the following coordinates:
 
+> Notice that Automaton requires Groovy 2.0+ in the classpath. If you don't have Groovy already in your classpath,
+ since Automaton version 1.2.1 you'll need to add a test dependency on Groovy as shown below (replace groovyVersion with the Groovy version you want to use).
+
 #### Maven
 
 ```xml
 <dependency>
   <groupId>com.athaydes.automaton</groupId>
   <artifactId>Automaton</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.1</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>org.codehaus.groovy</groupId>
+  <artifactId>groovy-all</artifactId>
+  <version>${groovyVersion}</version>
+  <scope>test</scope>
 </dependency>
 ```
 
 #### Gradle
 
 ```groovy
-  compile "com.athaydes.automaton:Automaton:1.1.0"
+  testCompile "com.athaydes.automaton:Automaton:1.2.1"
+  testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
 ```
 
 > See release notes for all versions [here](releases/Release-Notes.txt)
@@ -83,11 +94,11 @@ There are 2 main jars available:
 
 ### System requirements
 
-The latest version of Automaton requires **Java 7 (minimum update 55)** or newer. It will work fine with Java 8, at
-least before update 11.
+Automaton will work with any Java 7 (after update 65) or Java 8 (after update 25).
 
-If you need to make Automaton run with an older update of Java 7, there shouldn't be any problem if you compile
-it yourself using the adequate JDK, please see below how you can build it from source.
+**Due to some bytecode restrictions temporarily added to the JVM in some older Java 7 and 8 updates,
+you may experience `VerifyError` or similar issues with some versions, notably Java 8, update 11, and Java 7, update 64.
+If you do, just upgrade (or even downgrade, if that's safer for you) your Java version and it should work fine.**
 
 ## Building from source
 
