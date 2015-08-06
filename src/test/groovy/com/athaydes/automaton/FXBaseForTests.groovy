@@ -14,6 +14,9 @@ import javafx.scene.control.Button
 import javafx.scene.control.CheckBox
 import javafx.scene.control.ComboBox
 import javafx.scene.control.Label
+import javafx.scene.control.Menu
+import javafx.scene.control.MenuBar
+import javafx.scene.control.MenuItem
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.input.MouseEvent
@@ -31,6 +34,7 @@ import java.awt.Point
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 import static com.athaydes.automaton.Speed.VERY_FAST
 import static com.google.code.tempusfugit.temporal.Duration.seconds
@@ -531,6 +535,39 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 		assert tf2.text == tf2Text
 		assert textArea.text == textAreaText
 
+	}
+
+	@Test
+	void menuItemsCanBePicked() {
+		def future = new LinkedBlockingDeque( 1 )
+
+		def menuBar = new MenuBar()
+		def menu = new Menu( 'This is a Menu' )
+
+		def item1 = new MenuItem( 'First' )
+		def item2 = new MenuItem( 'Second' )
+		def item3 = new MenuItem( 'Third' )
+
+		final clicksOn3 = new AtomicInteger( 0 )
+
+		item3.addEventHandler( MouseEvent.MOUSE_CLICKED, { MouseEvent mouseEvent ->
+			clicksOn3.incrementAndGet()
+		} )
+
+		Platform.runLater {
+			menu.items.addAll( item1, item2, item3 )
+			def hbox = new HBox( padding: [ 40 ] as Insets )
+			hbox.children.add menuBar.with { menus.add( menu ); return it }
+			FXApp.scene.root = hbox
+			future << true
+		}
+
+		assert future.poll( 4, TimeUnit.SECONDS )
+		sleep 500
+
+		withDriver().clickOn( menuBar ).pause( 250 ).clickOn( 'text:Third' )
+
+		waitOrTimeout condition { clicksOn3.intValue() == 1 }, timeout( seconds( 2 ) )
 	}
 
 }
