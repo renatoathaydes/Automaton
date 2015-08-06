@@ -1,3 +1,8 @@
+Release 1.2.2 (Aug 06, 2015)
+===========
+
+* Fixed bug #28 - Would not find the position of elements located in popup Scenes in certain cases
+
 Release 1.2.1 (Feb 25, 2015)
 ===========
 
