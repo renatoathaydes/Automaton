@@ -550,7 +550,7 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 
 		final clicksOn3 = new AtomicInteger( 0 )
 
-		item3.addEventHandler( MouseEvent.MOUSE_CLICKED, { MouseEvent mouseEvent ->
+		item3.setOnAction( { ActionEvent mouseEvent ->
 			clicksOn3.incrementAndGet()
 		} )
 
