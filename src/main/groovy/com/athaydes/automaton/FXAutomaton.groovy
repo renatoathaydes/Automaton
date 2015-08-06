@@ -96,12 +96,16 @@ class FXAutomaton extends Automaton<FXAutomaton> {
         new Point( node.scene.window.x.intValue(), node.scene.window.y.intValue() )
     }
 
-    // required because of JavaFX bug: RT-34307
-    protected static Point getScenePosition( Node node ) {
-        scenePos.x = Math.max( node.scene.x.intValue(), scenePos.x )
-        scenePos.y = Math.max( node.scene.y.intValue(), scenePos.y )
-        scenePos
-    }
+	// required because of JavaFX bug: RT-34307
+	protected static Point getScenePosition( Node node ) {
+		if ( FXApp.scene == node.scene ) { // is top-level Scene
+			scenePos.x = Math.max( node.scene.x.intValue(), scenePos.x )
+			scenePos.y = Math.max( node.scene.y.intValue(), scenePos.y )
+			return scenePos
+		} else {
+			return [ node.scene.x.intValue(), node.scene.y.intValue() ] as Point
+		}
+	}
 
     private static scenePos = new Point()
 
