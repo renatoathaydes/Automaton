@@ -60,7 +60,7 @@ Just enable the JCenter repo and use the following coordinates:
 <dependency>
   <groupId>com.athaydes.automaton</groupId>
   <artifactId>Automaton</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <scope>test</scope>
 </dependency>
 <dependency>
@@ -74,7 +74,7 @@ Just enable the JCenter repo and use the following coordinates:
 #### Gradle
 
 ```groovy
-  testCompile "com.athaydes.automaton:Automaton:1.2.2"
+  testCompile "com.athaydes.automaton:Automaton:1.2.3"
   testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
 ```
 
