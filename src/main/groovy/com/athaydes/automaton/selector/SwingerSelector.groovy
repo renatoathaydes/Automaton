@@ -63,6 +63,13 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
                             stop = visitor( tabComp )
                         }
                         break
+                    case JList:
+                        def jlist = comp as JList
+                        for ( index in 0..<jlist.model.size ) {
+                            def listComp = listItem2FakeComponent( jlist, index )
+                            stop = visitor( listComp )
+                        }
+                        break
 				}
 			return stop
 		}

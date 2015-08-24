@@ -50,6 +50,24 @@ class SwingUtil {
         )
     }
 
+    protected static Component listItem2FakeComponent( JList list, int index ) {
+        def item = list.model.getElementAt( index )
+        def listComp = list.cellRenderer.getListCellRendererComponent( list, item, index, false, false )
+		def listItemText
+		if ( listComp instanceof JLabel ) {
+			// the default renderer will return JLabel components - get text from that
+			listItemText = listComp.text
+		} else {
+			// if the default renderer was not used, attempt to get the text from the item's toString
+			listItemText = item.toString()
+		}
+        new FakeComponent( listItemText,
+                { list.locationOnScreen },
+                {
+					list.ui.getCellBounds(list, index, index)
+                } )
+    }
+
     /**
 	 * Navigates the tree under the given root, calling the given action for each Component.
 	 * To stop navigating, action may return true
