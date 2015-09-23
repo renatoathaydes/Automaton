@@ -137,10 +137,21 @@ class SwingUtil {
 		}
 		for ( row in rows ) {
 			for ( col in cols ) {
-				if ( action( table.model.getValueAt( row, col ), row, col ) ) return true
+				if ( action( getRenderedTableValue(table, row, col ), row, col ) ) return true
 			}
 		}
 		return false
+	}
+
+	private static Object getRenderedTableValue(JTable table, row, col) {
+		def value = table.model.getValueAt(row, col)
+		def rendererComp = table.getCellRenderer(row, col)
+				.getTableCellRendererComponent(table, value, false, false, row, col)
+		if (rendererComp instanceof JLabel) {
+			(rendererComp as JLabel).getText()
+		} else {
+			return value
+		}
 	}
 
 	/**
