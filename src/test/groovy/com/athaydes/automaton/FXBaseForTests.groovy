@@ -17,6 +17,8 @@ import javafx.scene.control.Label
 import javafx.scene.control.Menu
 import javafx.scene.control.MenuBar
 import javafx.scene.control.MenuItem
+import javafx.scene.control.TableColumn
+import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
 import javafx.scene.input.MouseEvent
@@ -568,6 +570,30 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 		withDriver().clickOn( menuBar ).pause( 250 ).clickOn( 'text:Third' )
 
 		waitOrTimeout condition { clicksOn3.intValue() == 1 }, timeout( seconds( 2 ) )
+	}
+
+	@Test
+	void canSelectTableHeadersWithSelectors() {
+		TableView table = new TableView()
+
+		final firstNameCol = new TableColumn("First Name")
+		final lastNameCol = new TableColumn("Last Name")
+		final emailCol = new TableColumn("Email")
+
+		table.columns.addAll(firstNameCol, lastNameCol, emailCol)
+
+        final latch = new CountDownLatch(1)
+
+		Platform.runLater {
+			FXApp.scene.root = table
+            latch.countDown()
+		}
+
+        assert latch.await( 2, TimeUnit.SECONDS )
+
+        withDriver().getAll( 'text:Email' ).size() == 1
+        withDriver().getAll( 'text:First Name' ).size() == 1
+        withDriver().getAll( 'text:Last Name' ).size() == 1
 	}
 
 }
