@@ -53,14 +53,11 @@ class SwingUtil {
     protected static Component listItem2FakeComponent( JList list, int index ) {
         def item = list.model.getElementAt( index )
         def listComp = list.cellRenderer.getListCellRendererComponent( list, item, index, false, false )
-		def listItemText
-		if ( listComp instanceof JLabel ) {
-			// the default renderer will return JLabel components - get text from that
-			listItemText = listComp.text
-		} else {
-			// if the default renderer was not used, attempt to get the text from the item's toString
-			listItemText = item.toString()
-		}
+
+		// if the renderer component has a getText method - the default renderer returns a JLabel component) - get text
+		// from that or attempt to get the text from the item's toString
+		def listItemText = callMethodIfExists(listComp, 'getText') ?: item.toString()
+
         new FakeComponent( listItemText,
                 { list.locationOnScreen },
                 {
