@@ -4,11 +4,13 @@ import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
 import com.athaydes.automaton.selector.SimpleSwingerSelector
 import groovy.swing.SwingBuilder
+import javafx.beans.property.SimpleStringProperty
 import javafx.scene.layout.VBox
 import org.junit.After
 import org.junit.Test
 
 import javax.swing.*
+import javax.swing.table.DefaultTableCellRenderer
 import java.awt.*
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
@@ -309,6 +311,37 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		assert jTable.model.getValueAt( 1, 0 ) == 'row 2 col 1'
 		assert jTable.model.getValueAt( 1, 1 ) == 'row 2 col 2'
 
+	}
+
+	@Test
+	void testMoveTo_TableCell_CustomRenderer() {
+		def tModel = [
+				[ firstCol: new SimpleStringProperty('1 - 1'), secCol: new SimpleStringProperty('1 - 2') ],
+		]
+		def cellRenderer = new DefaultTableCellRenderer(){
+			@Override
+			protected void setValue(Object value) {
+				setText(value.value)
+			}
+		}
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+					location: defaultLocation, show: true ) {
+				scrollPane {
+					jTable = table {
+						tableModel( list: tModel ) {
+							propertyColumn( header: 'Col 1', propertyName: 'firstCol', type: SimpleStringProperty.class, cellRenderer: cellRenderer )
+							propertyColumn( header: 'Col 2', propertyName: 'secCol', type: SimpleStringProperty.class, cellRenderer: cellRenderer )
+						}
+					}
+				}
+			}
+		}
+		waitForJFrameToShowUp()
+
+		assert withDriver().getAll( 'text:1 - 1' ).size() == 1
+		assert withDriver().getAll( 'text:1 - 2' ).size() == 1
 	}
 
 	@Test

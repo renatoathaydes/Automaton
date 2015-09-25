@@ -137,10 +137,26 @@ class SwingUtil {
 		}
 		for ( row in rows ) {
 			for ( col in cols ) {
-				if ( action( table.model.getValueAt( row, col ), row, col ) ) return true
+				if ( action( getRenderedTableValue(table, row, col ), row, col ) ) return true
 			}
 		}
 		return false
+	}
+
+	/**
+	 * Returns the text as rendered by the table cell's renderer component, if the renderer component
+	 * has a getText() method. Returns the model value at the cell's position otherwise.
+	 * @param table in question
+	 * @param row of the value to get
+	 * @param col of the value to get
+	 * @return The rendered value or the model value if the renderer doesn't have a getText() method
+	 */
+	private static getRenderedTableValue(JTable table, int row, int col) {
+		def value = table.model.getValueAt(row, col)
+		def rendererComp = table.getCellRenderer(row, col)
+				.getTableCellRendererComponent(table, value, false, false, row, col)
+		def text = callMethodIfExists(rendererComp, 'getText')
+		return text ?: value
 	}
 
 	/**
