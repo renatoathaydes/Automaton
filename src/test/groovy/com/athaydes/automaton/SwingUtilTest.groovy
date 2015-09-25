@@ -255,6 +255,21 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 		[ 1, 2 ] as Set | 'addAll'            | [ 1, 2 ]        | false
 	}
 
+	@Unroll
+	def testCallMethodIfExistsFailsIfMethodWontAcceptArguments() {
+		when:
+		def result = SwingUtil.callMethodIfExists( obj, methodName, args )
+
+		then:
+		result == [] // the empty result
+
+		where:
+		obj             | methodName          | args
+		'hi'            | 'toUpperCase'       | [ 'arg' ] as Object[]
+		[ 1 ]           | 'ensureCapacity'    | [ 'yes', 'no' ]
+		'hi'            | 'charAt'            | [ '1' ]
+	}
+
 	def testFakeComponentForTreeNode( ) {
 		given:
 		def swingObject = 'SWING'
