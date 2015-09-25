@@ -321,7 +321,7 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		def cellRenderer = new DefaultTableCellRenderer(){
 			@Override
 			protected void setValue(Object value) {
-				setText(((SimpleStringProperty) value).getValue())
+				setText(value.value)
 			}
 		}
 		JTable jTable = null
