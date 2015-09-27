@@ -26,8 +26,9 @@ class TextFxSelector extends SimpleFxSelector {
 		try {
   			def text = SwingUtil.callMethodIfExists( node, 'getText' )
   			return text != null && text == selector
-		} catch ( ignored ) {}
-		return false
+		} catch ( MissingMethodException ignored ) {
+  			return false
+    }
 	}
 
 	@Override
