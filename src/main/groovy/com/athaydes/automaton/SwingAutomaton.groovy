@@ -1,6 +1,7 @@
 package com.athaydes.automaton
 
 import com.athaydes.automaton.selector.*
+import com.athaydes.automaton.swing.selectors.SwingNavigator
 
 import javax.swing.*
 import java.awt.*
@@ -215,8 +216,8 @@ class Swinger extends HasSelectors<Component, Swinger> {
             return ( root as JFrame ).getFocusOwner()
         }
         def owner = null
-        SwingUtil.navigateBreadthFirst( root ) { JComponent c ->
-            if( SwingUtil.callMethodIfExists( c, 'isFocusOwner' ) ) {
+        SwingNavigator.navigateBreadthFirst( root ) { JComponent c ->
+            if( ReflectionHelper.callMethodIfExists( c, 'isFocusOwner' ) ) {
                 owner = c
                 return true
             }

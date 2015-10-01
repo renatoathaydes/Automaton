@@ -1,6 +1,6 @@
 package com.athaydes.automaton.samples;
 
-import com.athaydes.automaton.SwingUtil;
+import com.athaydes.automaton.ReflectionHelper;
 import com.athaydes.automaton.Swinger;
 import com.athaydes.automaton.selector.AutomatonSelector;
 import com.athaydes.automaton.selector.SimpleSwingerSelector;
@@ -8,8 +8,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JTextArea;
+import javax.swing.JTree;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -104,7 +105,7 @@ public class SwingerSample {
         customSelectors.put( "$", new SimpleSwingerSelector() {
             @Override
             public boolean matches( String selector, Component component ) {
-                return SwingUtil.callMethodIfExists( component, "getId" ).equals( selector );
+                return ReflectionHelper.callMethodIfExists( component, "getId" ).equals( selector );
             }
         } );
 

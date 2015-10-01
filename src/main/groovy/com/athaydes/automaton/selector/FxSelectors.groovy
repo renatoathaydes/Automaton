@@ -1,6 +1,6 @@
 package com.athaydes.automaton.selector
 
-import com.athaydes.automaton.SwingUtil
+import com.athaydes.automaton.ReflectionHelper
 import javafx.scene.Node
 
 /**
@@ -23,7 +23,7 @@ class TextFxSelector extends SimpleFxSelector {
 
 	@Override
 	boolean matches( String selector, Node node ) {
-		def text = SwingUtil.callMethodIfExists( node, 'getText' )
+		def text = ReflectionHelper.callMethodIfExists( node, 'getText' )
 		text != null && text == selector
 	}
 

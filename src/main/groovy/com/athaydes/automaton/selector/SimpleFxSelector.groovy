@@ -1,9 +1,8 @@
 package com.athaydes.automaton.selector
 
+import com.athaydes.automaton.ReflectionHelper
 import javafx.scene.Node
 import javafx.stage.Window
-
-import static com.athaydes.automaton.SwingUtil.callMethodIfExists
 
 /**
  * @author Renato
@@ -55,7 +54,7 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 	}
 
 	private subItemsOf( node ) {
-		callMethodIfExists( node, 'getChildrenUnmodifiable' )
+		ReflectionHelper.callMethodIfExists( node, 'getChildrenUnmodifiable' )
 	}
 
 }
