@@ -9,6 +9,9 @@ import javax.swing.JFrame
 import javax.swing.JTabbedPane
 import javax.swing.JTable
 import javax.swing.JTree
+import javax.swing.table.DefaultTableCellRenderer
+import javax.swing.table.TableCellRenderer
+import javax.swing.table.TableColumn
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Point
@@ -54,16 +57,18 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
         when:
         def res = SwingUtil.navigateBreadthFirst( jTable ) { item, row, col ->
-            visited << [ item, row, col ]
+            def value = row < 0 ?
+                    (item as TableColumn).headerValue :
+                    (item as DefaultTableCellRenderer).text
+            visited << [ value, row, col ]
             false
         }
 
         then:
         visited == [
                 [ 'Col 1', -1, 0 ], [ 'Col 2', -1, 1 ],
-                [ 'item 1 - Col 1', 0, 0 ], [ 'item 1 - Col 2', 0, 1 ],
-                [ 'item 2 - Col 1', 1, 0 ], [ 'item 2 - Col 2', 1, 1 ],
-                [ 'item 3 - Col 1', 2, 0 ], [ 'item 3 - Col 2', 2, 1 ]
+                [ 'item 1 - Col 1', 0, 0 ], [ 'item 2 - Col 1', 1, 0 ], [ 'item 3 - Col 1', 2, 0 ],
+                [ 'item 1 - Col 2', 0, 1 ], [ 'item 2 - Col 2', 1, 1 ], [ 'item 3 - Col 2', 2, 1 ]
         ]
         !res // action never returned true
     }
@@ -95,8 +100,11 @@ class SwingUtilTest extends Specification implements HasSwingCode {
 
         when:
         def res = SwingUtil.navigateBreadthFirst( jTable ) { item, row, col ->
-            visited << [ item, row, col ]
-            item == 'item 1 - Col 1'
+            def value = row < 0 ?
+                    (item as TableColumn).headerValue :
+                    (item as DefaultTableCellRenderer).text
+            visited << [ value, row, col ]
+            value == 'item 1 - Col 1'
         }
 
         then:
