@@ -7,7 +7,7 @@ import javax.swing.JList
 import javax.swing.JTabbedPane
 import javax.swing.JTable
 import javax.swing.JTree
-import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.table.TableColumn
 import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeNode
 import javax.swing.tree.TreePath
@@ -83,17 +83,7 @@ class SwingUtil {
      * @return true if action returned true for any Component
      */
     static boolean navigateBreadthFirst( Component root, Closure action ) {
-        SwingNavigator.navigateBreadthFirst( root ) { component ->
-            boolean result
-            switch ( component ) {
-                case JTable:
-                    result = navigateBreadthFirst( component as JTable, action )
-                    break
-                default:
-                    result = action( component )
-            }
-            return result
-        }
+        SwingNavigator.navigateBreadthFirst( root, action )
     }
 
     /**
@@ -121,29 +111,22 @@ class SwingUtil {
     }
 
     /**
-     * Navigates the given table, calling the given action for each header and cell.
-     * To stop navigating, action may return true.
-     * <p/>
-     * This method behaves quite differently from
-     * {@link com.athaydes.automaton.swing.selectors.SwingNavigator#visitTable(javax.swing.JTable, groovy.lang.Closure)}.
-     * Instead of visiting TableCellRendererComponents, this method visits the actual value of the cells
-     * (usually Strings) so that the correct cell can be selected more easily by Automaton.
+     * Visits the given table, calling the given action for each header and cell.
+     *
+     * The visited components are:
+     * <ul>
+     *     <li>headers: the actual TableColumns (row index is -1)</li>
+     *     <li>cells: the TableCellRendererComponent of each cell (row and column indexes start at 0)</li>
+     * </ul>
+     *
+     * To stop navigating, action may return true
      * @param table to navigate through
      * @param action to be called on each visited header/cell. Return true to stop navigating.
+     * May take 1 argument (the cell being visited), 2, or 3 (row, column).
      * @return true if action returned true for any header/cell
      */
     static boolean navigateBreadthFirst( JTable table, Closure action ) {
-        def cols = ( 0..<table.model.columnCount )
-        def rows = ( 0..<table.model.rowCount )
-        for ( col in cols ) {
-            if ( action( table.model.getColumnName( col ), -1, col ) ) return true
-        }
-        for ( row in rows ) {
-            for ( col in cols ) {
-                if ( action( getRenderedTableValue( table, row, col ), row, col ) ) return true
-            }
-        }
-        return false
+        SwingNavigator.visitTable( table, action )
     }
 
     /**
@@ -154,12 +137,31 @@ class SwingUtil {
      * @param col of the value to get
      * @return The rendered value or the model value if the renderer doesn't have a getText() method
      */
-    private static getRenderedTableValue( JTable table, int row, int col ) {
+    static getRenderedTableCellValue( JTable table, int row, int col ) {
         def value = table.model.getValueAt( row, col )
         def rendererComp = table.getCellRenderer( row, col )
                 .getTableCellRendererComponent( table, value, false, false, row, col )
         def text = ReflectionHelper.callMethodIfExists( rendererComp, 'getText' )
         return text ?: value
+    }
+
+    /**
+     * Returns the text as rendered by the table header's renderer component, if the renderer component
+     * has a getText() method. Returns the header value otherwise.
+     * @param table in question
+     * @param column in question
+     * @param col index of column
+     * @return The rendered value or the model value if the renderer doesn't have a getText() method
+     */
+    static getRenderedTableHeaderValue( JTable table, TableColumn column, int col ) {
+        def value = column.headerValue
+        if ( column.headerRenderer ) { // default renderer for headers is null!
+            def rendererComp = column.headerRenderer.getTableCellRendererComponent( table, value, false, false, -1, col )
+            def text = ReflectionHelper.callMethodIfExists( rendererComp, 'getText' )
+            return text ?: value
+        } else {
+            return value
+        }
     }
 
     /**

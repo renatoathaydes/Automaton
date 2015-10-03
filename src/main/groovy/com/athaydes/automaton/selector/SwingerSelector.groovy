@@ -1,13 +1,13 @@
 package com.athaydes.automaton.selector
 
 import com.athaydes.automaton.SwingUtil
-import com.athaydes.automaton.swing.selectors.SwingNavigator
 
 import javax.swing.JComboBox
 import javax.swing.JList
 import javax.swing.JTabbedPane
 import javax.swing.JTable
 import javax.swing.JTree
+import javax.swing.table.TableColumn
 import javax.swing.tree.TreeNode
 import java.awt.Component
 
@@ -41,11 +41,26 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
 
     protected boolean navigateEveryThing( Component component, Closure visitor ) {
         JTree tree // remember latest tree visited
-        SwingNavigator.navigateBreadthFirst( component ) { comp ->
+        JTable table // and latest table
+        SwingUtil.navigateBreadthFirst( component ) { comp, row = null, col = null ->
             boolean stop = false
+
+            // if row and col are set, we are navigating through JTable's cells
+            if ( table && row != null && col != null ) {
+                def data
+                if ( row < 0 ) { // header
+                    def header = comp as TableColumn
+                    data = SwingUtil.getRenderedTableHeaderValue( table, header, col )
+                } else { // cell
+                    data = SwingUtil.getRenderedTableCellValue( table, row, col )
+                }
+                def cell = tableCell2FakeComponent( table, data, row, col )
+                return visitor( cell )
+            }
+
             switch ( comp ) {
                 case JTree:
-                    tree = comp as JTree
+                    tree = comp as JTree // capture the tree
                     stop = visitor( tree )
                     break
                 case TreeNode:
@@ -53,14 +68,8 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
                     stop = visitor( nodeComp )
                     break
                 case JTable:
-                    def table = comp as JTable
-
-                    // must visit table with a visitor which takes row and column.
-                    // this causes the cells to be visited twice, first here, then by the default navigator
-                    stop = SwingUtil.navigateBreadthFirst( table ) { data, int row, int col ->
-                        def cell = tableCell2FakeComponent( table, data, row, col )
-                        visitor( cell )
-                    }
+                    table = comp as JTable // capture the table
+                    stop = visitor( table )
                     break
                 case JComboBox:
                     def combo = comp as JComboBox
@@ -92,8 +101,9 @@ abstract class SwingerSelectorBase extends Closure<List<Component>>
                 default:
                     try {
                         stop = visitor( comp )
-                    } catch ( MissingMethodException e ) {
-                        // closure could not handle parameter type
+                    } catch ( MissingMethodException ignored ) {
+                        println "Visitor could not visit component of type ${comp?.class?.name}." +
+                                " Relax the type parameter of your visitor to avoid this."
                     }
             }
             return stop
