@@ -4,7 +4,8 @@ import com.athaydes.automaton.selector.AutomatonSelector
 import com.athaydes.automaton.selector.ComplexSelector
 import javafx.scene.Node
 
-import java.awt.*
+import java.awt.Component
+import java.awt.Point
 
 /**
  *
@@ -80,6 +81,12 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 			swinger.getAll( type )
 	}
 
+	Collection getAll( ComplexSelector selector ) {
+		def nodes = fxer.getAll( selector )
+		def components = swinger.getAll( selector )
+		nodes + components
+	}
+
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {
 		fxer.clickOn( node, speed )
 		this
@@ -107,6 +114,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFxer clickOn( Class cls, Speed speed = DEFAULT ) {
 		clickOn( this[ cls ], speed )
+		this
+	}
+
+	SwingerFxer clickOn( ComplexSelector selector, Speed speed = DEFAULT ) {
+		clickOn( this[ selector ], speed )
 		this
 	}
 
