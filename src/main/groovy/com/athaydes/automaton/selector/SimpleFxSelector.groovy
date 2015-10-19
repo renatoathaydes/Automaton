@@ -40,7 +40,7 @@ abstract class FxSelectorBase extends Closure<List<Node>>
 			nextLevel = grandChildren
 		}
 		if ( followPopups ) {
-			for ( popup in getAllPopups() ) {
+			for ( popup in ( getAllPopups() - node.scene.window ) ) {
 				def abort = navigateBreadthFirst( popup.scene.root, visitor, false )
 				if ( abort ) return true
 			}
