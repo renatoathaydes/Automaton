@@ -29,7 +29,7 @@ class FXUtil {
 			nextLevel = grandChildren
 		}
 		if ( followPopups ) {
-			for ( popup in ( getAllPopups() - node.scene.window ) ) {
+			for ( popup in ( getAllPopups() - node.scene?.window ) ) {
 				def abort = navigateBreadthFirst( popup.scene.root, visitor, false )
 				if ( abort ) return true
 			}
