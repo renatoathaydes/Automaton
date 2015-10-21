@@ -4,6 +4,8 @@
 
 ![Maintainer Status](http://stillmaintained.com/TomDmitriev/gradle-bundle-plugin.png)
 
+#### Want to help? Try version [1.3.0-beta](https://github.com/renatoathaydes/Automaton/pull/37) with several new features and improved performance!
+
 Automaton is a framework which makes it easy to test Java GUIs developed with Swing, JavaFX 2, or both.
 
 If you need to thoroughly test a Swing/JavaFX UI or simply automate a UI task, Automaton can help you.
