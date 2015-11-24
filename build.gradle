@@ -16,7 +16,7 @@ apply from: 'https://repository-javafx-gradle-plugin.forge.cloudbees.com/snapsho
 defaultTasks 'clean', 'jar', 'test'
 
 group = 'com.athaydes.automaton'
-version = "1.3.0-beta"
+version = "1.3.1-beta"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
 sourceCompatibility = 1.7
@@ -49,7 +49,7 @@ def groovyDeps = [ "org.codehaus.groovy:groovy:${groovyVersion}",
 
 dependencies {
     groovyDeps.each { provided it; testCompile it }
-    compile "com.athaydes.automaton:swing-selectors:1.0-SNAPSHOT", {
+    compile "com.athaydes.automaton:swing-selectors:1.0", {
         exclude module: 'groovy-all'
     }
     compile "org.slf4j:slf4j-api:1.7.5"
