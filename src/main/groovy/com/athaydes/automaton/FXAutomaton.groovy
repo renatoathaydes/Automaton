@@ -121,7 +121,7 @@ class FXApp extends Application {
 
     private static Stage stage
     private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
-    private static Parameters params
+    private static Application.Parameters params
     private static Application userApp
 
     static Scene getScene() {
@@ -134,7 +134,7 @@ class FXApp extends Application {
         else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
     }
 
-    static Parameters getApplicationParameters() {
+    static Application.Parameters getApplicationParameters() {
         if ( params != null ) params
         else throw new RuntimeException( "You must initialize FXApp before you can get the Parameters" )
     }
