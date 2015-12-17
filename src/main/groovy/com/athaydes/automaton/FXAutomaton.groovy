@@ -215,7 +215,8 @@ class FXApp extends Application {
 
     @Override
     void start( Stage primaryStage ) throws Exception {
-        if ( userApp ) userApp.metaClass.getParameters = { getParameters() }
+        params = getParameters()
+        if ( userApp ) userApp.metaClass.getParameters = { params }
         primaryStage.title = 'FXAutomaton Stage'
         stageFuture.add primaryStage
     }
