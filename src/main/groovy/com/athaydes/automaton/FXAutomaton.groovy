@@ -216,7 +216,21 @@ class FXApp extends Application {
     @Override
     void start( Stage primaryStage ) throws Exception {
         params = getParameters()
-        if ( userApp ) userApp.metaClass.getParameters = { params }
+        if ( userApp ) {
+            if ( userApp instanceof GroovyObject ) {
+                userApp.metaClass.getParameters = { params }
+            } else try {
+                // try to insert parameters into a Java Application using
+                // reflection because this is unsafe (uses undocumented internal operation)
+                // and the class/method used may not even exist
+                // ParametersImpl.registerParameters( userApp, params )
+                ReflectionHelper.callMethodIfExists(
+                        Class.forName( 'com.sun.javafx.application.ParametersImpl' ),
+                        'registerParameters', userApp, params )
+            } catch ( Throwable t ) {
+                log.info( 'Error trying to set main parameters for user Application: {}', t )
+            }
+        }
         primaryStage.title = 'FXAutomaton Stage'
         stageFuture.add primaryStage
     }
