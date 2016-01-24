@@ -9,7 +9,8 @@ buildscript {
 }
 
 apply plugin: 'groovy'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'signing'
 apply plugin: 'nebula.provided-base'
 apply plugin: 'idea'
 apply plugin: 'application'
@@ -19,7 +20,10 @@ defaultTasks 'clean', 'jar', 'test'
 
 group = 'com.athaydes.automaton'
 version = "1.1.0"
+archivesBaseName = "automaton"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
+
+mainClassName = 'com.athaydes.automaton.Automaton'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -61,7 +65,7 @@ def manifestAttributes = [
 		"Implementation-Title"  : "Automaton",
 		"Implementation-Version": version,
 		"Description"           : description,
-		"Main-Class"            : 'com.athaydes.automaton.Automaton',
+		"Main-Class"            : mainClassName,
 		"Built-On"              : new java.util.Date(),
 		"Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
 ]
@@ -85,20 +89,67 @@ task uberjar( type: Jar, dependsOn: classes ) {
 	}
 }
 
-task sourcesJar( type: Jar, dependsOn: classes ) {
-    from sourceSets.main.allSource
-    classifier "sources"
-    extension "jar"
-}
-
 /* Publishing config */
 
-publishing {
-    publications {
-        mavenJava( MavenPublication ) {
-            from components.java
-            artifact sourcesJar
-            artifact uberjar
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name project.name
+                packaging 'jar'
+                description project.description
+
+                url 'https://github.com/renatoathaydes/Automaton'
+
+                scm {
+                    connection 'git@github.com:renatoathaydes/Automaton.git'
+                    developerConnection 'git@github.com:renatoathaydes/Automaton.git'
+                    url 'https://github.com/renatoathaydes/Automaton'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'renatoathaydes'
+                        name 'Renato Athaydes'
+                        email 'renato@athaydes.com'
+                    }
+                }
+            }
         }
     }
 }
