@@ -197,13 +197,19 @@ class FXApp extends Application {
         }
     }
 
-    static doInFXThreadBlocking( Runnable toRun ) {
+    /**
+     * Run the given Runnable in the JavaFX Thread, blocking until the Runnable has run.
+     * @param toRun code to run
+     * @param timeoutInSeconds maximum time to wait for the Runnable to complete
+     * @throws AssertionError if the action does not complete within the timeout.
+     */
+    static void doInFXThreadBlocking( Runnable toRun, int timeoutInSeconds = 5 ) {
         if ( Platform.isFxApplicationThread() )
             toRun.run()
         else {
             def blockUntilDone = new ArrayBlockingQueue( 1 )
             Platform.runLater { toRun.run(); blockUntilDone << true }
-            assert blockUntilDone.poll( 5, TimeUnit.SECONDS )
+            assert blockUntilDone.poll( timeoutInSeconds, TimeUnit.SECONDS )
         }
     }
 
