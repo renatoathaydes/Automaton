@@ -65,7 +65,7 @@ class ToFrontInterceptorTest extends Specification implements HasSwingCode {
 
 		then:
 		"The JavaFX Window is brought to front and the button is clicked just fine"
-		waitOrTimeout( { clickCaptor.poll( 2, TimeUnit.SECONDS ) } as Condition,
+		waitOrTimeout( { clickCaptor.poll( 2, TimeUnit.SECONDS ) != null } as Condition,
 				timeout( seconds( 3 ) ) )
 
 		cleanup:

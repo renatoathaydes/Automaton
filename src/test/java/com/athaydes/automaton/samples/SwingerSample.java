@@ -141,8 +141,7 @@ public class SwingerSample {
         List<Component> nodes = swinger.getAll( matchingAny( "text:colors", "text:sports" ) );
         assertThat( nodes.size(), is( 2 ) );
 
-
-        swinger.clickOn( matchingAll( "type:JComboBox", "name:combo" ) );
+        swinger.clickOn( matchingAll( "type:JTextArea", "name:text-area" ) );
     }
 
 }
