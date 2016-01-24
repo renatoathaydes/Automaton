@@ -37,67 +37,67 @@ repositories {
 }
 
 dependencies {
-	compile "org.codehaus.groovy:groovy:${groovyVersion}"
+    compile "org.codehaus.groovy:groovy:${groovyVersion}"
     compile "org.codehaus.groovy:groovy-swing:${groovyVersion}"
     compile "org.codehaus.groovy:groovy-console:${groovyVersion}"
-	compile "org.slf4j:slf4j-api:1.7.5"
-	compile "org.hamcrest:hamcrest-library:1.3"
-	compile "junit:junit:4.11"
-	provided "org.slf4j:slf4j-log4j12:1.7.5"
+    compile "org.slf4j:slf4j-api:1.7.5"
+    compile "org.hamcrest:hamcrest-library:1.3"
+    compile "junit:junit:4.11"
+    provided "org.slf4j:slf4j-log4j12:1.7.5"
     provided "log4j:log4j:1.2.14"
     testCompile "com.google.code.tempus-fugit:tempus-fugit:1.1"
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
-	testCompile "cglib:cglib-nodep:2.2.2"
+    testCompile "cglib:cglib-nodep:2.2.2"
 }
 
 compileTestJava.enabled = false
 
 test {
-	forkEvery 1 // JavaFX Stage has to be closed to avoid OS Exception in Linux at end of tests
-	testLogging.showStandardStreams = true
-	beforeTest { descriptor ->
-		logger.lifecycle( "Running test: " + descriptor )
-	}
+    forkEvery 1 // JavaFX Stage has to be closed to avoid OS Exception in Linux at end of tests
+    testLogging.showStandardStreams = true
+    beforeTest { descriptor ->
+        logger.lifecycle( "Running test: " + descriptor )
+    }
 }
 
 jfxJar.enabled = false
 
 def manifestAttributes = [
-		"Implementation-Title"  : "Automaton",
-		"Implementation-Version": version,
-		"Description"           : description,
-		"Main-Class"            : mainClassName,
-		"Built-On"              : new java.util.Date(),
-		"Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
+        "Implementation-Title"  : "Automaton",
+        "Implementation-Version": version,
+        "Description"           : description,
+        "Main-Class"            : mainClassName,
+        "Built-On"              : new java.util.Date(),
+        "Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
 ]
 
 jar {
-	manifest {
-		attributes( manifestAttributes )
-	}
+    manifest {
+        attributes( manifestAttributes )
+    }
 }
 
 task uberjar( type: Jar, dependsOn: classes ) {
-	classifier = 'all-deps'
-	from files( sourceSets.main.output.classesDir )
-	from files( sourceSets.main.output.resourcesDir )
-	from configurations.runtime.asFileTree.files
-			.findAll { !it.name.endsWith( 'jfxrt.jar' ) }
-			.collect { zipTree( it ) }
+    classifier = 'all-deps'
+    from files( sourceSets.main.output.classesDir )
+    from files( sourceSets.main.output.resourcesDir )
+    from configurations.runtime.asFileTree.files
+            .findAll { !it.name.endsWith( 'jfxrt.jar' ) }
+            .collect { zipTree( it ) }
 
-	manifest {
-		attributes( manifestAttributes )
-	}
+    manifest {
+        attributes( manifestAttributes )
+    }
 }
 
 /* Publishing config */
 
-task javadocJar(type: Jar) {
+task javadocJar( type: Jar ) {
     classifier = 'javadoc'
     from javadoc
 }
 
-task sourcesJar(type: Jar) {
+task sourcesJar( type: Jar ) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -113,14 +113,14 @@ signing {
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom( deployment ) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+            repository( url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/" ) {
+                authentication( userName: ossrhUsername, password: ossrhPassword )
             }
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+            snapshotRepository( url: "https://oss.sonatype.org/content/repositories/snapshots/" ) {
+                authentication( userName: ossrhUsername, password: ossrhPassword )
             }
 
             pom.project {
