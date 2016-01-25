@@ -16,6 +16,8 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.hamcrest.CoreMatchers
 import org.junit.Assert
 
+import java.util.concurrent.atomic.AtomicReference
+
 /**
  * @author Renato
  */
@@ -23,26 +25,45 @@ import org.junit.Assert
 class AutomatonScriptRunner {
 
 	@CompileStatic
-	void run( String fileName, def writer = null, boolean exitOnError = false ) {
+	void run( String fileName, def writer = null, boolean exitOnScriptEnd = false ) {
+		final error = new AtomicReference<Throwable>()
 		def file = new File( fileName )
-		if ( file.isFile() ) {
-			println "Running script $file.absolutePath"
-			runScript( file.text, writer, exitOnError )
-		} else {
-			if ( file.isDirectory() ) {
-				println "Looking for groovy scripts under $file.absolutePath"
-				def groovyFiles = file.listFiles()?.findAll { File f ->
-					f.name.endsWith( '.groovy' )
-				}?.sort { it.name }?.each { File groovyFile ->
-					run( groovyFile.absolutePath, writer )
+
+		try {
+			if ( file.isFile() ) {
+				println "Running script $file.absolutePath"
+				runScript( file.text, writer )
+				println "AScript finished running without errors"
+			} else {
+				if ( file.isDirectory() ) {
+					println "Looking for groovy scripts under $file.absolutePath"
+					def groovyFiles = file.listFiles()?.findAll { File f ->
+						f.name.endsWith( '.groovy' )
+					}?.sort { it.name }?.each { File groovyFile ->
+						run( groovyFile.absolutePath, writer, false )
+					}
+					if ( !groovyFiles ) println "No groovy scripts found"
+				} else println "Cannot find file $fileName"
+			}
+		} catch ( Throwable e ) {
+			println "AScript failed due to $e"
+			error.set( e )
+		}
+
+		if ( exitOnScriptEnd ) {
+			Thread.start {
+				sleep 500
+				if ( error.get() != null ) {
+					System.exit( ( error.get() instanceof AssertionError ) ? 10 : 5 )
+				} else {
+					System.exit( 0 )
 				}
-				if ( !groovyFiles ) println "No groovy scripts found"
-			} else println "Cannot find file $fileName"
+			}
 		}
 	}
 
 	@CompileStatic
-	void runScript( String text, def writer = null, boolean exitOnError ) {
+	void runScript( String text, def writer = null ) {
 		def config = new CompilerConfiguration()
 		config.scriptBaseClass = AutomatonScriptBase.name
 
@@ -52,10 +73,12 @@ class AutomatonScriptRunner {
 				CoreMatchers.getName(),
 				SwingUtil.getName(),
 				Speed.getName() )
+
 		config.addCompilationCustomizers( imports )
 
 		SystemOutputInterceptor sysoutInterceptor = null
 		SystemOutputInterceptor syserrInterceptor = null
+
 		if ( writer ) {
 			sysoutInterceptor = new SystemOutputInterceptor( { s -> writeSafely( writer, s ) }, false )
 			syserrInterceptor = new SystemOutputInterceptor( { s -> writeSafely( writer, s ) }, true )
@@ -64,19 +87,12 @@ class AutomatonScriptRunner {
 		}
 
 		def shell = new GroovyShell( this.class.classLoader, BindingProviderBridge.instance.provideBinding(), config )
+
 		try {
 			shell.evaluate( text )
 		} catch ( Exception | AssertionError e ) {
-			def error = "AScript failed: $e"
-			if ( writer ) writeSafely( writer, error )
-			else println error
-
-			if ( exitOnError ) {
-				Thread.start {
-					sleep 500
-					System.exit( ( e instanceof AssertionError ) ? 10 : 5 )
-				}
-			}
+			if ( writer ) writeSafely( writer, e )
+			throw e
 		} finally {
 			sysoutInterceptor?.stop()
 			syserrInterceptor?.stop()
