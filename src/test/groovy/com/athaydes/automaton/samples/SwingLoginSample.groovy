@@ -31,7 +31,9 @@ class SwingLoginSample {
 		def swinger = Swinger.getUserWith( loginPage.jFrame )
 
 		swinger.clickOn( 'combo' )
+				.pause( 250 )
 				.clickOn( 'text:Users' )
+				.pause( 250 )
 				.clickOn( 'type:JTextField' )
 				.type( 'automaton' )
 				.clickOn( 'ok' ).pause( 250 )
