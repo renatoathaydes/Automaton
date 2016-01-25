@@ -265,10 +265,16 @@ class FXer extends HasSelectors<Node, FXer> {
      * top-level Node.
      * <br/>
      * The search space is limited to the given Node.
-     * @param node top level JavaFX Node to use
+     * @param node top level JavaFX Node to use. If not given, Automaton attempts to locate an existing JavaFX Scene
+     * running in the current JVM and uses the root of that Scene if possible.
      * @return a new FXer instance
+     * @throws IllegalArgumentException if a Node is not given and cannot be found in the
+     * current JVM instance.
      */
-    static FXer getUserWith( Node node ) {
+    static FXer getUserWith( Node node = null ) {
+        if ( !node && FXApp.initialized ) node = FXApp.scene.root
+        if ( !node ) throw new IllegalArgumentException( "Unable to create driver as no JavaFX Node has been given" +
+                " and no Scene can be found running in the current JVM instance" )
         new FXer( root: node, selectors: DEFAULT_SELECTORS )
     }
 
