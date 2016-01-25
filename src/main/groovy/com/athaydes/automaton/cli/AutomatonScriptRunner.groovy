@@ -47,6 +47,10 @@ class AutomatonScriptRunner {
 			}
 		} catch ( Throwable e ) {
 			println "AScript failed due to $e"
+			def element = e.stackTrace.find { it.className =~ /Script\d+/ }
+			if ( element ) {
+				println "    at Script line ${element.lineNumber}"
+			}
 			error.set( e )
 		}
 
