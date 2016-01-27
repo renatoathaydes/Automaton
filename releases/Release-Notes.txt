@@ -1,8 +1,19 @@
+Release 1.3.2 (Jan 26, 2016)
+
+* Externalized swing selectors to its own project that Automaton now depends on
+* New selector methods to SwingerFXer which had been missing
+* Swing Navigation optimisations and Components no longer get visited more than once
+* #39 Application launched by Automaton has access to app startup arguments
+* Fixed generated Maven pom.xml - all dependencies are correctly declared and will work from Maven as well as Gradle
+* #41 Allow customisation of timeout when running action on JavaFX Thread
+* Better auto-discovery of Swing root Component and JavaFX root Node when running AScripts with the Java Agent
+* AScripts now work with mixed JavaFX/Swing applications, auto-discovering even JavaFX Node embedded in Swing
+* Updated gdsl for IntelliJ, resulting in improved auto-completion and syntax highlighting for AScripts
+
 Release 1.2.3 (Aug 24, 2015)
 ===========
 
 * Merged PR #25 adding support for selecting JList with Swinger (by @kabroadb)
-
 
 Release 1.2.2 (Aug 06, 2015)
 ===========
