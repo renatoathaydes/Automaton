@@ -18,8 +18,7 @@ import java.awt.Point
 import java.awt.Rectangle
 
 /**
- *
- * User: Renato
+ * Utility functions for testing Swing UIs.
  */
 class SwingUtil {
 

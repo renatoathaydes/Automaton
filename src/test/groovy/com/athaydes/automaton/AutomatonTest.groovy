@@ -4,6 +4,7 @@ import com.athaydes.automaton.mixins.SwingTestHelper
 import com.athaydes.automaton.mixins.TimeAware
 import groovy.swing.SwingBuilder
 import org.junit.After
+import org.junit.Assume
 import org.junit.Test
 
 import javax.swing.*
@@ -381,6 +382,9 @@ class AutomatonTest implements HasSwingCode {
 
 	@Test
 	void pressSimulaneouslyShouldTriggerClickEventWhenMnemonic() {
+		// cannot run mnemonic test on Mac as Mac does not support mnemonics
+        Assume.assumeFalse( System.getProperty( 'os.name' ).contains( 'Mac' ) )
+
 		new SwingBuilder().edt {
 			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
 				menuBar() {

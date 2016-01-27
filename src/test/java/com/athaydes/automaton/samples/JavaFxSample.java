@@ -95,7 +95,7 @@ public class JavaFxSample {
 
     public static void main( String[] args ) {
         JavaFxLoginPage app = new JavaFxLoginPage();
-        FXApp.startApp( app, args );
+        FXApp.startApp( app, "hello", "java" );
     }
 
 

@@ -1,6 +1,7 @@
 package com.athaydes.automaton.cli
 
 import com.athaydes.automaton.FXApp
+import groovy.transform.CompileStatic
 
 import java.awt.*
 import java.lang.instrument.Instrumentation
@@ -8,6 +9,9 @@ import java.lang.instrument.Instrumentation
 /**
  * @author Renato
  */
+
+@SuppressWarnings( "GroovyUnusedDeclaration" )
+@CompileStatic
 class AutomatonJavaAgent {
 
 	static void premain( String agentArgs, Instrumentation instrumentation ) {
@@ -17,7 +21,7 @@ class AutomatonJavaAgent {
 				waitForWindows {
 					if ( Window.windows || FXApp.initialized ) {
 						sleep 2_000
-						AutomatonScriptRunner.instance.run( toRun.absolutePath )
+						AutomatonScriptRunner.instance.run( toRun.absolutePath, null, true )
 					} else {
 						println "AutomatonJavaAgent: no Swing or JavaFX window detected"
 					}

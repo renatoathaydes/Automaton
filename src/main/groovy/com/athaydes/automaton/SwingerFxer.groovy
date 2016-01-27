@@ -8,8 +8,7 @@ import java.awt.Component
 import java.awt.Point
 
 /**
- *
- * User: Renato
+ * A Driver for mixed Swing and JavaFX Applications.
  */
 class SwingerFxer extends Automaton<SwingerFxer> {
 
@@ -22,11 +21,15 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 	 * <br/>
 	 * The search space is limited to the given Component (in Swing) and
 	 * Node (in JavaFX).
-	 * @param component top level Swing container to use
-	 * @param node top level JavaFX Node to use
+	 * @param component top level Swing container to use. If not given, Automaton attempts to locate an existing
+	 * Window running in the current JVM and uses that if possible.
+	 * @param node top level JavaFX Node to use. If not given, Automaton attempts to locate an existing JavaFX Scene
+	 * running in the current JVM and uses the root of that Scene if possible.
 	 * @return a new SwingerFxer instance
+	 * @throws IllegalArgumentException if a Component and/or Node are not given and cannot be found in the
+	 * current JVM instance.
 	 */
-	static SwingerFxer getUserWith( Component component, Node node ) {
+	static SwingerFxer getUserWith( Component component = null, Node node = null ) {
 		new SwingerFxer( component, node )
 	}
 

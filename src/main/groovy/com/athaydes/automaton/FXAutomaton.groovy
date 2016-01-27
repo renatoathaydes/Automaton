@@ -1,6 +1,12 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.selector.*
+import com.athaydes.automaton.selector.AutomatonSelector
+import com.athaydes.automaton.selector.ComplexSelector
+import com.athaydes.automaton.selector.CompositeFxSelector
+import com.athaydes.automaton.selector.FxSelectors
+import com.athaydes.automaton.selector.IntersectFxSelector
+import com.athaydes.automaton.selector.MatchType
+import com.athaydes.automaton.selector.UnionFxSelector
 import com.athaydes.internal.Config
 import com.athaydes.internal.interceptor.ToFrontInterceptor
 import com.sun.javafx.robot.impl.FXRobotHelper
@@ -14,8 +20,7 @@ import javafx.scene.layout.VBox
 import javafx.stage.Stage
 import org.codehaus.groovy.runtime.InvokerHelper
 
-import java.awt.*
-import java.util.List
+import java.awt.Point
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.concurrent.TimeUnit
 
@@ -116,6 +121,8 @@ class FXApp extends Application {
 
     private static Stage stage
     private static stageFuture = new ArrayBlockingQueue<Stage>( 1 )
+    private static Application.Parameters params
+    private static Application userApp
 
     static Scene getScene() {
         if ( stage ) stage.scene
@@ -127,6 +134,11 @@ class FXApp extends Application {
         else throw new RuntimeException( "You must initialize FXApp before you can get the Stage" )
     }
 
+    static Application.Parameters getApplicationParameters() {
+        if ( params != null ) params
+        else throw new RuntimeException( "You must initialize FXApp before you can get the Parameters" )
+    }
+
     synchronized static Stage initialize( String... args ) {
         if ( !stage && allJavaFXStages.empty ) {
             log.debug 'Initializing FXApp'
@@ -136,7 +148,7 @@ class FXApp extends Application {
             stage = stageFuture.poll 10, TimeUnit.SECONDS
             assert stage
             stageFuture = null
-            if (!Config.instance.disableBringStageToFront) {
+            if ( !Config.instance.disableBringStageToFront ) {
                 initializeToFrontInterceptor()
             }
             doInFXThreadBlocking {
@@ -169,7 +181,7 @@ class FXApp extends Application {
             FXRobotHelper.stages
         } catch ( NullPointerException npe ) {
             // no Stage has been initialized, JavaFX code throws a nasty NPE
-            []
+            [ ]
         }
     }
 
@@ -185,23 +197,46 @@ class FXApp extends Application {
         }
     }
 
-    static doInFXThreadBlocking( Runnable toRun ) {
+    /**
+     * Run the given Runnable in the JavaFX Thread, blocking until the Runnable has run.
+     * @param toRun code to run
+     * @param timeoutInSeconds maximum time to wait for the Runnable to complete
+     * @throws AssertionError if the action does not complete within the timeout.
+     */
+    static void doInFXThreadBlocking( Runnable toRun, int timeoutInSeconds = 5 ) {
         if ( Platform.isFxApplicationThread() )
             toRun.run()
         else {
             def blockUntilDone = new ArrayBlockingQueue( 1 )
             Platform.runLater { toRun.run(); blockUntilDone << true }
-            assert blockUntilDone.poll( 5, TimeUnit.SECONDS )
+            assert blockUntilDone.poll( timeoutInSeconds, TimeUnit.SECONDS )
         }
     }
 
     static void startApp( Application app, String... args ) {
+        userApp = app
         initialize( args )
         Platform.runLater { app.start stage }
     }
 
     @Override
     void start( Stage primaryStage ) throws Exception {
+        params = getParameters()
+        if ( userApp ) {
+            if ( userApp instanceof GroovyObject ) {
+                userApp.metaClass.getParameters = { params }
+            } else try {
+                // try to insert parameters into a Java Application using
+                // reflection because this is unsafe (uses undocumented internal operation)
+                // and the class/method used may not even exist
+                // ParametersImpl.registerParameters( userApp, params )
+                ReflectionHelper.callMethodIfExists(
+                        Class.forName( 'com.sun.javafx.application.ParametersImpl' ),
+                        'registerParameters', userApp, params )
+            } catch ( Throwable t ) {
+                log.info( 'Error trying to set main parameters for user Application: {}', t )
+            }
+        }
         primaryStage.title = 'FXAutomaton Stage'
         stageFuture.add primaryStage
     }
@@ -230,10 +265,16 @@ class FXer extends HasSelectors<Node, FXer> {
      * top-level Node.
      * <br/>
      * The search space is limited to the given Node.
-     * @param node top level JavaFX Node to use
+     * @param node top level JavaFX Node to use. If not given, Automaton attempts to locate an existing JavaFX Scene
+     * running in the current JVM and uses the root of that Scene if possible.
      * @return a new FXer instance
+     * @throws IllegalArgumentException if a Node is not given and cannot be found in the
+     * current JVM instance.
      */
-    static FXer getUserWith( Node node ) {
+    static FXer getUserWith( Node node = null ) {
+        if ( !node && FXApp.initialized ) node = FXApp.scene.root
+        if ( !node ) throw new IllegalArgumentException( "Unable to create driver as no JavaFX Node has been given" +
+                " and no Scene can be found running in the current JVM instance" )
         new FXer( root: node, selectors: DEFAULT_SELECTORS )
     }
 
@@ -388,8 +429,8 @@ class FXer extends HasSelectors<Node, FXer> {
      */
     TextInputControl getFocusedTextInputControl() {
         def matches = getAll matchingAny( 'type:TextArea', 'type:TextField', 'type:PasswordField' )
-        for (match in matches) {
-            if (match.focused) return match
+        for ( match in matches ) {
+            if ( match.focused ) return match
         }
         null
     }
