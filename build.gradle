@@ -1,16 +1,15 @@
 buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4"
-        classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
-    }
+	repositories {
+		jcenter()
+	}
+	dependencies {
+		classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.4"
+		classpath 'com.netflix.nebula:gradle-extra-configurations-plugin:3.0.3'
+	}
 }
 
 apply plugin: 'groovy'
 apply plugin: 'maven'
-apply plugin: 'signing'
 apply plugin: 'nebula.provided-base'
 apply plugin: 'idea'
 apply plugin: 'application'
@@ -19,7 +18,7 @@ apply plugin: 'application'
 defaultTasks 'clean', 'jar', 'test'
 
 group = 'com.athaydes.automaton'
-version = "1.3.2-beta"
+version = "1.3.2-beta2"
 description = 'Automaton is a tool for easily automating GUI tests in JavaFX and Swing'
 
 mainClassName = 'com.athaydes.automaton.Automaton'
@@ -30,153 +29,152 @@ targetCompatibility = 1.7
 def groovyVersion = '2.3.3'
 
 repositories {
-    mavenLocal()
-    jcenter()
-    mavenCentral()
+	mavenLocal()
+	jcenter()
+	mavenCentral()
 }
 
 dependencies {
-    compile "org.codehaus.groovy:groovy:${groovyVersion}"
-    compile "org.codehaus.groovy:groovy-swing:${groovyVersion}"
-    compile "org.codehaus.groovy:groovy-console:${groovyVersion}"
-    compile "com.athaydes.automaton:swing-selectors:1.0", {
-        exclude module: 'groovy-all'
-    }
-    compile "org.slf4j:slf4j-api:1.7.5"
-    compile "org.hamcrest:hamcrest-library:1.3"
-    compile "junit:junit:4.11"
-    provided "org.slf4j:slf4j-log4j12:1.7.5"
-    provided "log4j:log4j:1.2.14"
-    testCompile "com.google.code.tempus-fugit:tempus-fugit:1.1"
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
-    testCompile "cglib:cglib-nodep:2.2.2"
+	compile "org.codehaus.groovy:groovy:${groovyVersion}"
+	compile "org.codehaus.groovy:groovy-swing:${groovyVersion}"
+	compile "org.codehaus.groovy:groovy-console:${groovyVersion}"
+	compile "com.athaydes.automaton:swing-selectors:1.0", {
+		exclude module: 'groovy-all'
+	}
+	compile "org.slf4j:slf4j-api:1.7.5"
+	compile "org.hamcrest:hamcrest-library:1.3"
+	compile "junit:junit:4.11"
+	provided "org.slf4j:slf4j-log4j12:1.7.5"
+	provided "log4j:log4j:1.2.14"
+	testCompile "com.google.code.tempus-fugit:tempus-fugit:1.1"
+	testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
+	testCompile "cglib:cglib-nodep:2.2.2"
 }
 
 compileTestJava.enabled = false
 
 test {
-    forkEvery 1 // JavaFX Stage has to be closed to avoid OS Exception in Linux at end of tests
-    testLogging.showStandardStreams = true
-    beforeTest { descriptor ->
-        logger.lifecycle( "Running test: " + descriptor )
-    }
+	forkEvery 1 // JavaFX Stage has to be closed to avoid OS Exception in Linux at end of tests
+	testLogging.showStandardStreams = true
+	beforeTest { descriptor ->
+		logger.lifecycle( "Running test: " + descriptor )
+	}
 }
 
 //jfxJar.enabled = false
 
 def manifestAttributes = [
-        "Implementation-Title"  : "Automaton",
-        "Implementation-Version": version,
-        "Description"           : description,
-        "Main-Class"            : mainClassName,
-        "Built-On"              : new java.util.Date(),
-        "Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
+		"Implementation-Title"  : "Automaton",
+		"Implementation-Version": version,
+		"Description"           : description,
+		"Main-Class"            : mainClassName,
+		"Built-On"              : new java.util.Date(),
+		"Premain-Class"         : 'com.athaydes.automaton.cli.AutomatonJavaAgent'
 ]
 
 jar {
-    manifest {
-        attributes( manifestAttributes )
-    }
+	manifest {
+		attributes( manifestAttributes )
+	}
 }
 
 task uberjar( type: Jar, dependsOn: classes ) {
-    classifier = 'all-deps'
-    from files( sourceSets.main.output.classesDir )
-    from files( sourceSets.main.output.resourcesDir )
-    from configurations.runtime.asFileTree.files
-            .findAll { !it.name.endsWith( 'jfxrt.jar' ) }
-            .collect { zipTree( it ) }
+	classifier = 'all-deps'
+	from files( sourceSets.main.output.classesDir )
+	from files( sourceSets.main.output.resourcesDir )
+	from configurations.runtime.asFileTree.files
+			.findAll { !it.name.endsWith( 'jfxrt.jar' ) }
+			.collect { zipTree( it ) }
 
-    manifest {
-        attributes( manifestAttributes )
-    }
+	manifest {
+		attributes( manifestAttributes )
+	}
 }
 
 /* Publishing config */
 
 task javadocJar( type: Jar ) {
-    classifier = 'javadoc'
-    from javadoc
+	classifier = 'javadoc'
+	from javadoc
 }
 
 task sourcesJar( type: Jar ) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+	classifier = 'sources'
+	from sourceSets.main.allSource
 }
 
 artifacts {
-    archives javadocJar, sourcesJar, uberjar
+	archives javadocJar, sourcesJar, uberjar
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                name project.name
-                packaging 'jar'
-                description project.description
+// add all the info required by Maven Central to the pom
+configure( install.repositories.mavenInstaller ) {
+	//repository(url: "file://$buildDir")
+	pom.project {
+		inceptionYear '2013'
+		name project.name
+		packaging 'jar'
+		description project.description
 
-                url 'https://github.com/renatoathaydes/Automaton'
+		url 'https://github.com/renatoathaydes/Automaton'
 
-                scm {
-                    connection 'git@github.com:renatoathaydes/Automaton.git'
-                    developerConnection 'git@github.com:renatoathaydes/Automaton.git'
-                    url 'https://github.com/renatoathaydes/Automaton'
-                }
+		scm {
+			connection 'git@github.com:renatoathaydes/Automaton.git'
+			developerConnection 'git@github.com:renatoathaydes/Automaton.git'
+			url 'https://github.com/renatoathaydes/Automaton'
+		}
 
-                licenses {
-                    license {
-                        name 'The Apache License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
+		licenses {
+			license {
+				name 'The Apache License, Version 2.0'
+				url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+			}
+		}
 
-                developers {
-                    developer {
-                        id 'renatoathaydes'
-                        name 'Renato Athaydes'
-                        email 'renato@athaydes.com'
-                    }
-                }
-            }
-        }
-    }
+		developers {
+			developer {
+				id 'renatoathaydes'
+				name 'Renato Athaydes'
+				email 'renato@athaydes.com'
+			}
+		}
+	}
 }
 
 apply plugin: 'com.jfrog.bintray'
 
 bintray {
-    //dryRun = true
-    user = project.hasProperty( "bintrayUserName" ) ? bintrayUserName : null
-    key = project.hasProperty( "bintrayApiKey" ) ? bintrayApiKey : null
-    //publications = [ "mavenJava" ]
-    configurations = ['archives']
-    publish = true
-    pkg {
-        repo = 'maven'
-        name = 'automaton'
-        licenses = [ 'Apache-2.0' ]
-        desc = 'Automaton: easy tests for Swing and JavaFX applications'
-        websiteUrl = 'https://github.com/renatoathaydes/Automaton'
-        issueTrackerUrl = 'https://github.com/renatoathaydes/Automaton/issues'
-        labels = [ 'groovy', 'swing', 'javafx', 'testing', 'automation' ]
-        publicDownloadNumbers = true
+	//dryRun = true
+	user = project.hasProperty( "bintrayUserName" ) ? bintrayUserName : null
+	key = project.hasProperty( "bintrayApiKey" ) ? bintrayApiKey : null
+	//publications = [ "mavenJava" ]
+	configurations = [ 'archives' ]
+	publish = true
+	pkg {
+		repo = 'maven'
+		name = 'automaton'
+		licenses = [ 'Apache-2.0' ]
+		desc = 'Automaton: easy tests for Swing and JavaFX applications'
+		websiteUrl = 'https://github.com/renatoathaydes/Automaton'
+		issueTrackerUrl = 'https://github.com/renatoathaydes/Automaton/issues'
+		labels = [ 'groovy', 'swing', 'javafx', 'testing', 'automation' ]
+		publicDownloadNumbers = true
 
-        //noinspection GroovyAssignabilityCheck
-        version {
-            name = project.version
-            vcsTag = project.version
-            gpg {
-                sign = true
-            }
-            mavenCentralSync {
-                sync = true
-                user = ossrhUsername
-                password = ossrhPassword
-                close = '1' // '0' to NOT close
-            }
-        }
-    }
+		//noinspection GroovyAssignabilityCheck
+		version {
+			name = project.version
+			vcsTag = project.version
+			gpg {
+				sign = true
+			}
+			mavenCentralSync {
+				sync = true
+				user = ossrhUsername
+				password = ossrhPassword
+				close = '1' // '0' to NOT close
+			}
+		}
+	}
 }
 
 bintrayUpload.dependsOn build, sourcesJar, uberjar
