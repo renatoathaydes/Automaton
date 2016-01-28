@@ -25,9 +25,6 @@ class JavaFXExampleApp : Application() {
                 Label("Hello JavaFX"),
                 TextField("Type here"))
 
-        stage.width = 500.0
-        stage.height = 400.0
-
         stage.scene = Scene(root, 500.0, 400.0)
 
         stage.centerOnScreen()

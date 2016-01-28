@@ -43,7 +43,7 @@ public void testFeature() {
 For details on how to use Automaton, see the [documentation pages](docs/)
 or check this [blog post](https://sites.google.com/a/athaydes.com/renato-athaydes/posts/usingautomatontotestajavafx8app).
 
-To see working Automaton demos, check the [demos/] directory.
+To see working Automaton demos, check the [demos](demos/) directory.
 
 ## Downloading Automaton
 

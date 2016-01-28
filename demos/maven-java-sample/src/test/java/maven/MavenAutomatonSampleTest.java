@@ -28,9 +28,6 @@ public class MavenAutomatonSampleTest {
 					new TextField( "Type here" )
 			);
 
-			stage.setWidth( 500 );
-			stage.setHeight( 400 );
-
 			stage.setScene( new Scene( root, 500, 400 ) );
 
 			stage.centerOnScreen();
