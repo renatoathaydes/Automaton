@@ -43,6 +43,8 @@ public void testFeature() {
 For details on how to use Automaton, see the [documentation pages](docs/)
 or check this [blog post](https://sites.google.com/a/athaydes.com/renato-athaydes/posts/usingautomatontotestajavafx8app).
 
+To see working Automaton demos, check the [demos/] directory.
+
 ## Downloading Automaton
 
 Automaton is available on [Bintray's JCenter](http://jcenter.bintray.com/) and on Maven Central.
@@ -141,7 +143,7 @@ java -jar Automaton-1.x-all-deps.jar -demo javafx
 
 ![Automaton-JavaFX Demo App](docs/images/automaton-1.1-fx-demo.png)
 
-For more information, check the [AScript Demo](ascript-demo/).
+For more information, check the [AScript Demo](demos/ascript-demo/).
 
 ## Providing custom Configuration
 
