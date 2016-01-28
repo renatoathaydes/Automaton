@@ -18,6 +18,7 @@ import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.athaydes.automaton.assertion.AutomatonMatcher.hasText;
 import static com.athaydes.automaton.assertion.AutomatonMatcher.hasValue;
@@ -120,7 +121,7 @@ public class SwingJavaFXSampleAppTestInJava {
         customSelectors.put( "$", new SimpleSwingerSelector() {
             @Override
             public boolean matches( String selector, Component component ) {
-                return component.getName().equals( selector );
+                return Objects.equals( component.getName(), selector );
             }
         } );
         customSelectors.putAll( Swinger.getDEFAULT_SELECTORS() );
@@ -132,7 +133,7 @@ public class SwingJavaFXSampleAppTestInJava {
         customSelectors.put( "$", new SimpleFxSelector() {
             @Override
             public boolean matches( String selector, Node node ) {
-                return node.getId().equals( selector );
+                return Objects.equals( node.getId(), selector );
             }
         } );
         customSelectors.putAll( FXer.getDEFAULT_SELECTORS() );

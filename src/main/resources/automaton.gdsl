@@ -4,6 +4,9 @@ def ctx = context( scope: scriptScope( name: ascriptPattern ) )
 
 contributor( ctx ) {
 	property name: 'swinger', type: 'com.athaydes.automaton.Swinger'
+	property name: 'fxer', type: 'com.athaydes.automaton.Fxer'
+	property name: 'sfxer', type: 'com.athaydes.automaton.SwingerFxer'
+
 	delegatesTo( findClass( "com.athaydes.automaton.SwingerFxer" ) )
 	delegatesTo( findClass( "com.athaydes.automaton.SwingUtil" ) )
 	delegatesTo( findClass( "org.junit.Assert" ) )

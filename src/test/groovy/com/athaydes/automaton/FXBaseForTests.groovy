@@ -2,9 +2,11 @@ package com.athaydes.automaton
 
 import com.athaydes.automaton.geometry.PointOperators
 import com.athaydes.automaton.mixins.TimeAware
+import com.google.code.tempusfugit.temporal.Condition
 import groovy.util.logging.Slf4j
 import javafx.application.Application
 import javafx.application.Platform
+import javafx.beans.property.SimpleStringProperty
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.geometry.Insets
@@ -21,6 +23,7 @@ import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.scene.control.TextArea
 import javafx.scene.control.TextField
+import javafx.scene.control.cell.PropertyValueFactory
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
@@ -39,6 +42,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 import static com.athaydes.automaton.Speed.VERY_FAST
+import static com.athaydes.automaton.selector.StringSelectors.matchingAll
 import static com.google.code.tempusfugit.temporal.Duration.seconds
 import static com.google.code.tempusfugit.temporal.Timeout.timeout
 import static com.google.code.tempusfugit.temporal.WaitFor.waitOrTimeout
@@ -576,26 +580,116 @@ abstract class FxDriverWithSelectorsTest extends SimpleFxDriverTest {
 	void canSelectTableHeadersWithSelectors() {
 		TableView table = new TableView()
 
-		final firstNameCol = new TableColumn("First Name")
-		final lastNameCol = new TableColumn("Last Name")
-		final emailCol = new TableColumn("Email")
+		final firstNameCol = new TableColumn( "First Name" )
+		final lastNameCol = new TableColumn( "Last Name" )
+		final emailCol = new TableColumn( "Email" )
 
-		table.columns.addAll(firstNameCol, lastNameCol, emailCol)
+		table.columns.addAll( firstNameCol, lastNameCol, emailCol )
 
-        final latch = new CountDownLatch(1)
+		final latch = new CountDownLatch( 1 )
 
 		Platform.runLater {
 			FXApp.scene.root = table
-            latch.countDown()
+			latch.countDown()
 		}
 
-        assert latch.await( 2, TimeUnit.SECONDS )
+		assert latch.await( 2, TimeUnit.SECONDS )
 
-        withDriver().getAll( 'text:Email' ).size() == 1
-        withDriver().getAll( 'text:First Name' ).size() == 1
-        withDriver().getAll( 'text:Last Name' ).size() == 1
+		waitOrTimeout( { withDriver().getAll( 'text:Email' ).size() > 0 } as Condition,
+				timeout( seconds( 2 ) ) )
+
+		assert withDriver().getAt( 'text:Email' )
+		assert withDriver().getAt( 'text:First Name' )
+		assert withDriver().getAt( 'text:Last Name' )
 	}
 
+	@Test
+	void canSelectTableCellsWithSelectors() {
+		final data = observableArrayList(
+				new Person( "Jacob", "Smith", "jacob.smith@example.com" ),
+				new Person( "Isabella", "Johnson", "isabella.johnson@example.com" ),
+				new Person( "Ethan", "Williams", "ethan.williams@example.com" ),
+				new Person( "Emma", "Jones", "emma.jones@example.com" ),
+				new Person( "Michael", "Brown", "michael.brown@example.com" )
+		)
+
+		final latch = new CountDownLatch( 1 )
+
+		Platform.runLater {
+			def table = new TableView<Person>()
+
+			TableColumn firstNameCol = new TableColumn( "First Name" )
+			firstNameCol.minWidth = 100D
+			firstNameCol.setCellValueFactory(
+					new PropertyValueFactory<Person, String>( "firstName" ) )
+
+			TableColumn lastNameCol = new TableColumn( "Last Name" )
+			lastNameCol.minWidth = 100D
+			lastNameCol.setCellValueFactory(
+					new PropertyValueFactory<Person, String>( "lastName" ) )
+
+			TableColumn emailCol = new TableColumn( "Email" )
+			emailCol.minWidth = 100D
+			emailCol.setCellValueFactory(
+					new PropertyValueFactory<Person, String>( "email" ) )
+
+			table.columns.addAll( firstNameCol, lastNameCol, emailCol )
+			table.items.addAll( data )
+
+			FXApp.scene.root = table
+			latch.countDown()
+		}
+
+		assert latch.await( 2, TimeUnit.SECONDS )
+
+		waitOrTimeout( { withDriver().getAll( 'text:Jacob' ).size() > 0 } as Condition,
+				timeout( seconds( 2 ) ) )
+
+		assert withDriver().getAt( matchingAll( 'text:Jacob', 'type:LabeledText' ) )
+		assert withDriver().getAt( 'text:Jacob' )
+		assert withDriver().getAt( 'text:Ethan' )
+		assert withDriver().getAt( 'text:Emma' )
+		assert withDriver().getAt( 'text:Michael' )
+		assert withDriver().getAt( 'text:Brown' )
+		assert withDriver().getAt( 'text:michael.brown@example.com' )
+	}
+
+	public static class Person {
+
+		private final SimpleStringProperty firstName;
+		private final SimpleStringProperty lastName;
+		private final SimpleStringProperty email;
+
+		private Person( String fName, String lName, String email ) {
+			this.firstName = new SimpleStringProperty( fName );
+			this.lastName = new SimpleStringProperty( lName );
+			this.email = new SimpleStringProperty( email );
+		}
+
+		public String getFirstName() {
+			return firstName.get();
+		}
+
+		public void setFirstName( String fName ) {
+			firstName.set( fName );
+		}
+
+		public String getLastName() {
+			return lastName.get();
+		}
+
+		public void setLastName( String fName ) {
+			lastName.set( fName );
+		}
+
+		public String getEmail() {
+			return email.get();
+		}
+
+		public void setEmail( String fName ) {
+			email.set( fName );
+		}
+	}
 }
 
 class FXAutomatonTest extends SimpleFxDriverTest {

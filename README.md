@@ -2,10 +2,6 @@
 * easy tests for Swing and JavaFX applications
 * written for testers. Only basic coding skills required.
 
-![Maintainer Status](http://stillmaintained.com/TomDmitriev/gradle-bundle-plugin.png)
-
-#### Want to help? Try version [1.3.1-beta](https://github.com/renatoathaydes/Automaton/pull/37) with several new features and improved performance!
-
 Automaton is a framework which makes it easy to test Java GUIs developed with Swing, JavaFX 2, or both.
 
 If you need to thoroughly test a Swing/JavaFX UI or simply automate a UI task, Automaton can help you.
@@ -49,12 +45,13 @@ or check this [blog post](https://sites.google.com/a/athaydes.com/renato-athayde
 
 ## Downloading Automaton
 
-Automaton is available at [Bintray's JCenter](http://jcenter.bintray.com/), a Maven repo.
-Therefore, you can let Ivy/Maven/Gradle manage a dependency on Automaton for you.
-Just enable the JCenter repo and use the following coordinates:
+Automaton is available on [Bintray's JCenter](http://jcenter.bintray.com/) and on Maven Central.
 
-> Notice that Automaton requires Groovy 2.0+ in the classpath. If you don't have Groovy already in your classpath,
- since Automaton version 1.2.1 you'll need to add a test dependency on Groovy as shown below (replace groovyVersion with the Groovy version you want to use).
+Therefore, you can let Ivy/Maven/Gradle manage a dependency on Automaton for you.
+
+> Notice that Automaton requires Groovy 2.0+ in the classpath. If you already have Groovy in your classpath,
+  to avoid changing the version you are using, you should exclude groupId `org.codehaus.groovy` when declaring
+  the Automaton dependency.
 
 #### Maven
 
@@ -62,13 +59,7 @@ Just enable the JCenter repo and use the following coordinates:
 <dependency>
   <groupId>com.athaydes.automaton</groupId>
   <artifactId>Automaton</artifactId>
-  <version>1.2.3</version>
-  <scope>test</scope>
-</dependency>
-<dependency>
-  <groupId>org.codehaus.groovy</groupId>
-  <artifactId>groovy-all</artifactId>
-  <version>${groovyVersion}</version>
+  <version>1.3.2</version>
   <scope>test</scope>
 </dependency>
 ```
@@ -76,8 +67,7 @@ Just enable the JCenter repo and use the following coordinates:
 #### Gradle
 
 ```groovy
-  testCompile "com.athaydes.automaton:Automaton:1.2.3"
-  testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+  testCompile "com.athaydes.automaton:Automaton:1.3.2"
 ```
 
 > See release notes for all versions [here](releases/Release-Notes.txt)
@@ -126,7 +116,7 @@ gradlew jar
 To also install the jar in your Maven local repository, type
 
 ```
-gradlew publishToMavenLocal
+gradlew install
 ```
 
 You can email me directly if you have any issue: renato@athaydes.com
@@ -151,6 +141,7 @@ java -jar Automaton-1.x-all-deps.jar -demo javafx
 
 ![Automaton-JavaFX Demo App](docs/images/automaton-1.1-fx-demo.png)
 
+For more information, check the [AScript Demo](ascript-demo/).
 
 ## Providing custom Configuration
 

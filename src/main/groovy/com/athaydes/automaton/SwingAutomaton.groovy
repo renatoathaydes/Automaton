@@ -1,10 +1,21 @@
 package com.athaydes.automaton
 
-import com.athaydes.automaton.selector.*
+import com.athaydes.automaton.selector.AutomatonSelector
+import com.athaydes.automaton.selector.ComplexSelector
+import com.athaydes.automaton.selector.CompositeSwingerSelector
+import com.athaydes.automaton.selector.IntersectSwingerSelector
+import com.athaydes.automaton.selector.MatchType
+import com.athaydes.automaton.selector.SwingerSelectors
+import com.athaydes.automaton.selector.UnionSwingerSelector
+import com.athaydes.automaton.swing.selectors.SwingNavigator
 
-import javax.swing.*
-import java.awt.*
-import java.util.List
+import javax.swing.JComponent
+import javax.swing.JFrame
+import javax.swing.SwingUtilities
+import java.awt.Component
+import java.awt.IllegalComponentStateException
+import java.awt.Point
+import java.awt.Window
 
 /**
  *
@@ -88,25 +99,25 @@ class Swinger extends HasSelectors<Component, Swinger> {
 	 * top-level component.
 	 * <br/>
 	 * The search space is limited to the given Component.
-	 * @param component top level Swing component to use
+	 * @param component top level Swing container to use. If not given, Automaton attempts to locate an existing
+	 * Window running in the current JVM and uses that if possible.
 	 * @return a new Swinger instance
+	 * @throws IllegalArgumentException if a Component is not given and cannot be found in the
+	 * current JVM instance.
 	 */
-	static Swinger getUserWith( Component component ) {
+	static Swinger getUserWith( Component component = null ) {
+		if ( !component ) component = Window.windows.length > 0 ? Window.windows.first() : null
+		if ( !component ) throw new IllegalArgumentException( "Unable to create driver as no Swing Component has " +
+				"been given and no Window can be found running in the current JVM instance" )
 		new Swinger( selectors: DEFAULT_SELECTORS, root: component )
 	}
 
 	/**
 	 * @return Swinger whose root element is the first Window that can be found
-	 * by calling {@code java.awt.Window.getWindows ( )} which is an instance of
-	 * {@code JFrame}.
+	 * by calling java.awt.Window#getWindows().
 	 */
 	static Swinger forSwingWindow() {
-		def isJFrame = { it instanceof JFrame }
-		if ( Window.windows && Window.windows.any( isJFrame ) ) {
-			getUserWith( Window.windows.find( isJFrame ) )
-		} else {
-			throw new GuiItemNotFound( 'Impossible to get any Swing window which is a JFrame' )
-		}
+		getUserWith()
 	}
 
 	protected Swinger() {}
@@ -170,30 +181,30 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		this
 	}
 
-    /**
-     * Enters the given text into the currently selected component.
-     * @param text
-     * @return this
-     */
-    Swinger enterText( String text ) {
-        sleep 350 // Swing needs time to change focus!
-        SwingUtilities.invokeAndWait {
-            def focusOwner = getFocusedComponent()
-            if ( focusOwner ) {
-                try {
-                    focusOwner.text = text
-                } catch ( e ) {
-                    throw new RuntimeException( 'Cannot enter text on the currently focused Component' )
-                }
+	/**
+	 * Enters the given text into the currently selected component.
+	 * @param text
+	 * @return this
+	 */
+	Swinger enterText( String text ) {
+		sleep 350 // Swing needs time to change focus!
+		SwingUtilities.invokeAndWait {
+			def focusOwner = getFocusedComponent()
+			if ( focusOwner ) {
+				try {
+					focusOwner.text = text
+				} catch ( e ) {
+					throw new RuntimeException( 'Cannot enter text on the currently focused Component' )
+				}
 
-            } else {
-                throw new GuiItemNotFound( 'Could not find the currently focused Component' )
-            }
-        }
-        this
-    }
+			} else {
+				throw new GuiItemNotFound( 'Could not find the currently focused Component' )
+			}
+		}
+		this
+	}
 
-    SwingerDragOn drag( Component component ) {
+	SwingerDragOn drag( Component component ) {
 		def center = SwingAutomaton.centerOf( component )
 		new SwingerDragOn( this, center.x, center.y )
 	}
@@ -210,21 +221,21 @@ class Swinger extends HasSelectors<Component, Swinger> {
 		drag( this[ selector ] )
 	}
 
-    Component getFocusedComponent() {
-        if ( root instanceof JFrame ) {
-            return ( root as JFrame ).getFocusOwner()
-        }
-        def owner = null
-        SwingUtil.navigateBreadthFirst( root ) { JComponent c ->
-            if( SwingUtil.callMethodIfExists( c, 'isFocusOwner' ) ) {
-                owner = c
-                return true
-            }
-        }
-        owner
-    }
+	Component getFocusedComponent() {
+		if ( root instanceof JFrame ) {
+			return ( root as JFrame ).getFocusOwner()
+		}
+		def owner = null
+		SwingNavigator.navigateBreadthFirst( root ) { JComponent c ->
+			if ( ReflectionHelper.callMethodIfExists( c, 'isFocusOwner' ) ) {
+				owner = c
+				return true
+			}
+		}
+		owner
+	}
 
-    protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
+	protected List<Component> doGetAt( ComplexSelector selector, int limit = Integer.MAX_VALUE ) {
 		def prefixes_queries = selector.queries.collect { ensurePrefixed( it ) }
 		def toMapEntries = { String prefix, String query ->
 			new MapEntry( selectors[ prefix ], query )

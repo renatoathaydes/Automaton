@@ -4,11 +4,11 @@ import com.athaydes.automaton.selector.AutomatonSelector
 import com.athaydes.automaton.selector.ComplexSelector
 import javafx.scene.Node
 
-import java.awt.*
+import java.awt.Component
+import java.awt.Point
 
 /**
- *
- * User: Renato
+ * A Driver for mixed Swing and JavaFX Applications.
  */
 class SwingerFxer extends Automaton<SwingerFxer> {
 
@@ -21,11 +21,15 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 	 * <br/>
 	 * The search space is limited to the given Component (in Swing) and
 	 * Node (in JavaFX).
-	 * @param component top level Swing container to use
-	 * @param node top level JavaFX Node to use
+	 * @param component top level Swing container to use. If not given, Automaton attempts to locate an existing
+	 * Window running in the current JVM and uses that if possible.
+	 * @param node top level JavaFX Node to use. If not given, Automaton attempts to locate an existing JavaFX Scene
+	 * running in the current JVM and uses the root of that Scene if possible.
 	 * @return a new SwingerFxer instance
+	 * @throws IllegalArgumentException if a Component and/or Node are not given and cannot be found in the
+	 * current JVM instance.
 	 */
-	static SwingerFxer getUserWith( Component component, Node node ) {
+	static SwingerFxer getUserWith( Component component = null, Node node = null ) {
 		new SwingerFxer( component, node )
 	}
 
@@ -80,6 +84,12 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 			swinger.getAll( type )
 	}
 
+	Collection getAll( ComplexSelector selector ) {
+		def nodes = fxer.getAll( selector )
+		def components = swinger.getAll( selector )
+		nodes + components
+	}
+
 	SwingerFxer clickOn( Node node, Speed speed = DEFAULT ) {
 		fxer.clickOn( node, speed )
 		this
@@ -107,6 +117,11 @@ class SwingerFxer extends Automaton<SwingerFxer> {
 
 	SwingerFxer clickOn( Class cls, Speed speed = DEFAULT ) {
 		clickOn( this[ cls ], speed )
+		this
+	}
+
+	SwingerFxer clickOn( ComplexSelector selector, Speed speed = DEFAULT ) {
+		clickOn( this[ selector ], speed )
 		this
 	}
 

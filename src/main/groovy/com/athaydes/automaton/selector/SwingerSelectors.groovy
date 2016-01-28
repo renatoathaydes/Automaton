@@ -1,8 +1,8 @@
 package com.athaydes.automaton.selector
 
-import com.athaydes.automaton.SwingUtil
+import com.athaydes.automaton.ReflectionHelper
 
-import java.awt.*
+import java.awt.Component
 
 /**
  * @author Renato
@@ -44,7 +44,7 @@ class SwingerSelectors {
 		new SimpleSwingerSelector() {
 			@Override
 			boolean matches( String selector, Component component ) {
-				SwingUtil.callMethodIfExists( component, "getText" ) == selector
+				ReflectionHelper.callMethodIfExists( component, "getText" ) == selector
 			}
 
 			@Override
