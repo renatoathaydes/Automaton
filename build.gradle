@@ -41,11 +41,11 @@ dependencies {
 	compile "com.athaydes.automaton:swing-selectors:1.0", {
 		exclude module: 'groovy-all'
 	}
-	compile "org.slf4j:slf4j-api:1.7.5"
+	compile "org.slf4j:slf4j-api:1.7.21"
 	compile "org.hamcrest:hamcrest-library:1.3"
-	compile "junit:junit:4.11"
+	compile "junit:junit:4.12"
 	provided "org.slf4j:slf4j-log4j12:1.7.5"
-	provided "log4j:log4j:1.2.14"
+	provided "org.apache.logging.log4j:log4j:2.6.1"
 	testCompile "com.google.code.tempus-fugit:tempus-fugit:1.1"
 	testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 	testCompile "cglib:cglib-nodep:2.2.2"
