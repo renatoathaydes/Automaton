@@ -313,7 +313,48 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	}
 
-	@Test
+    @Test
+    void testMoveTo_TableCell_AfterRefresh() {
+        def tModel = [
+                [ firstCol: '1 - 1', secCol: '1 - 2' ],
+                [ firstCol: '2 - 1', secCol: '2 - 2' ],
+        ]
+        JTable jTable = null
+        new SwingBuilder().edt {
+            jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+                    location: defaultLocation, show: true ) {
+                scrollPane {
+                    jTable = table {
+                        tableModel( list: tModel ) {
+                            propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+                            propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+                        }
+                    }
+                }
+            }
+        }
+        waitForJFrameToShowUp()
+
+        sleep 100
+
+        // edit one item and add another to the table
+        tModel[ 0 ].firstCol = 'updated 1-1'
+        tModel << [ firstCol: 'new row', secCol: 'added' ]
+
+        jTable.model.fireTableDataChanged()
+
+        ( withDriver() as Swinger )
+                .moveTo( 'text:updated 1-1' )
+                .moveTo( 'text:new row' )
+                .moveTo( 'text:added' )
+
+        assert jTable.model.getValueAt( 0, 0 ) == 'updated 1-1'
+        assert jTable.model.getValueAt( 2, 0 ) == 'new row'
+        assert jTable.model.getValueAt( 2, 1 ) == 'added'
+
+    }
+
+    @Test
 	void testMoveTo_TableCell_CustomRenderer() {
 		def tModel = [
 				[ firstCol: new SimpleStringProperty('1 - 1'), secCol: new SimpleStringProperty('1 - 2') ],
