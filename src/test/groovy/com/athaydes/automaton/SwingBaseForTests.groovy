@@ -326,56 +326,56 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 
 	}
 
-    @Test
-    void testMoveTo_TableCell_AfterRefresh() {
-        def tModel = [
-                [ firstCol: '1 - 1', secCol: '1 - 2' ],
-                [ firstCol: '2 - 1', secCol: '2 - 2' ],
-        ]
-        JTable jTable = null
-        new SwingBuilder().edt {
-            jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
-                    location: defaultLocation, show: true ) {
-                scrollPane {
-                    jTable = table {
-                        tableModel( list: tModel ) {
-                            propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
-                            propertyColumn( header: 'Col 2', propertyName: 'secCol' )
-                        }
-                    }
-                }
-            }
-        }
-        waitForJFrameToShowUp()
+	@Test
+	void testMoveTo_TableCell_AfterRefresh() {
+		def tModel = [
+				[ firstCol: '1 - 1', secCol: '1 - 2' ],
+				[ firstCol: '2 - 1', secCol: '2 - 2' ],
+		]
+		JTable jTable = null
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 200 ] as Dimension,
+					location: defaultLocation, show: true ) {
+				scrollPane {
+					jTable = table {
+						tableModel( list: tModel ) {
+							propertyColumn( header: 'Col 1', propertyName: 'firstCol' )
+							propertyColumn( header: 'Col 2', propertyName: 'secCol' )
+						}
+					}
+				}
+			}
+		}
+		waitForJFrameToShowUp()
 
-        sleep 100
+		sleep 100
 
-        // edit one item and add another to the table
-        tModel[ 0 ].firstCol = 'updated 1-1'
-        tModel << [ firstCol: 'new row', secCol: 'added' ]
+		// edit one item and add another to the table
+		tModel[ 0 ].firstCol = 'updated 1-1'
+		tModel << [ firstCol: 'new row', secCol: 'added' ]
 
-        jTable.model.fireTableDataChanged()
+		jTable.model.fireTableDataChanged()
 
-        ( withDriver() as Swinger )
-                .moveTo( 'text:updated 1-1' )
-                .moveTo( 'text:new row' )
-                .moveTo( 'text:added' )
+		( withDriver() as Swinger )
+				.moveTo( 'text:updated 1-1' )
+				.moveTo( 'text:new row' )
+				.moveTo( 'text:added' )
 
-        assert jTable.model.getValueAt( 0, 0 ) == 'updated 1-1'
-        assert jTable.model.getValueAt( 2, 0 ) == 'new row'
-        assert jTable.model.getValueAt( 2, 1 ) == 'added'
+		assert jTable.model.getValueAt( 0, 0 ) == 'updated 1-1'
+		assert jTable.model.getValueAt( 2, 0 ) == 'new row'
+		assert jTable.model.getValueAt( 2, 1 ) == 'added'
 
-    }
+	}
 
-    @Test
+	@Test
 	void testMoveTo_TableCell_CustomRenderer() {
 		def tModel = [
-				[ firstCol: new SimpleStringProperty('1 - 1'), secCol: new SimpleStringProperty('1 - 2') ],
+				[ firstCol: new SimpleStringProperty( '1 - 1' ), secCol: new SimpleStringProperty( '1 - 2' ) ],
 		]
-		def cellRenderer = new DefaultTableCellRenderer(){
+		def cellRenderer = new DefaultTableCellRenderer() {
 			@Override
-			protected void setValue(Object value) {
-				setText(value.value)
+			protected void setValue( Object value ) {
+				setText( value.value )
 			}
 		}
 		JTable jTable = null
@@ -528,31 +528,31 @@ abstract class SwingDriverWithSelectorsTest extends SimpleSwingDriverTest {
 		} )
 	}
 
-    @Test
-    void shouldBeAbleToEnterText() {
-        JTextField tf1
-        JTextField tf2
-        new SwingBuilder().edt {
-            jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
-                hbox {
-                    tf1 = textField(name: 'tf1')
-                    tf2 = textField(name: 'tf2')
-                }
-            }
-        }
+	@Test
+	void shouldBeAbleToEnterText() {
+		JTextField tf1
+		JTextField tf2
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				hbox {
+					tf1 = textField( name: 'tf1' )
+					tf2 = textField( name: 'tf2' )
+				}
+			}
+		}
 
-        waitForJFrameToShowUp()
-        final exampleUrl = 'http://localhost:8099'
-        final email = 'my@email.com'
+		waitForJFrameToShowUp()
+		final exampleUrl = 'http://localhost:8099'
+		final email = 'my@email.com'
 
-        withDriver().clickOn( 'tf1' )
-                .enterText( exampleUrl )
-                .type( KeyEvent.VK_TAB )
-                .enterText( email )
+		withDriver().clickOn( 'tf1' )
+				.enterText( exampleUrl )
+				.type( KeyEvent.VK_TAB )
+				.enterText( email )
 
-        assert tf1.text == exampleUrl
-        assert tf2.text == email
-    }
+		assert tf1.text == exampleUrl
+		assert tf2.text == email
+	}
 
 }
 
@@ -576,7 +576,7 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': {} as SimpleSwingerSelector,
+				'abc:' : {} as SimpleSwingerSelector,
 				'efgh:': {} as SimpleSwingerSelector ]
 		driver.automaton = [ clickOn: { c, Speed _ -> } ]
 		driver.metaClass.findOnePrefixed = { String prefix, String query ->
@@ -602,7 +602,7 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 		def efghCalls = [ ]
 		def driver = withDriver()
 		driver.selectors = [
-				'abc:': {} as SimpleSwingerSelector,
+				'abc:' : {} as SimpleSwingerSelector,
 				'efgh:': {} as SimpleSwingerSelector ]
 		driver.automaton = [ clickOn: { c, Speed _ -> } ]
 		driver.metaClass.findOnePrefixed = { String prefix, String query ->
