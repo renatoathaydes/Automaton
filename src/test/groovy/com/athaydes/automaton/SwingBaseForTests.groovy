@@ -9,12 +9,25 @@ import javafx.scene.layout.VBox
 import org.junit.After
 import org.junit.Test
 
-import javax.swing.*
+import javax.swing.JButton
+import javax.swing.JFrame
+import javax.swing.JMenu
+import javax.swing.JMenuItem
+import javax.swing.JOptionPane
+import javax.swing.JSplitPane
+import javax.swing.JTable
+import javax.swing.JTextField
+import javax.swing.JTree
 import javax.swing.table.DefaultTableCellRenderer
-import java.awt.*
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.MouseInfo
+import java.awt.Point
+import java.awt.Rectangle
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.CountDownLatch
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.TimeUnit
 
@@ -604,6 +617,32 @@ class SwingerTest extends SwingDriverWithSelectorsTest {
 
 		assert abcCalls == [ '123' ]
 		assert efghCalls == [ ]
+	}
+
+	@Test
+	void canClickOnDialogButtons() {
+		def confirmed = new CountDownLatch( 1 )
+		new SwingBuilder().edt {
+			jFrame = frame( title: 'Frame', size: [ 300, 300 ] as Dimension, show: true ) {
+				hbox {
+					textField( name: 'tf1' )
+					button( name: 'clickme', text: 'Show popup', actionPerformed: {
+						Thread.start {
+							JOptionPane.showConfirmDialog( jFrame, 'Are you sure?' )
+							confirmed.countDown()
+						}
+					} )
+				}
+			}
+		}
+
+		waitForJFrameToShowUp()
+
+		def driver = withDriver()
+
+		driver.clickOn( 'clickme' )
+				.pause( 250 )
+				.clickOn( 'text:Yes' )
 	}
 
 }
