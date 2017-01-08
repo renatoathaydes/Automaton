@@ -2,6 +2,8 @@
 * easy tests for Swing and JavaFX applications
 * written for testers. Only basic coding skills required.
 
+ [ ![Download](https://api.bintray.com/packages/renatoathaydes/maven/automaton/images/download.svg) ](https://bintray.com/renatoathaydes/maven/automaton/_latestVersion)
+
 Automaton is a framework which makes it easy to test Java GUIs developed with Swing, JavaFX 2, or both.
 
 If you need to thoroughly test a Swing/JavaFX UI or simply automate a UI task, Automaton can help you.
