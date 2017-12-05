@@ -167,11 +167,13 @@ bintray {
 			gpg {
 				sign = true
 			}
-			mavenCentralSync {
-				sync = true
-				user = ossrhUsername
-				password = ossrhPassword
-				close = '1' // '0' to NOT close
+			if ( project.hasProperty( 'ossrhUsername' ) && project.hasProperty( 'ossrhPassword' ) ) {
+				mavenCentralSync {
+					sync = true
+					user = project.getProperty( 'ossrhUsername' )
+					password = project.getProperty( 'ossrhPassword' )
+					close = '1' // '0' to NOT close
+				}
 			}
 		}
 	}
